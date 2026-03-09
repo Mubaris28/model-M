@@ -23,6 +23,14 @@ import RegisterPage from "./pages/RegisterPage";
 import VerificationPendingPage from "./pages/VerificationPendingPage";
 import RejectedPage from "./pages/RejectedPage";
 import DashboardPage from "./pages/DashboardPage";
+import DashboardAccountPage from "./pages/DashboardAccountPage";
+import DashboardFavoritesPage from "./pages/DashboardFavoritesPage";
+import DashboardCastingAppPage from "./pages/DashboardCastingAppPage";
+import DashboardPremiumPage from "./pages/DashboardPremiumPage";
+import DashboardPayoutsPage from "./pages/DashboardPayoutsPage";
+import DashboardNotificationsPage from "./pages/DashboardNotificationsPage";
+import DashboardSubscriptionPage from "./pages/DashboardSubscriptionPage";
+import MarketplaceDetailPage from "./pages/MarketplaceDetailPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminPanelPage from "./pages/AdminPanelPage";
 import AdminPremiumUsersPage from "./pages/AdminPremiumUsersPage";
@@ -49,6 +57,7 @@ const App = () => (
           <Route path="/casting/:id" element={<CastingDetail />} />
           <Route path="/new-faces" element={<NewFacesPage />} />
           <Route path="/marketplace" element={<MarketplacePage />} />
+          <Route path="/marketplace/:id" element={<MarketplaceDetailPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/case-studies/:id" element={<CaseStudyDetail />} />
           <Route path="/discover-path/:slug" element={<DiscoverPathPage />} />
@@ -62,6 +71,13 @@ const App = () => (
           <Route path="/verification-pending" element={<VerificationPendingPage />} />
           <Route path="/rejected" element={<RejectedPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard/account" element={<DashboardAccountPage />} />
+          <Route path="/dashboard/favorites" element={<DashboardFavoritesPage />} />
+          <Route path="/dashboard/castingapp" element={<DashboardCastingAppPage />} />
+          <Route path="/dashboard/premium" element={<DashboardPremiumPage />} />
+          <Route path="/dashboard/payouts" element={<DashboardPayoutsPage />} />
+          <Route path="/dashboard/notifications" element={<DashboardNotificationsPage />} />
+          <Route path="/dashboard/subscription" element={<DashboardSubscriptionPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin/premium-users" element={<AdminPremiumUsersPage />} />
           <Route path="/admin/bank-transfers" element={<AdminBankTransfersPage />} />

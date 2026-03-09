@@ -17,11 +17,23 @@ export async function api<T>(
   const token = getToken();
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...rest,
-    headers,
-    ...(body && { body: JSON.stringify(body) }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      ...rest,
+      headers,
+      ...(body && { body: JSON.stringify(body) }),
+    });
+  } catch (err) {
+    const msg = (err as Error).message || "";
+    if (msg.includes("fetch") || msg.includes("Network")) {
+      throw new Error(
+        "Cannot reach the server. If you're running locally, start the API with: npm run server (in a separate terminal)."
+      );
+    }
+    throw err;
+  }
+
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error((data as { error?: string }).error || res.statusText || "Request failed");
   return data as T;

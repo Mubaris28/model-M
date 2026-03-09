@@ -17,7 +17,7 @@ const SignupPage = () => {
     const errs: Record<string, string> = {};
     if (!form.name.trim()) errs.name = "Name is required";
     if (!form.email.trim()) errs.email = "Email is required";
-    if (!form.phone.trim()) errs.phone = "Phone is required";
+    // Phone optional for signup
     if (form.password.length < 6) errs.password = "Password must be at least 6 characters";
     if (form.password !== form.confirmPassword) errs.confirmPassword = "Passwords do not match";
     if (!form.agreeTerms) errs.agreeTerms = "You must agree to the terms";
@@ -156,7 +156,11 @@ const SignupPage = () => {
               </label>
             </div>
             {errors.agreeTerms && <p className="text-primary text-xs">{errors.agreeTerms}</p>}
-            {errors.form && <p className="text-primary text-xs">{errors.form}</p>}
+            {errors.form && (
+              <div className="p-3 bg-primary/10 border border-primary/30 text-primary text-sm font-body">
+                {errors.form}
+              </div>
+            )}
 
             <button
               type="submit"

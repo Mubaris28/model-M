@@ -9,10 +9,14 @@ Professional modeling platform for models and talent in Mauritius. Connect with 
 ### Install and run locally
 
 ```sh
-# Install dependencies
-npm install
+# Install all dependencies (frontend + Node.js backend)
+npm run install:all
 
-# Start the development server
+# Or install separately:
+# npm install          # frontend only
+# cd server && npm install   # backend only
+
+# Start the development server (frontend)
 npm run dev
 ```
 
@@ -24,12 +28,12 @@ npm run build
 
 Output is in the `dist` folder. Deploy that folder to any static host (e.g. Vercel, Netlify).
 
-### Backend API (MongoDB + Express)
+### Backend API (Node.js + Express + MongoDB)
 
-The API runs on port 3001 and handles auth, contact form, and admin.
+The backend lives in the **`server/`** folder. It runs on port 3001 and handles auth, contact form, and admin.
 
 ```sh
-# First time: install server dependencies
+# Install backend dependencies (included in npm run install:all)
 cd server && npm install && cd ..
 
 # Create server/.env (copy from server/.env.example) and set:

@@ -1,10 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, User, Heart, Briefcase, Star, CreditCard, Bell, Settings, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", active: true },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: User, label: "Account", path: "/dashboard/account" },
   { icon: Heart, label: "Favorites", path: "/dashboard/favorites" },
   { icon: Briefcase, label: "Casting Applications", path: "/dashboard/castingapp" },
@@ -22,6 +22,7 @@ const stats = [
 ];
 
 const DashboardPage = () => {
+  const location = useLocation();
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -43,7 +44,7 @@ const DashboardPage = () => {
                     key={item.label}
                     to={item.path}
                     className={`flex items-center gap-3 px-4 py-3 text-xs font-body tracking-[0.1em] uppercase transition-colors ${
-                      item.active ? "bg-primary/10 text-primary border-l-2 border-primary" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      location.pathname === item.path ? "bg-primary/10 text-primary border-l-2 border-primary" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                     }`}
                   >
                     <item.icon className="w-4 h-4" />

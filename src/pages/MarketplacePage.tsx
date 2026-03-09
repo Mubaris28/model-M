@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import model1 from "@/assets/model-1.jpg";
@@ -42,17 +43,19 @@ const MarketplacePage = () => {
                 transition={{ duration: 0.5, delay: i * 0.08 }}
                 className="group"
               >
-                <div className="relative h-72 overflow-hidden magazine-border mb-4">
-                  <img src={offer.image} alt={offer.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <div className="absolute inset-0 cinematic-overlay" />
-                  <div className="absolute bottom-4 left-4">
-                    <span className="bg-primary text-primary-foreground text-[10px] font-body tracking-[0.2em] uppercase px-3 py-1">{offer.price}</span>
+                <Link to={`/marketplace/${offer.id}`}>
+                  <div className="relative h-72 overflow-hidden magazine-border mb-4">
+                    <img src={offer.image} alt={offer.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <div className="absolute inset-0 cinematic-overlay" />
+                    <div className="absolute bottom-4 left-4">
+                      <span className="bg-primary text-primary-foreground text-[10px] font-body tracking-[0.2em] uppercase px-3 py-1">{offer.price}</span>
+                    </div>
+                    <div className="absolute top-4 right-4 w-10 h-10 border border-white/20 flex items-center justify-center group-hover:bg-primary group-hover:border-primary transition-all">
+                      <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-primary-foreground transition-colors" />
+                    </div>
                   </div>
-                  <div className="absolute top-4 right-4 w-10 h-10 border border-white/20 flex items-center justify-center group-hover:bg-primary group-hover:border-primary transition-all">
-                    <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-primary-foreground transition-colors" />
-                  </div>
-                </div>
-                <h3 className="font-display text-xl text-foreground group-hover:text-primary transition-colors">{offer.title}</h3>
+                  <h3 className="font-display text-xl text-foreground group-hover:text-primary transition-colors">{offer.title}</h3>
+                </Link>
               </motion.div>
             ))}
           </div>
