@@ -25,8 +25,15 @@ export async function api<T>(
       ...(body && { body: JSON.stringify(body) }),
     });
   } catch (err) {
-    const msg = (err as Error).message || "";
-    if (msg.includes("fetch") || msg.includes("Network")) {
+    const msg = ((err as Error).message || "").toLowerCase();
+    const isNetworkError =
+      msg.includes("fetch") ||
+      msg.includes("network") ||
+      msg.includes("load failed") ||
+      msg.includes("connection") ||
+      msg.includes("refused") ||
+      msg.includes("failed to fetch");
+    if (isNetworkError) {
       throw new Error(
         "Cannot reach the server. If you're running locally, start the API with: npm run server (in a separate terminal)."
       );
@@ -34,8 +41,23 @@ export async function api<T>(
     throw err;
   }
 
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((data as { error?: string }).error || res.statusText || "Request failed");
+  const contentType = res.headers.get("content-type") || "";
+  const isJson = contentType.includes("application/json");
+  const data = isJson ? await res.json().catch(() => ({})) : {};
+
+  if (!res.ok) {
+    const body = data as { error?: string; message?: string; msg?: string };
+    const message =
+      body.error || body.message || body.msg || res.statusText || "Something went wrong. Please try again.";
+    if (!isJson || (!body.error && !body.message && !body.msg)) {
+      throw new Error(
+        res.status === 0 || res.status >= 502
+          ? "Cannot reach the server. If you're running locally, start the API with: npm run server (in a separate terminal)."
+          : message
+      );
+    }
+    throw new Error(message);
+  }
   return data as T;
 }
 
