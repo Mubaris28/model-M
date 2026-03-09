@@ -27,7 +27,7 @@ const CategoriesPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
               >
-                <Link to={`/category/${cat.slug}`} className="group relative block aspect-[3/4] overflow-hidden magazine-border">
+                <Link to={`/category/${cat.slug}`} className="group relative block aspect-square overflow-hidden magazine-border">
                   <img src={cat.image} alt={cat.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 cinematic-overlay" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">
