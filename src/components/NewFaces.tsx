@@ -4,8 +4,8 @@ import model3 from "@/assets/model-3.jpg";
 import model4 from "@/assets/model-4.jpg";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef, useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { useState } from "react";
 
 const newFaces = [
   { name: "Sophia Laurent", image: model1, age: 19, location: "Paris", country: "France", id: "sophia-laurent" },
@@ -21,24 +21,9 @@ const newFaces = [
 const countries = ["All", "France", "Italy", "UK", "Japan", "Senegal", "Spain", "UAE", "USA"];
 
 const NewFaces = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const tabsRef = useRef<HTMLDivElement>(null);
   const [activeCountry, setActiveCountry] = useState("All");
 
   const filtered = activeCountry === "All" ? newFaces : newFaces.filter((m) => m.country === activeCountry);
-
-  const scroll = (dir: "left" | "right") => {
-    if (scrollRef.current) {
-      const amount = 300;
-      scrollRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
-    }
-  };
-
-  const scrollTabs = (dir: "left" | "right") => {
-    if (tabsRef.current) {
-      tabsRef.current.scrollBy({ left: dir === "left" ? -150 : 150, behavior: "smooth" });
-    }
-  };
 
   return (
     <section className="py-24 bg-card">
@@ -46,47 +31,31 @@ const NewFaces = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
             <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Fresh Talent</p>
-            <h2 className="font-display text-5xl md:text-6xl line-accent">New Faces</h2>
+            <h2 className="font-display text-5xl md:text-6xl line-accent text-primary">New Faces</h2>
           </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => scroll("left")} className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all flex-shrink-0">
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button onClick={() => scroll("right")} className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all flex-shrink-0">
-              <ChevronRight className="w-4 h-4" />
-            </button>
-            <Link to="/new-faces" className="text-primary text-xs font-body tracking-[0.15em] uppercase hover:text-red-light transition-colors hidden md:inline-block ml-2 whitespace-nowrap">
-              View All →
-            </Link>
-          </div>
+          <Link to="/new-faces" className="text-primary text-xs font-body tracking-[0.15em] uppercase hover:text-red-light transition-colors whitespace-nowrap">
+            View All →
+          </Link>
         </div>
 
         {/* Country tabs */}
-        <div className="relative mb-8">
-          <button onClick={() => scrollTabs("left")} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 bg-background border border-border flex items-center justify-center text-muted-foreground hover:text-primary md:hidden">
-            <ChevronLeft className="w-3 h-3" />
-          </button>
-          <div ref={tabsRef} className="flex gap-2 overflow-x-auto scrollbar-hide px-8 md:px-0">
-            {countries.map((country) => (
-              <button
-                key={country}
-                onClick={() => setActiveCountry(country)}
-                className={`px-4 py-2 text-xs font-body tracking-[0.15em] uppercase whitespace-nowrap transition-all flex-shrink-0 ${
-                  activeCountry === country
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-background text-muted-foreground border border-border hover:border-primary hover:text-primary"
-                }`}
-              >
-                {country}
-              </button>
-            ))}
-          </div>
-          <button onClick={() => scrollTabs("right")} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 bg-background border border-border flex items-center justify-center text-muted-foreground hover:text-primary md:hidden">
-            <ChevronRight className="w-3 h-3" />
-          </button>
+        <div className="flex flex-wrap gap-2 mb-8">
+          {countries.map((country) => (
+            <button
+              key={country}
+              onClick={() => setActiveCountry(country)}
+              className={`px-4 py-2 text-xs font-body tracking-[0.15em] uppercase whitespace-nowrap transition-all ${
+                activeCountry === country
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background text-muted-foreground border border-border hover:border-primary hover:text-primary"
+              }`}
+            >
+              {country}
+            </button>
+          ))}
         </div>
 
-        <div ref={scrollRef} className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 snap-x snap-mandatory">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
           {filtered.map((model, i) => (
             <motion.div
               key={model.id}
@@ -94,7 +63,6 @@ const NewFaces = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="flex-shrink-0 w-[240px] md:w-[260px] snap-start"
             >
               <Link to={`/model/${model.id}`} className="group block">
                 <div className="relative aspect-[3/4] overflow-hidden magazine-border mb-4">

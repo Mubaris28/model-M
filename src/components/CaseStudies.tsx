@@ -32,7 +32,7 @@ const CaseStudies = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="mb-12">
           <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Stories</p>
-          <h2 className="font-display text-5xl md:text-6xl line-accent">Case Studies</h2>
+          <h2 className="font-display text-5xl md:text-6xl line-accent text-primary">Case Studies</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -49,7 +49,7 @@ const CaseStudies = () => {
                   <img src={study.image} alt={study.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 cinematic-overlay" />
                 </div>
-                <h3 className="font-display text-2xl text-foreground group-hover:text-primary transition-colors mb-2">{study.title}</h3>
+                <h3 className="font-display text-2xl text-primary group-hover:text-red-light transition-colors mb-2">{study.title}</h3>
                 <p className="text-muted-foreground text-xs font-body leading-relaxed mb-3">{study.description}</p>
                 <span className="text-primary text-xs font-body tracking-[0.15em] uppercase inline-flex items-center gap-2 group-hover:gap-3 transition-all">
                   View Project <ArrowRight className="w-3 h-3" />

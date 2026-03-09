@@ -24,7 +24,7 @@ const MagazineGrid = () => {
         <div className="flex items-end justify-between mb-12">
           <div>
             <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Browse by Category</p>
-            <h2 className="font-display text-5xl md:text-6xl line-accent">Categories</h2>
+            <h2 className="font-display text-5xl md:text-6xl line-accent text-primary">Categories</h2>
           </div>
           <Link to="/categories" className="text-primary text-xs font-body tracking-[0.15em] uppercase hover:text-red-light transition-colors hidden md:block">
             View All →

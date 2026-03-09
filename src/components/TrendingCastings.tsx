@@ -19,7 +19,7 @@ const TrendingCastings = () => {
         <div className="flex items-end justify-between mb-12">
           <div>
             <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Opportunities</p>
-            <h2 className="font-display text-5xl md:text-6xl line-accent">Trending Castings</h2>
+            <h2 className="font-display text-5xl md:text-6xl line-accent text-primary">Trending Castings</h2>
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => scroll("left")} className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all">

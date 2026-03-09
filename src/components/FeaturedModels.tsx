@@ -2,10 +2,9 @@ import model1 from "@/assets/model-1.jpg";
 import model2 from "@/assets/model-2.jpg";
 import model3 from "@/assets/model-3.jpg";
 import model4 from "@/assets/model-4.jpg";
-import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useRef } from "react";
 
 export const allModels = [
   { name: "Sophia Laurent", image: model1, category: "Editorial", age: 24, location: "Paris", height: "5'10\"", likes: 1240, id: "sophia-laurent" },
@@ -17,46 +16,29 @@ export const allModels = [
 ];
 
 const FeaturedModels = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (dir: "left" | "right") => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: dir === "left" ? -360 : 360, behavior: "smooth" });
-    }
-  };
-
   return (
     <section id="models" className="py-24 bg-background">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
             <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Featured</p>
-            <h2 className="font-display text-5xl md:text-6xl line-accent">Trending Models</h2>
+            <h2 className="font-display text-5xl md:text-6xl line-accent text-primary">Trending Models</h2>
           </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => scroll("left")} className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all">
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button onClick={() => scroll("right")} className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all">
-              <ChevronRight className="w-4 h-4" />
-            </button>
-            <Link to="/models" className="text-primary text-xs font-body tracking-[0.15em] uppercase hover:text-red-light transition-colors hidden md:inline-block ml-2">
-              View All →
-            </Link>
-          </div>
+          <Link to="/models" className="text-primary text-xs font-body tracking-[0.15em] uppercase hover:text-red-light transition-colors">
+            View All →
+          </Link>
         </div>
 
-        <div ref={scrollRef} className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 snap-x snap-mandatory">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {allModels.map((model, i) => (
             <motion.div
               key={model.id}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="flex-shrink-0 w-[280px] md:w-[320px] snap-start"
+              transition={{ duration: 0.6, delay: i * 0.08 }}
             >
-              <Link to={`/model/${model.id}`} className="group relative block h-[380px] md:h-[440px] overflow-hidden magazine-border">
+              <Link to={`/model/${model.id}`} className="group relative block aspect-[3/4] overflow-hidden magazine-border">
                 <img src={model.image} alt={model.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 cinematic-overlay" />
                 

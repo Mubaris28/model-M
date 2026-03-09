@@ -32,11 +32,11 @@ const CategoriesPage = () => {
                   <div className="absolute inset-0 cinematic-overlay" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">
                     <span className="text-primary text-[10px] font-body tracking-[0.3em] uppercase">{cat.count} Models</span>
-                    <h2 className="font-display text-4xl text-foreground">{cat.name}</h2>
-                    <p className="text-muted-foreground text-sm font-body mt-1">{cat.description}</p>
+                    <h2 className="font-display text-4xl text-white">{cat.name}</h2>
+                    <p className="text-white/80 text-sm font-body mt-1">{cat.description}</p>
                   </div>
-                  <div className="absolute top-4 right-4 w-10 h-10 border border-foreground/20 flex items-center justify-center group-hover:bg-primary group-hover:border-primary transition-all">
-                    <ArrowUpRight className="w-4 h-4 text-foreground/60 group-hover:text-primary-foreground" />
+                  <div className="absolute top-4 right-4 w-10 h-10 border border-white/30 flex items-center justify-center group-hover:bg-primary group-hover:border-primary transition-all">
+                    <ArrowUpRight className="w-4 h-4 text-white/80 group-hover:text-primary-foreground" />
                   </div>
                 </Link>
               </motion.div>

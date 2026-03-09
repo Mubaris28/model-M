@@ -15,7 +15,7 @@ const QuickActions = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-10">
           <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Get Started</p>
-          <h2 className="font-display text-4xl md:text-5xl">Find Your Path</h2>
+          <h2 className="font-display text-4xl md:text-5xl line-accent text-primary">Find Your Path</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {actions.map((action, i) => (

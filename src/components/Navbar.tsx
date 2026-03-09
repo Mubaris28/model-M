@@ -30,13 +30,7 @@ const Navbar = () => {
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isTransparent ? "bg-transparent" : "glass-dark border-b border-border shadow-sm"}`}>
       <div className="container mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-red flex items-center justify-center">
-            <span className="font-display text-primary-foreground text-lg leading-none">É</span>
-          </div>
-          <div className="flex flex-col leading-none">
-            <span className={`font-display text-xl tracking-[0.15em] ${isTransparent ? "text-white" : "text-foreground"}`}>ÉLITE</span>
-            <span className={`text-[8px] font-body font-light tracking-[0.4em] uppercase ${isTransparent ? "text-white/60" : "text-muted-foreground"}`}>Models Agency</span>
-          </div>
+          <img src="/images/logo/logomain.svg" alt="Model Management" className="h-9 w-auto object-contain" />
         </Link>
 
         <div className="hidden lg:flex items-center gap-6">
