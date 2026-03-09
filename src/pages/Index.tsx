@@ -1,0 +1,45 @@
+import Navbar from "@/components/Navbar";
+import CinematicSlider from "@/components/CinematicSlider";
+import MagazineGrid from "@/components/MagazineGrid";
+import NewFaces from "@/components/NewFaces";
+import FeaturedModels from "@/components/FeaturedModels";
+import AdBanner from "@/components/AdBanner";
+import TrendingCastings from "@/components/TrendingCastings";
+import CaseStudies from "@/components/CaseStudies";
+import GetDiscovered from "@/components/GetDiscovered";
+import Footer from "@/components/Footer";
+import BackToTop from "@/components/BackToTop";
+import QuickActions from "@/components/QuickActions";
+
+const Index = () => {
+  return (
+    <div className="min-h-screen bg-background">
+      <h1 className="sr-only">Model Management Mauritius - Professional Modeling Platform for Models and Talent</h1>
+      <Navbar />
+      <CinematicSlider />
+
+      <MagazineGrid />
+      <NewFaces />
+
+      <div className="container mx-auto px-4 md:px-6 py-8">
+        <AdBanner />
+      </div>
+
+      <FeaturedModels />
+
+      <QuickActions />
+
+      <TrendingCastings />
+
+      <AdBanner variant="cosmetics" />
+
+      <CaseStudies />
+      <GetDiscovered />
+
+      <Footer />
+      <BackToTop />
+    </div>
+  );
+};
+
+export default Index;
