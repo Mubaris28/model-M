@@ -1,0 +1,118 @@
+import express from "express";
+import { auth, adminOnly } from "../middleware/auth.js";
+import User from "../models/User.js";
+import Casting from "../models/Casting.js";
+import Contact from "../models/Contact.js";
+
+const router = express.Router();
+
+// Public: check if email is admin (no auth required)
+router.get("/check-email", async (req, res) => {
+  const email = (req.query.email || "").toString().toLowerCase();
+  if (!email) return res.json({ isAdmin: false });
+  const user = await User.findOne({ email }).select("isAdmin");
+  res.json({ isAdmin: !!user?.isAdmin });
+});
+
+router.use(auth);
+router.use(adminOnly);
+
+// GET /api/admin/stats
+router.get("/stats", async (req, res) => {
+  try {
+    const [
+      totalUsers,
+      pendingApprovals,
+      totalModels,
+      totalProfessionals,
+      totalCastings,
+      pendingCastings,
+      totalContacts,
+    ] = await Promise.all([
+      User.countDocuments(),
+      User.countDocuments({ status: "pending" }),
+      User.countDocuments({ role: "model" }),
+      User.countDocuments({ role: "professional" }),
+      Casting.countDocuments(),
+      Casting.countDocuments({ approvalStatus: "pending" }),
+      Contact.countDocuments(),
+    ]);
+    res.json({
+      totalUsers,
+      pendingApprovals,
+      totalModels,
+      totalProfessionals,
+      totalMarketplaceOffers: 0,
+      pendingMarketplaceOffers: 0,
+      totalCastings,
+      pendingCastings,
+      totalConnectionRequests: 0,
+      pendingConnectionRequests: 0,
+      totalContacts,
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/admin/users — list users with filters
+router.get("/users", async (req, res) => {
+  try {
+    const { status, role, profile, search } = req.query;
+    const filter = {};
+    if (status && status !== "all") filter.status = status;
+    if (role && role !== "all") filter.role = role;
+    if (profile === "complete") filter.profileComplete = true;
+    if (profile === "incomplete") filter.profileComplete = false;
+    if (search && search.trim()) {
+      filter.$or = [
+        { email: new RegExp(search.trim(), "i") },
+        { fullName: new RegExp(search.trim(), "i") },
+      ];
+    }
+    const users = await User.find(filter).select("-password").sort({ createdAt: -1 }).limit(200).lean();
+    res.json(users);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/admin/users/:id — single user
+router.get("/users/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password").lean();
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json(user);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// PATCH /api/admin/users/:id — update user (e.g. status)
+router.patch("/users/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
+    const update = {};
+    if (status) update.status = status;
+    const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select("-password");
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json(user);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/admin/castings
+router.get("/castings", async (req, res) => {
+  try {
+    const { status } = req.query;
+    const filter = {};
+    if (status && status !== "all") filter.approvalStatus = status;
+    const castings = await Casting.find(filter).populate("creatorId", "email fullName").sort({ createdAt: -1 }).limit(100).lean();
+    res.json(castings);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+export default router;

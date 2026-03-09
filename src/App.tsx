@@ -23,7 +23,10 @@ import RegisterPage from "./pages/RegisterPage";
 import VerificationPendingPage from "./pages/VerificationPendingPage";
 import RejectedPage from "./pages/RejectedPage";
 import DashboardPage from "./pages/DashboardPage";
-import AdminPage from "./pages/AdminPage";
+import AdminLoginPage from "./pages/AdminLoginPage";
+import AdminPanelPage from "./pages/AdminPanelPage";
+import AdminPremiumUsersPage from "./pages/AdminPremiumUsersPage";
+import AdminBankTransfersPage from "./pages/AdminBankTransfersPage";
 import NotFound from "./pages/NotFound";
 import CaseStudyDetail from "./pages/CaseStudyDetail";
 import DiscoverPathPage from "./pages/DiscoverPathPage";
@@ -59,7 +62,10 @@ const App = () => (
           <Route path="/verification-pending" element={<VerificationPendingPage />} />
           <Route path="/rejected" element={<RejectedPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin/premium-users" element={<AdminPremiumUsersPage />} />
+          <Route path="/admin/bank-transfers" element={<AdminBankTransfersPage />} />
+          <Route path="/admin" element={<AdminPanelPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

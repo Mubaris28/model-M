@@ -1,22 +1,32 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs: Record<string, string> = {};
     if (!form.email.trim()) errs.email = "Email is required";
     if (!form.password.trim()) errs.password = "Password is required";
     setErrors(errs);
-    if (Object.keys(errs).length === 0) {
-      // TODO: Connect to backend auth
-      console.log("Login:", form);
+    if (Object.keys(errs).length > 0) return;
+    setLoading(true);
+    try {
+      await login(form.email, form.password);
+      navigate("/dashboard");
+    } catch (err) {
+      setErrors({ form: (err as Error).message });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,6 +92,7 @@ const LoginPage = () => {
               </button>
               {errors.password && <p className="text-primary text-xs mt-1">{errors.password}</p>}
             </div>
+            {errors.form && <p className="text-primary text-xs">{errors.form}</p>}
 
             <div className="text-right">
               <Link to="/forgot-password" className="text-primary text-xs font-body hover:underline">Forgot Password?</Link>
@@ -89,9 +100,10 @@ const LoginPage = () => {
 
             <button
               type="submit"
-              className="w-full bg-gradient-red text-primary-foreground py-3.5 font-body font-medium tracking-[0.15em] uppercase text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 group"
+              disabled={loading}
+              className="w-full bg-gradient-red text-primary-foreground py-3.5 font-body font-medium tracking-[0.15em] uppercase text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 group disabled:opacity-70"
             >
-              Log In
+              {loading ? "Loading..." : "Log In"}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </form>

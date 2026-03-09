@@ -1,13 +1,17 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SignupPage = () => {
+  const navigate = useNavigate();
+  const { signup } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "", agreeTerms: false });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -20,13 +24,19 @@ const SignupPage = () => {
     return errs;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     setErrors(errs);
-    if (Object.keys(errs).length === 0) {
-      // TODO: Connect to backend auth
-      console.log("Signup:", form);
+    if (Object.keys(errs).length > 0) return;
+    setLoading(true);
+    try {
+      await signup(form.email, form.password, form.name, form.phone);
+      navigate("/dashboard");
+    } catch (err) {
+      setErrors({ form: (err as Error).message });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -146,12 +156,14 @@ const SignupPage = () => {
               </label>
             </div>
             {errors.agreeTerms && <p className="text-primary text-xs">{errors.agreeTerms}</p>}
+            {errors.form && <p className="text-primary text-xs">{errors.form}</p>}
 
             <button
               type="submit"
-              className="w-full bg-gradient-red text-primary-foreground py-3.5 font-body font-medium tracking-[0.15em] uppercase text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 group"
+              disabled={loading}
+              className="w-full bg-gradient-red text-primary-foreground py-3.5 font-body font-medium tracking-[0.15em] uppercase text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 group disabled:opacity-70"
             >
-              Create Account
+              {loading ? "Creating..." : "Create Account"}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </form>

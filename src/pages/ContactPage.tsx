@@ -3,20 +3,27 @@ import Footer from "@/components/Footer";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { contactApi } from "@/lib/api";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setSending(true);
-    setTimeout(() => {
+    try {
+      await contactApi.send(formData);
       setSuccess(true);
-      setSending(false);
       setFormData({ name: "", email: "", message: "" });
-    }, 800);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -72,6 +79,7 @@ const ContactPage = () => {
             <div className="lg:col-span-8">
               <h2 className="font-display text-2xl text-foreground mb-2">Send Message</h2>
               <p className="text-muted-foreground text-sm font-body mb-6">Fill out the form below and we'll get back to you</p>
+              {error && <p className="text-primary font-body text-sm mb-6">{error}</p>}
               {success ? (
                 <p className="text-primary font-body text-sm mb-6">Thank you! Your message has been sent.</p>
               ) : (
