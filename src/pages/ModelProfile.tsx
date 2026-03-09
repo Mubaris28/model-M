@@ -2,7 +2,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { allModels } from "@/components/FeaturedModels";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Heart, MapPin, Ruler, Calendar, Share2, Instagram } from "lucide-react";
+import BackButton from "@/components/BackButton";
+import { Heart, MapPin, Ruler, Calendar, Share2, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
 
 const ModelProfile = () => {
@@ -15,7 +16,7 @@ const ModelProfile = () => {
         <Navbar />
         <div className="text-center">
           <h1 className="font-display text-6xl text-foreground">Model Not Found</h1>
-          <Link to="/models" className="text-primary font-body text-sm mt-4 inline-block">← Back to Models</Link>
+          <BackButton label="Back to Models" className="mt-4" />
         </div>
       </div>
     );
@@ -28,9 +29,7 @@ const ModelProfile = () => {
       <Navbar />
       <div className="pt-20">
         <div className="container mx-auto px-4 md:px-6">
-          <Link to="/models" className="inline-flex items-center gap-2 text-muted-foreground text-xs font-body tracking-wider uppercase hover:text-primary transition-colors py-4">
-            <ArrowLeft className="w-3 h-3" /> Back to Models
-          </Link>
+          <BackButton label="Back to Models" className="py-4 text-xs tracking-wider uppercase" />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-4">
             {/* Main Image */}

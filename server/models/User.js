@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, select: false },
     fullName: { type: String, default: "" },
     phone: { type: String, default: "" },
-    role: { type: String, enum: ["model", "professional"], default: "model" },
+    role: { type: String, enum: ["user", "model", "professional"], default: "user" },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected", "changes_requested", "updated"],
@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema(
     profileComplete: { type: Boolean, default: false },
     isAdmin: { type: Boolean, default: false },
     company: { type: String, default: "" },
+    rejectionReason: { type: String, default: "" },
   },
   { timestamps: true }
 );

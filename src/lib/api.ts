@@ -66,10 +66,14 @@ export const authApi = {
     api<{ user: User; token: string }>("/api/auth/signup", { method: "POST", body }),
   login: (body: { email: string; password: string }) =>
     api<{ user: User; token: string }>("/api/auth/login", { method: "POST", body }),
+  adminSignup: (body: { email: string; password: string; fullName?: string }) =>
+    api<{ user: User; token: string }>("/api/auth/admin/signup", { method: "POST", body }),
   adminLogin: (body: { email: string; password: string }) =>
     api<{ user: User; token: string }>("/api/auth/admin/login", { method: "POST", body }),
   me: () => api<{ user: User }>("/api/auth/me"),
   checkAdmin: () => api<{ isAdmin: boolean }>("/api/auth/check-admin"),
+  updateProfile: (body: { role?: string; profileComplete?: boolean; status?: string; fullName?: string; phone?: string; company?: string }) =>
+    api<{ user: User }>("/api/auth/me", { method: "PATCH", body }),
 };
 
 const TOKEN_KEY = "token";
@@ -97,7 +101,7 @@ export const adminApi = {
     return api<User[]>("/api/admin/users" + (q ? `?${q}` : ""));
   },
   user: (id: string) => api<User>("/api/admin/users/" + id),
-  updateUser: (id: string, body: { status?: string }) =>
+  updateUser: (id: string, body: { status?: string; rejectionReason?: string }) =>
     api<User>("/api/admin/users/" + id, { method: "PATCH", body }),
   castings: (params?: { status?: string }) => {
     const q = new URLSearchParams(params as Record<string, string>).toString();
@@ -115,6 +119,7 @@ export interface User {
   profileComplete?: boolean;
   isAdmin?: boolean;
   company?: string;
+  rejectionReason?: string;
   createdAt?: string;
 }
 

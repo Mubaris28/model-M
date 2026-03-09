@@ -32,7 +32,8 @@ const SignupPage = () => {
     setLoading(true);
     try {
       await signup(form.email, form.password, form.name, form.phone);
-      navigate("/dashboard");
+      // Always send new signups to select-role (never to admin). Admin panel is for login only.
+      navigate("/select-role");
     } catch (err) {
       setErrors({ form: (err as Error).message });
     } finally {
@@ -77,98 +78,89 @@ const SignupPage = () => {
           <h2 className="font-display text-4xl mb-2">Create Account</h2>
           <p className="text-muted-foreground text-sm font-body mb-8">Join thousands of models and professionals</p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="text-xs font-body tracking-[0.15em] uppercase text-muted-foreground mb-1 block">Full Name</label>
+              <label className="form-label">Full name</label>
               <input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full border border-border bg-background px-4 py-3 text-sm font-body focus:outline-none focus:border-primary transition-colors"
+                className="form-input"
                 placeholder="Enter your full name"
               />
-              {errors.name && <p className="text-primary text-xs mt-1">{errors.name}</p>}
+              {errors.name && <p className="form-error">{errors.name}</p>}
             </div>
-
             <div>
-              <label className="text-xs font-body tracking-[0.15em] uppercase text-muted-foreground mb-1 block">Email</label>
+              <label className="form-label">Email</label>
               <input
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full border border-border bg-background px-4 py-3 text-sm font-body focus:outline-none focus:border-primary transition-colors"
+                className="form-input"
                 placeholder="your@email.com"
               />
-              {errors.email && <p className="text-primary text-xs mt-1">{errors.email}</p>}
+              {errors.email && <p className="form-error">{errors.email}</p>}
             </div>
-
             <div>
-              <label className="text-xs font-body tracking-[0.15em] uppercase text-muted-foreground mb-1 block">Phone</label>
+              <label className="form-label">Phone (optional)</label>
               <input
                 type="tel"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="w-full border border-border bg-background px-4 py-3 text-sm font-body focus:outline-none focus:border-primary transition-colors"
-                placeholder="+1 234 567 8900"
+                className="form-input"
+                placeholder="+230..."
               />
-              {errors.phone && <p className="text-primary text-xs mt-1">{errors.phone}</p>}
+              {errors.phone && <p className="form-error">{errors.phone}</p>}
             </div>
-
             <div className="relative">
-              <label className="text-xs font-body tracking-[0.15em] uppercase text-muted-foreground mb-1 block">Password</label>
+              <label className="form-label">Password</label>
               <input
                 type={showPassword ? "text" : "password"}
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full border border-border bg-background px-4 py-3 text-sm font-body focus:outline-none focus:border-primary transition-colors pr-12"
+                className="form-input pr-12"
                 placeholder="Min. 6 characters"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-8 text-muted-foreground hover:text-foreground">
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-[38px] text-muted-foreground hover:text-foreground" aria-label={showPassword ? "Hide password" : "Show password"}>
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
-              {errors.password && <p className="text-primary text-xs mt-1">{errors.password}</p>}
+              {errors.password && <p className="form-error">{errors.password}</p>}
             </div>
-
             <div className="relative">
-              <label className="text-xs font-body tracking-[0.15em] uppercase text-muted-foreground mb-1 block">Confirm Password</label>
+              <label className="form-label">Confirm password</label>
               <input
                 type={showConfirm ? "text" : "password"}
                 value={form.confirmPassword}
                 onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                className="w-full border border-border bg-background px-4 py-3 text-sm font-body focus:outline-none focus:border-primary transition-colors pr-12"
+                className="form-input pr-12"
                 placeholder="Repeat password"
               />
-              <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-8 text-muted-foreground hover:text-foreground">
+              <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-[38px] text-muted-foreground hover:text-foreground" aria-label={showConfirm ? "Hide password" : "Show password"}>
                 {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
-              {errors.confirmPassword && <p className="text-primary text-xs mt-1">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && <p className="form-error">{errors.confirmPassword}</p>}
             </div>
-
-            <div className="flex items-start gap-2">
+            <div className="flex items-start gap-3">
               <input
                 type="checkbox"
+                id="agreeTerms"
                 checked={form.agreeTerms}
                 onChange={(e) => setForm({ ...form, agreeTerms: e.target.checked })}
-                className="mt-1 accent-red-500"
+                className="mt-1.5 h-4 w-4 rounded border-input accent-primary"
               />
-              <label className="text-xs font-body text-muted-foreground">
+              <label htmlFor="agreeTerms" className="text-sm font-body text-muted-foreground cursor-pointer">
                 I agree to the <Link to="#" className="text-primary hover:underline">Terms of Service</Link> and <Link to="#" className="text-primary hover:underline">Privacy Policy</Link>
               </label>
             </div>
-            {errors.agreeTerms && <p className="text-primary text-xs">{errors.agreeTerms}</p>}
+            {errors.agreeTerms && <p className="form-error">{errors.agreeTerms}</p>}
             {errors.form && (
-              <div className="p-3 bg-primary/10 border border-primary/30 text-primary text-sm font-body">
+              <div className="p-4 rounded-md bg-primary/10 border border-primary/30 text-primary text-sm font-body">
                 {errors.form}
               </div>
             )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-red text-primary-foreground py-3.5 font-body font-medium tracking-[0.15em] uppercase text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 group disabled:opacity-70"
-            >
-              {loading ? "Creating..." : "Create Account"}
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <button type="submit" disabled={loading} className="btn-primary w-full">
+              {loading ? "Creating..." : "Create account"}
+              <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 

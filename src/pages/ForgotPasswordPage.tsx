@@ -36,28 +36,25 @@ const ForgotPasswordPage = () => {
         </p>
 
         {!sent ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="text-xs font-body tracking-[0.15em] uppercase text-muted-foreground mb-1 block">Email</label>
+              <label className="form-label">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-border bg-background px-4 py-3 text-sm font-body focus:outline-none focus:border-primary transition-colors"
+                className="form-input"
                 placeholder="your@email.com"
                 required
               />
             </div>
-            <button
-              type="submit"
-              className="w-full bg-gradient-red text-primary-foreground py-3.5 font-body font-medium tracking-[0.15em] uppercase text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 group"
-            >
-              Send Reset Link
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <button type="submit" className="btn-primary w-full">
+              Send reset link
+              <ArrowRight className="w-4 h-4" />
             </button>
           </form>
         ) : (
-          <div className="bg-primary/10 border border-primary/20 p-6 text-center">
+          <div className="form-card text-center">
             <p className="text-foreground font-body text-sm mb-4">A password reset link has been sent to <strong>{email}</strong></p>
             <button onClick={() => setSent(false)} className="text-primary text-xs font-body hover:underline">Resend Email</button>
           </div>

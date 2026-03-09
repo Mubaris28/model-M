@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Search, User } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Menu, X, Search, User, LayoutDashboard, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const isHome = location.pathname === "/";
+  const isLoggedIn = !!user;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -47,15 +52,52 @@ const Navbar = () => {
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
-          <button className={`hover:text-primary transition-colors p-2 ${isTransparent ? "text-white/80" : "text-muted-foreground"}`}>
+          <button className={`hover:text-primary transition-colors p-2 ${isTransparent ? "text-white/80" : "text-muted-foreground"}`} aria-label="Search">
             <Search className="w-4 h-4" />
           </button>
-          <Link to="/login" className={`hover:text-primary transition-colors p-2 ${isTransparent ? "text-white/80" : "text-muted-foreground"}`}>
-            <User className="w-4 h-4" />
-          </Link>
-          <Link to="/signup" className="bg-gradient-red text-primary-foreground px-5 py-2 text-xs font-body font-medium tracking-[0.15em] uppercase hover:opacity-90 transition-opacity">
-            Join Us
-          </Link>
+          {isLoggedIn ? (
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen((o) => !o)}
+                className={`flex items-center gap-2 hover:text-primary transition-colors p-2 rounded ${isTransparent ? "text-white/90" : "text-muted-foreground"}`}
+                aria-expanded={userMenuOpen}
+                aria-haspopup="true"
+              >
+                <User className="w-4 h-4" />
+                <span className="text-xs font-body uppercase tracking-wider truncate max-w-[100px]">{user?.fullName || user?.email?.split("@")[0]}</span>
+              </button>
+              {userMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} aria-hidden="true" />
+                  <div className="absolute right-0 top-full mt-1 py-2 w-48 bg-card border border-border shadow-lg z-50">
+                    <Link
+                      to="/dashboard"
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-body text-foreground hover:bg-secondary"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      <LayoutDashboard className="w-4 h-4" /> Dashboard
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => { logout(); setUserMenuOpen(false); navigate("/"); }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm font-body text-foreground hover:bg-secondary text-left"
+                    >
+                      <LogOut className="w-4 h-4" /> Sign out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link to="/login" className={`hover:text-primary transition-colors p-2 ${isTransparent ? "text-white/80" : "text-muted-foreground"}`}>
+                <User className="w-4 h-4" />
+              </Link>
+              <Link to="/signup" className="bg-gradient-red text-primary-foreground px-5 py-2 text-xs font-body font-medium tracking-[0.15em] uppercase hover:opacity-90 transition-opacity">
+                Join Us
+              </Link>
+            </>
+          )}
         </div>
 
         <button className={`lg:hidden p-2 ${isTransparent ? "text-white" : "text-foreground"}`} onClick={() => setIsOpen(!isOpen)}>
@@ -76,13 +118,30 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
-            <div className="flex gap-3 mt-2">
-              <Link to="/login" className="border border-border text-foreground px-5 py-2.5 text-xs font-body font-medium tracking-[0.15em] uppercase" onClick={() => setIsOpen(false)}>
-                Log In
-              </Link>
-              <Link to="/signup" className="bg-gradient-red text-primary-foreground px-5 py-2.5 text-xs font-body font-medium tracking-[0.15em] uppercase" onClick={() => setIsOpen(false)}>
-                Join Us
-              </Link>
+            <div className="flex flex-col sm:flex-row gap-3 mt-2">
+              {isLoggedIn ? (
+                <>
+                  <Link to="/dashboard" className="border border-border text-foreground px-5 py-2.5 text-xs font-body font-medium tracking-[0.15em] uppercase flex items-center gap-2" onClick={() => setIsOpen(false)}>
+                    <LayoutDashboard className="w-4 h-4" /> Dashboard
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => { logout(); setIsOpen(false); navigate("/"); }}
+                    className="border border-primary text-primary px-5 py-2.5 text-xs font-body font-medium tracking-[0.15em] uppercase flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" /> Sign out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="border border-border text-foreground px-5 py-2.5 text-xs font-body font-medium tracking-[0.15em] uppercase" onClick={() => setIsOpen(false)}>
+                    Log In
+                  </Link>
+                  <Link to="/signup" className="bg-gradient-red text-primary-foreground px-5 py-2.5 text-xs font-body font-medium tracking-[0.15em] uppercase" onClick={() => setIsOpen(false)}>
+                    Join Us
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

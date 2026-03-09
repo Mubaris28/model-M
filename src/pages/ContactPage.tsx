@@ -83,43 +83,43 @@ const ContactPage = () => {
               {success ? (
                 <p className="text-primary font-body text-sm mb-6">Thank you! Your message has been sent.</p>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="form-card space-y-5">
                   <div>
-                    <label className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-2">Full Name *</label>
+                    <label className="form-label">Full name</label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Enter your full name"
-                      className="w-full bg-card border border-border px-4 py-3 text-foreground text-sm font-body focus:outline-none focus:border-primary transition-colors"
+                      className="form-input"
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-2">Email Address *</label>
+                    <label className="form-label">Email address</label>
                     <input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="Enter your email address"
-                      className="w-full bg-card border border-border px-4 py-3 text-foreground text-sm font-body focus:outline-none focus:border-primary transition-colors"
+                      placeholder="your@email.com"
+                      className="form-input"
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-2">Message *</label>
+                    <label className="form-label">Message</label>
                     <textarea
-                      rows={6}
+                      rows={5}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       placeholder="Tell us how we can help you..."
-                      className="w-full bg-card border border-border px-4 py-3 text-foreground text-sm font-body focus:outline-none focus:border-primary transition-colors resize-none"
+                      className="form-input resize-none min-h-[120px]"
                       required
                     />
                   </div>
-                  <button type="submit" disabled={sending} className="bg-gradient-red text-primary-foreground px-8 py-3.5 font-body font-medium tracking-[0.15em] uppercase text-sm hover:opacity-90 transition-opacity flex items-center gap-2 group disabled:opacity-70">
-                    {sending ? "Sending Message..." : "Send Message"}
-                    <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <button type="submit" disabled={sending} className="btn-primary">
+                    {sending ? "Sending..." : "Send message"}
+                    <Send className="w-4 h-4" />
                   </button>
                 </form>
               )}

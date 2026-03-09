@@ -36,6 +36,9 @@ const AdminPanelPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [authError, setAuthError] = useState("");
+  const [actionModal, setActionModal] = useState<{ user: User; action: "reject" | "changes_requested" } | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -80,6 +83,43 @@ const AdminPanelPage = () => {
   const handleRefresh = () => {
     loadStats();
     if (activeTab === "users") loadUsers();
+  };
+
+  const handleApprove = async (u: User) => {
+    setActionLoading(true);
+    try {
+      await adminApi.updateUser(u._id, { status: "approved", rejectionReason: "" });
+      await loadUsers();
+      loadStats();
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const openRejectModal = (u: User, action: "reject" | "changes_requested") => {
+    setActionModal({ user: u, action });
+    setRejectionReason("");
+  };
+
+  const handleConfirmReject = async () => {
+    if (!actionModal) return;
+    const reason = rejectionReason.trim();
+    if ((actionModal.action === "reject" || actionModal.action === "changes_requested") && !reason) {
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await adminApi.updateUser(actionModal.user._id, {
+        status: actionModal.action === "reject" ? "rejected" : "changes_requested",
+        rejectionReason: reason,
+      });
+      await loadUsers();
+      loadStats();
+      setActionModal(null);
+      setRejectionReason("");
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleLogout = () => {
@@ -284,7 +324,14 @@ const AdminPanelPage = () => {
                           <td className="p-3 text-muted-foreground">
                             {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}
                           </td>
-                          <td className="p-3">
+                          <td className="p-3 flex flex-wrap gap-1">
+                            {(u.status === "pending" || u.status === "updated") && (
+                              <>
+                                <button onClick={() => handleApprove(u)} disabled={actionLoading} className="text-xs px-2 py-1 bg-primary/20 text-primary hover:bg-primary/30">Approve</button>
+                                <button onClick={() => openRejectModal(u, "changes_requested")} disabled={actionLoading} className="text-xs px-2 py-1 border border-border hover:border-primary text-primary">Request changes</button>
+                                <button onClick={() => openRejectModal(u, "reject")} disabled={actionLoading} className="text-xs px-2 py-1 border border-primary text-primary hover:bg-primary/10">Reject</button>
+                              </>
+                            )}
                             <button className="text-primary text-xs hover:underline">View</button>
                           </td>
                         </tr>
@@ -314,6 +361,34 @@ const AdminPanelPage = () => {
           )}
         </div>
       </main>
+
+      {actionModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => !actionLoading && setActionModal(null)}>
+          <div className="bg-background border border-border p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-display text-xl mb-2">
+              {actionModal.action === "reject" ? "Reject application" : "Request changes"}
+            </h3>
+            <p className="text-muted-foreground text-sm font-body mb-4">
+              {actionModal.user.fullName || actionModal.user.email} — add a reason (user will see this):
+            </p>
+            <textarea
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder={actionModal.action === "reject" ? "Reason for rejection..." : "What should they change?"}
+              className="w-full border border-border bg-background px-4 py-3 text-sm font-body focus:outline-none focus:border-primary min-h-[100px]"
+              required
+            />
+            <div className="flex gap-2 mt-4">
+              <button onClick={handleConfirmReject} disabled={actionLoading || !rejectionReason.trim()} className="flex-1 bg-primary text-primary-foreground py-2 font-body text-sm uppercase disabled:opacity-50">
+                {actionLoading ? "Saving..." : "Confirm"}
+              </button>
+              <button onClick={() => setActionModal(null)} disabled={actionLoading} className="flex-1 border border-border py-2 font-body text-sm uppercase hover:border-primary">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

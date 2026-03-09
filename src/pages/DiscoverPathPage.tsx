@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import BackButton from "@/components/BackButton";
+import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const discoverPaths: Record<string, { title: string; description: string }> = {
@@ -49,7 +49,7 @@ const DiscoverPathPage = () => {
         <Navbar />
         <div className="pt-24 pb-16 container mx-auto px-4 md:px-6">
           <p className="text-muted-foreground">Page not found.</p>
-          <Link to="/" className="text-primary text-sm font-body mt-4 inline-block">Back to Home</Link>
+          <BackButton label="Back to Home" className="mt-4" />
         </div>
         <Footer />
       </div>

@@ -7,9 +7,11 @@ type AuthContextType = {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   adminLogin: (email: string, password: string) => Promise<void>;
+  adminSignup: (email: string, password: string, fullName?: string) => Promise<void>;
   signup: (email: string, password: string, fullName?: string, phone?: string) => Promise<void>;
   logout: () => void;
   setUser: (u: User | null) => void;
+  refreshUser: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -81,14 +83,35 @@ setAuthToken(t, u);
     setUserState(u);
   }, []);
 
+  const adminSignup = useCallback(async (email: string, password: string, fullName?: string) => {
+    const { user: u, token: t } = await authApi.adminSignup({ email, password, fullName });
+    setAuthToken(t, u);
+    setToken(t);
+    setUserState(u);
+  }, []);
+
   const logout = useCallback(() => {
     clearAuthToken();
     setToken(null);
     setUserState(null);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    const t = localStorage.getItem("token");
+    if (!t) return;
+    try {
+      const { user: u } = await authApi.me();
+      setUserState(u);
+      localStorage.setItem(USER_KEY, JSON.stringify(u));
+    } catch {
+      clearAuthToken();
+      setToken(null);
+      setUserState(null);
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, adminLogin, signup, logout, setUser }}>
+    <AuthContext.Provider value={{ user, token, loading, login, adminLogin, adminSignup, signup, logout, setUser, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,7 +4,8 @@ import AdBanner from "@/components/AdBanner";
 import { categories } from "@/components/MagazineGrid";
 import { allModels } from "@/components/FeaturedModels";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Heart } from "lucide-react";
+import BackButton from "@/components/BackButton";
+import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 
 const CategoryDetail = () => {
@@ -17,7 +18,7 @@ const CategoryDetail = () => {
         <Navbar />
         <div className="text-center">
           <h1 className="font-display text-6xl text-foreground">Category Not Found</h1>
-          <Link to="/categories" className="text-primary font-body text-sm mt-4 inline-block">← Back to Categories</Link>
+          <BackButton label="Back to Categories" className="mt-4" />
         </div>
       </div>
     );
@@ -34,9 +35,7 @@ const CategoryDetail = () => {
         <div className="absolute inset-0 cinematic-overlay-left" />
         <div className="relative z-10 container mx-auto px-4 md:px-6 h-full flex items-end pb-16">
           <div>
-            <Link to="/categories" className="inline-flex items-center gap-2 text-muted-foreground text-xs font-body tracking-wider uppercase hover:text-primary transition-colors mb-4">
-              <ArrowLeft className="w-3 h-3" /> Back to Categories
-            </Link>
+            <BackButton label="Back to Categories" className="mb-4 text-xs tracking-wider uppercase" />
             <h1 className="font-display text-6xl md:text-8xl text-foreground">{category.name}</h1>
             <div className="flex items-center gap-4 mt-3">
               <span className="text-primary text-xs font-body tracking-[0.3em] uppercase">{category.count} Models</span>

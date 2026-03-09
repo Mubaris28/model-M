@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Settings } from "lucide-react";
+import BackButton from "@/components/BackButton";
+import { Settings } from "lucide-react";
 
 const DashboardSubscriptionPage = () => {
   return (
@@ -8,9 +9,7 @@ const DashboardSubscriptionPage = () => {
       <Navbar />
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6 max-w-4xl">
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground text-sm font-body hover:text-primary mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-          </Link>
+          <BackButton label="Back to Dashboard" className="mb-8" />
           <h1 className="font-display text-4xl md:text-5xl text-primary mb-2">Subscription</h1>
           <p className="text-muted-foreground font-body text-sm mb-8">Manage your plan and billing</p>
           <div className="magazine-border p-8">

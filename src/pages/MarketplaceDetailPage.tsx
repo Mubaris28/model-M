@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import BackButton from "@/components/BackButton";
 import { motion } from "framer-motion";
 import model1 from "@/assets/model-1.jpg";
 import model2 from "@/assets/model-2.jpg";
@@ -27,7 +27,7 @@ const MarketplaceDetailPage = () => {
         <Navbar />
         <div className="pt-24 pb-16 container mx-auto px-4 md:px-6 text-center">
           <h1 className="font-display text-4xl text-foreground mb-4">Offer not found</h1>
-          <Link to="/marketplace" className="text-primary font-body text-sm hover:underline">← Back to Marketplace</Link>
+          <BackButton label="Back to Marketplace" />
         </div>
         <Footer />
       </div>
@@ -39,9 +39,7 @@ const MarketplaceDetailPage = () => {
       <Navbar />
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6 max-w-4xl">
-          <Link to="/marketplace" className="inline-flex items-center gap-2 text-muted-foreground text-sm font-body hover:text-primary mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back to Marketplace
-          </Link>
+          <BackButton label="Back to Marketplace" className="mb-8" />
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="aspect-[4/5] overflow-hidden magazine-border">

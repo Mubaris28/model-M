@@ -88,12 +88,13 @@ router.get("/users/:id", async (req, res) => {
   }
 });
 
-// PATCH /api/admin/users/:id — update user (e.g. status)
+// PATCH /api/admin/users/:id — update user (status, rejectionReason)
 router.patch("/users/:id", async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, rejectionReason } = req.body;
     const update = {};
     if (status) update.status = status;
+    if (rejectionReason !== undefined) update.rejectionReason = rejectionReason || "";
     const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select("-password");
     if (!user) return res.status(404).json({ error: "User not found" });
     res.json(user);

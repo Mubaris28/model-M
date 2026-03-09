@@ -1,8 +1,9 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { castings } from "@/components/CastingCalls";
-import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Calendar, MapPin, Users, Share2 } from "lucide-react";
+import { useParams } from "react-router-dom";
+import BackButton from "@/components/BackButton";
+import { Calendar, MapPin, Users, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const CastingDetail = () => {
@@ -15,7 +16,7 @@ const CastingDetail = () => {
         <Navbar />
         <div className="text-center">
           <h1 className="font-display text-6xl text-foreground">Casting Not Found</h1>
-          <Link to="/casting" className="text-primary font-body text-sm mt-4 inline-block">← Back to Castings</Link>
+          <BackButton label="Back to Castings" className="mt-4" />
         </div>
       </div>
     );
@@ -26,9 +27,7 @@ const CastingDetail = () => {
       <Navbar />
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6 max-w-4xl">
-          <Link to="/casting" className="inline-flex items-center gap-2 text-muted-foreground text-xs font-body tracking-wider uppercase hover:text-primary transition-colors mb-8">
-            <ArrowLeft className="w-3 h-3" /> Back to Castings
-          </Link>
+          <BackButton label="Back to Castings" className="mb-8 text-xs tracking-wider uppercase" />
 
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
             <div className="flex items-center gap-3 mb-4">

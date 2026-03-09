@@ -1,7 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import BackButton from "@/components/BackButton";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -30,9 +29,7 @@ const CaseStudyDetail = () => {
         <Navbar />
         <div className="pt-24 pb-16 container mx-auto px-4 md:px-6">
           <p className="text-muted-foreground">Case study not found.</p>
-          <Link to="/" className="inline-flex items-center gap-2 text-primary mt-4 text-sm font-body">
-            <ArrowLeft className="w-4 h-4" /> Back to Home
-          </Link>
+          <BackButton label="Back" className="mt-4 text-primary" />
         </div>
         <Footer />
       </div>
@@ -44,9 +41,7 @@ const CaseStudyDetail = () => {
       <Navbar />
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6 max-w-3xl">
-          <Link to="/" className="inline-flex items-center gap-2 text-primary text-xs font-body tracking-[0.15em] uppercase mb-8 hover:text-red-light transition-colors">
-            <ArrowLeft className="w-3 h-3" /> Back to Home
-          </Link>
+          <BackButton label="Back" className="mb-8 text-xs tracking-[0.15em] uppercase" />
           <motion.article
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { authApi } from "@/lib/api";
+import { getRedirectPath } from "@/lib/authFlow";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -22,7 +24,8 @@ const LoginPage = () => {
     setLoading(true);
     try {
       await login(form.email, form.password);
-      navigate("/dashboard");
+      const { user: loggedInUser } = await authApi.me();
+      navigate(getRedirectPath(loggedInUser));
     } catch (err) {
       setErrors({ form: (err as Error).message });
     } finally {
@@ -65,46 +68,39 @@ const LoginPage = () => {
           <h2 className="font-display text-4xl mb-2">Log In</h2>
           <p className="text-muted-foreground text-sm font-body mb-8">Access your account</p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="text-xs font-body tracking-[0.15em] uppercase text-muted-foreground mb-1 block">Email</label>
+              <label className="form-label">Email</label>
               <input
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full border border-border bg-background px-4 py-3 text-sm font-body focus:outline-none focus:border-primary transition-colors"
+                className="form-input"
                 placeholder="your@email.com"
               />
-              {errors.email && <p className="text-primary text-xs mt-1">{errors.email}</p>}
+              {errors.email && <p className="form-error">{errors.email}</p>}
             </div>
-
             <div className="relative">
-              <label className="text-xs font-body tracking-[0.15em] uppercase text-muted-foreground mb-1 block">Password</label>
+              <label className="form-label">Password</label>
               <input
                 type={showPassword ? "text" : "password"}
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full border border-border bg-background px-4 py-3 text-sm font-body focus:outline-none focus:border-primary transition-colors pr-12"
+                className="form-input pr-12"
                 placeholder="Enter password"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-8 text-muted-foreground hover:text-foreground">
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-[38px] text-muted-foreground hover:text-foreground" aria-label={showPassword ? "Hide password" : "Show password"}>
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
-              {errors.password && <p className="text-primary text-xs mt-1">{errors.password}</p>}
+              {errors.password && <p className="form-error">{errors.password}</p>}
             </div>
-            {errors.form && <p className="text-primary text-xs">{errors.form}</p>}
-
+            {errors.form && <p className="form-error">{errors.form}</p>}
             <div className="text-right">
-              <Link to="/forgot-password" className="text-primary text-xs font-body hover:underline">Forgot Password?</Link>
+              <Link to="/forgot-password" className="text-primary text-sm font-body hover:underline">Forgot password?</Link>
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-red text-primary-foreground py-3.5 font-body font-medium tracking-[0.15em] uppercase text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 group disabled:opacity-70"
-            >
-              {loading ? "Loading..." : "Log In"}
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <button type="submit" disabled={loading} className="btn-primary w-full">
+              {loading ? "Signing in..." : "Log in"}
+              <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
