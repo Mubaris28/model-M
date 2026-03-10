@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@/lib/router-next";
-import { Camera, Briefcase, ArrowRight, ArrowLeft, Check } from "lucide-react";
+import { Camera, Briefcase, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { authApi } from "@/lib/api";
@@ -149,8 +149,8 @@ const SelectRolePage = () => {
                   disabled={loading}
                   className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-body text-sm tracking-[0.15em] uppercase hover:opacity-90 transition-opacity disabled:opacity-70"
                 >
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : <ArrowRight className="w-4 h-4" />}
                   {loading ? "Setting up..." : "Confirm & Continue"}
-                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </motion.div>
