@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@/lib/router-next";
-import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const AdminLoginPage = () => {
@@ -57,8 +56,7 @@ const AdminLoginPage = () => {
             />
           </div>
           {error && <p className="form-error">{error}</p>}
-          <button type="submit" disabled={loading} className="btn-primary w-full inline-flex items-center justify-center gap-2">
-            {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden />}
+          <button type="submit" disabled={loading} className="btn-primary w-full">
             {loading ? "Signing in..." : "Login to Admin Panel"}
           </button>
         </form>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "@/lib/router-next";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { authApi } from "@/lib/api";
@@ -142,9 +142,8 @@ const RegisterPage = () => {
                 {error}
               </div>
             )}
-            <button type="submit" disabled={loading} className="btn-primary w-full inline-flex items-center justify-center gap-2">
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : <ArrowRight className="w-4 h-4" />}
-              {loading ? "Submitting..." : "Complete registration"}
+            <button type="submit" disabled={loading} className="btn-primary w-full">
+              {loading ? "Submitting..." : "Complete registration"} <ArrowRight className="w-4 h-4" />
             </button>
           </form>
         </motion.div>

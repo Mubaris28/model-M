@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@/lib/router-next";
-import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { authApi } from "@/lib/api";
@@ -98,9 +98,9 @@ const LoginPage = () => {
             <div className="text-right">
               <Link to="/forgot-password" className="text-primary text-sm font-body hover:underline">Forgot password?</Link>
             </div>
-            <button type="submit" disabled={loading} className="btn-primary w-full inline-flex items-center justify-center gap-2">
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : <ArrowRight className="w-4 h-4" />}
+            <button type="submit" disabled={loading} className="btn-primary w-full">
               {loading ? "Signing in..." : "Log in"}
+              <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 

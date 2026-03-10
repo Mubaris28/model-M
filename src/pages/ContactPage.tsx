@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
+import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { contactApi } from "@/lib/api";
@@ -117,9 +117,9 @@ const ContactPage = () => {
                       required
                     />
                   </div>
-                  <button type="submit" disabled={sending} className="btn-primary inline-flex items-center justify-center gap-2">
-                    {sending ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : <Send className="w-4 h-4" />}
+                  <button type="submit" disabled={sending} className="btn-primary">
                     {sending ? "Sending..." : "Send message"}
+                    <Send className="w-4 h-4" />
                   </button>
                 </form>
               )}

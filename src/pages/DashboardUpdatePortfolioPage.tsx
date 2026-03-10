@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import BackButton from "@/components/BackButton";
-import { ImagePlus, X, Loader2, CheckCircle2 } from "lucide-react";
+import { ImagePlus, X, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { authApi, uploadFiles } from "@/lib/api";
 
@@ -87,32 +87,16 @@ const DashboardUpdatePortfolioPage = () => {
             tabIndex={0}
             onClick={() => portfolioUrls.length < 6 && inputRef.current?.click()}
             onKeyDown={(e) => e.key === "Enter" && portfolioUrls.length < 6 && inputRef.current?.click()}
-            className={`border-2 border-dashed p-8 text-center cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50 disabled:cursor-not-allowed min-h-[140px] flex flex-col items-center justify-center ${
-              uploading ? "border-primary bg-primary/5" : portfolioUrls.length >= 4 ? "border-primary/50 bg-primary/5" : "border-border hover:border-primary/50"
-            }`}
+            className="border-2 border-dashed border-border p-8 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {uploading ? (
-              <>
-                <Loader2 className="w-12 h-12 text-primary mx-auto mb-3 animate-spin" aria-hidden />
-                <p className="text-primary font-body text-sm font-medium">Uploading to Bunny CDN...</p>
-              </>
-            ) : portfolioUrls.length > 0 ? (
-              <>
-                <p className="text-foreground font-body text-sm font-medium inline-flex items-center gap-1.5">
-                  {portfolioUrls.length >= 4 ? (
-                    <span className="text-primary"><CheckCircle2 className="w-4 h-4" /> {portfolioUrls.length}/6 images added</span>
-                  ) : (
-                    `${portfolioUrls.length}/6 — add ${4 - portfolioUrls.length} more (min 4)`
-                  )}
-                </p>
-                <p className="text-muted-foreground text-xs font-body mt-1">{portfolioUrls.length < 6 ? "Click to add more" : "Maximum reached"}</p>
-              </>
+              <Loader2 className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
             ) : (
-              <>
-                <ImagePlus className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground font-body text-sm">Click to upload — JPG, PNG, WebP. Min 4, max 6.</p>
-              </>
+              <ImagePlus className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             )}
+            <p className="text-muted-foreground font-body text-sm">
+              {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — click to add more` : "Click to upload — JPG, PNG, WebP. Min 4, max 6."}
+            </p>
           </div>
 
           {portfolioUrls.length > 0 && (
@@ -137,9 +121,8 @@ const DashboardUpdatePortfolioPage = () => {
           {message && <p className="mt-4 text-primary text-sm font-body">{message}</p>}
 
           <div className="mt-6 flex gap-3">
-            <button type="button" onClick={handleSave} disabled={saving || portfolioUrls.length < 4} className="btn-primary inline-flex items-center justify-center gap-2">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : null}
-              {saving ? "Saving..." : "Save portfolio"}
+            <button type="button" onClick={handleSave} disabled={saving || portfolioUrls.length < 4} className="btn-primary">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save portfolio"}
             </button>
           </div>
         </div>

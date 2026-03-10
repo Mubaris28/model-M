@@ -1,22 +1,18 @@
 import { useState } from "react";
 import { Link } from "@/lib/router-next";
-import { ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    setLoading(true);
-    // TODO: Connect to backend
-    setTimeout(() => {
+    if (email.trim()) {
+      // TODO: Connect to backend
       setSent(true);
-      setLoading(false);
-    }, 800);
+    }
   };
 
   return (
@@ -52,9 +48,9 @@ const ForgotPasswordPage = () => {
                 required
               />
             </div>
-            <button type="submit" disabled={loading} className="btn-primary w-full inline-flex items-center justify-center gap-2">
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : <ArrowRight className="w-4 h-4" />}
-              {loading ? "Sending..." : "Send reset link"}
+            <button type="submit" className="btn-primary w-full">
+              Send reset link
+              <ArrowRight className="w-4 h-4" />
             </button>
           </form>
         ) : (

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate } from "@/lib/router-next";
-import { ArrowRight, ArrowLeft, Upload, X, Loader2, CheckCircle2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, Upload, X, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { authApi, uploadFile, uploadFiles } from "@/lib/api";
@@ -295,63 +295,36 @@ const BecomeModelPage = () => {
                 <div
                   role="button"
                   tabIndex={0}
-                  onClick={() => portfolioUrls.length < 6 && portfolioInputRef.current?.click()}
-                  onKeyDown={(e) => e.key === "Enter" && portfolioUrls.length < 6 && portfolioInputRef.current?.click()}
-                  className={`border-2 border-dashed p-6 text-center cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 min-h-[180px] flex flex-col items-center justify-center ${
-                    uploading === "portfolio"
-                      ? "border-primary bg-primary/5"
-                      : portfolioUrls.length >= 4
-                        ? "border-primary/50 bg-primary/5"
-                        : "border-border hover:border-primary/50"
-                  }`}
+                  onClick={() => portfolioInputRef.current?.click()}
+                  onKeyDown={(e) => e.key === "Enter" && portfolioInputRef.current?.click()}
+                  className="border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   {uploading === "portfolio" ? (
-                    <>
-                      <Loader2 className="w-10 h-10 text-primary mx-auto mb-3 animate-spin" aria-hidden />
-                      <p className="text-primary font-body text-sm font-medium">Uploading to Bunny CDN...</p>
-                      <p className="text-muted-foreground text-xs font-body mt-1">Please wait</p>
-                    </>
-                  ) : portfolioUrls.length > 0 ? (
-                    <>
-                      <div className="flex flex-wrap gap-2 justify-center mb-3">
-                        {portfolioUrls.map((url, i) => (
-                          <div key={url} className="relative w-14 h-14 rounded overflow-hidden bg-secondary border-2 border-background shadow-sm">
-                            <img src={url} alt="" className="w-full h-full object-cover" />
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setPortfolioUrls((p) => p.filter((_, j) => j !== i));
-                              }}
-                              className="absolute top-0 right-0 w-5 h-5 bg-black/70 flex items-center justify-center text-white rounded-bl hover:bg-black/90"
-                              aria-label="Remove image"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      <p className="text-foreground font-body text-sm font-medium">
-                        {portfolioUrls.length >= 4 && portfolioUrls.length <= 6 ? (
-                          <span className="inline-flex items-center gap-1.5 text-primary">
-                            <CheckCircle2 className="w-4 h-4" /> {portfolioUrls.length}/6 images added
-                          </span>
-                        ) : (
-                          `${portfolioUrls.length}/6 images — add ${4 - portfolioUrls.length} more (min 4)`
-                        )}
-                      </p>
-                      {portfolioUrls.length < 6 && (
-                        <p className="text-muted-foreground text-xs font-body mt-1">Click here to add more</p>
-                      )}
-                    </>
+                    <Loader2 className="w-8 h-8 text-primary mx-auto mb-2 animate-spin" />
                   ) : (
-                    <>
-                      <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-2" aria-hidden />
-                      <p className="text-muted-foreground text-sm font-body">Click or drop — JPG, PNG, WebP</p>
-                      <p className="text-muted-foreground text-xs font-body mt-1">Min 4, max 6 images</p>
-                    </>
+                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                   )}
+                  <p className="text-muted-foreground text-xs font-body">
+                    {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — click to add more` : "Click or drop — JPG, PNG, WebP. Min 4, max 6."}
+                  </p>
                 </div>
+                {portfolioUrls.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {portfolioUrls.map((url, i) => (
+                      <div key={url} className="relative w-16 h-16 rounded overflow-hidden bg-secondary">
+                        <img src={url} alt="" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setPortfolioUrls((p) => p.filter((_, j) => j !== i))}
+                          className="absolute top-0 right-0 w-5 h-5 bg-black/60 flex items-center justify-center text-white rounded-bl"
+                          aria-label="Remove"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <p className="text-muted-foreground text-xs font-body">After clicking continue, your progress is saved. You can complete the verification step later.</p>
             </div>
@@ -373,22 +346,12 @@ const BecomeModelPage = () => {
                   tabIndex={0}
                   onClick={() => idPhotoInputRef.current?.click()}
                   onKeyDown={(e) => e.key === "Enter" && idPhotoInputRef.current?.click()}
-                  className={`border-2 border-dashed p-6 text-center cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${
-                    uploading === "id" ? "border-primary bg-primary/5" : step2.idPhotoUrl ? "border-primary/50 bg-primary/5" : "border-border hover:border-primary/50"
-                  }`}
+                  className="border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   {uploading === "id" ? (
-                    <>
-                      <Loader2 className="w-8 h-8 text-primary mx-auto mb-2 animate-spin" aria-hidden />
-                      <p className="text-primary text-sm font-body font-medium">Uploading to Bunny CDN...</p>
-                    </>
+                    <Loader2 className="w-6 h-6 text-primary mx-auto mb-2 animate-spin" />
                   ) : step2.idPhotoUrl ? (
-                    <>
-                      <img src={step2.idPhotoUrl} alt="ID" className="w-20 h-20 object-cover mx-auto rounded border border-border" />
-                      <p className="text-primary text-xs font-body mt-2 inline-flex items-center gap-1">
-                        <CheckCircle2 className="w-4 h-4" /> Uploaded · click to replace
-                      </p>
-                    </>
+                    <img src={step2.idPhotoUrl} alt="ID" className="w-20 h-20 object-cover mx-auto rounded" />
                   ) : (
                     <>
                       <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
@@ -405,22 +368,12 @@ const BecomeModelPage = () => {
                   tabIndex={0}
                   onClick={() => selfieInputRef.current?.click()}
                   onKeyDown={(e) => e.key === "Enter" && selfieInputRef.current?.click()}
-                  className={`border-2 border-dashed p-6 text-center cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${
-                    uploading === "selfie" ? "border-primary bg-primary/5" : step2.selfieWithIdUrl ? "border-primary/50 bg-primary/5" : "border-border hover:border-primary/50"
-                  }`}
+                  className="border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   {uploading === "selfie" ? (
-                    <>
-                      <Loader2 className="w-8 h-8 text-primary mx-auto mb-2 animate-spin" aria-hidden />
-                      <p className="text-primary text-sm font-body font-medium">Uploading to Bunny CDN...</p>
-                    </>
+                    <Loader2 className="w-6 h-6 text-primary mx-auto mb-2 animate-spin" />
                   ) : step2.selfieWithIdUrl ? (
-                    <>
-                      <img src={step2.selfieWithIdUrl} alt="Selfie" className="w-20 h-20 object-cover mx-auto rounded border border-border" />
-                      <p className="text-primary text-xs font-body mt-2 inline-flex items-center gap-1">
-                        <CheckCircle2 className="w-4 h-4" /> Uploaded · click to replace
-                      </p>
-                    </>
+                    <img src={step2.selfieWithIdUrl} alt="Selfie" className="w-20 h-20 object-cover mx-auto rounded" />
                   ) : (
                     <>
                       <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
@@ -446,21 +399,12 @@ const BecomeModelPage = () => {
               <ArrowLeft className="w-4 h-4" /> {step === 2 ? "Back to Step 1" : "Back to Role Selection"}
             </button>
             {step === 1 ? (
-              <button type="button" onClick={handleContinueToVerification} className="btn-primary inline-flex items-center justify-center gap-2">
+              <button type="button" onClick={handleContinueToVerification} className="btn-primary">
                 Continue to verification <ArrowRight className="w-4 h-4" />
               </button>
             ) : (
-              <button type="button" onClick={handleSubmit} disabled={loading} className="btn-primary inline-flex items-center justify-center gap-2">
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    Submit application <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
+              <button type="button" onClick={handleSubmit} disabled={loading} className="btn-primary">
+                {loading ? "Submitting..." : "Submit application"} <ArrowRight className="w-4 h-4" />
               </button>
             )}
           </div>
