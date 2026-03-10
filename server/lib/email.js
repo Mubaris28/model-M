@@ -16,7 +16,7 @@ function getTransporter() {
 }
 
 /**
- * Send contact form submission to the configured email (CONTACT_TO_EMAIL or first ADMIN_EMAILS).
+ * Send contact form submision to the configured email (CONTACT_TO_EMAIL or first ADMIN_EMAILS).
  * Returns true if sent, false if SMTP not configured (message still saved to DB).
  */
 export async function sendContactEmail({ name, email, message }) {
