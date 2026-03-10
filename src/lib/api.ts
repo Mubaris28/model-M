@@ -1,5 +1,7 @@
 // Next.js rewrites /api to backend (3001). Set NEXT_PUBLIC_API_URL in prod if API is on another origin.
-const API_URL = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "";
+// Must be full URL with protocol (e.g. https://your-api.onrender.com) or browser will treat it as a path.
+const raw = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "";
+const API_URL = raw && !/^https?:\/\//i.test(raw) ? `https://${raw.replace(/^\/+/, "")}` : raw;
 
 function getToken(): string | null {
   return localStorage.getItem("token");
