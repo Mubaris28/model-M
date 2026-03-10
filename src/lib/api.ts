@@ -74,8 +74,30 @@ export const authApi = {
     api<{ user: User; token: string }>("/api/auth/admin/login", { method: "POST", body }),
   me: () => api<{ user: User }>("/api/auth/me"),
   checkAdmin: () => api<{ isAdmin: boolean }>("/api/auth/check-admin"),
-  updateProfile: (body: { role?: string; profileComplete?: boolean; status?: string; fullName?: string; phone?: string; company?: string }) =>
-    api<{ user: User }>("/api/auth/me", { method: "PATCH", body }),
+  updateProfile: (body: {
+    role?: string;
+    profileComplete?: boolean;
+    status?: string;
+    fullName?: string;
+    phone?: string;
+    company?: string;
+    profilePhoto?: string;
+    portfolio?: string[];
+    idPhotoUrl?: string;
+    selfieWithIdUrl?: string;
+    bio?: string;
+    country?: string;
+    dateOfBirth?: string;
+    gender?: string;
+    city?: string;
+    height?: string;
+    weight?: string;
+    eyeColor?: string;
+    hairColor?: string;
+    categories?: string[];
+    instagram?: string;
+    idNumber?: string;
+  }) => api<{ user: User }>("/api/auth/me", { method: "PATCH", body }),
 };
 
 const TOKEN_KEY = "token";
@@ -95,6 +117,43 @@ export const contactApi = {
   send: (body: { name: string; email: string; message: string }) =>
     api<{ message: string }>("/api/contact", { method: "POST", body }),
 };
+
+const API_URL_FOR_UPLOAD = (() => {
+  const raw = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "";
+  return raw && !/^https?:\/\//i.test(raw) ? `https://${raw.replace(/^\/+/, "")}` : raw;
+})();
+
+export async function uploadFile(file: File, folder: "profile" | "portfolio" | "id" | "selfie"): Promise<string> {
+  const token = getToken();
+  if (!token) throw new Error("You must be logged in to upload.");
+  const form = new FormData();
+  form.append("file", file);
+  const url = `${API_URL_FOR_UPLOAD}/api/upload?folder=${folder}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as { error?: string }).error || "Upload failed");
+  return (data as { url: string }).url;
+}
+
+export async function uploadFiles(files: File[], folder: "portfolio"): Promise<string[]> {
+  const token = getToken();
+  if (!token) throw new Error("You must be logged in to upload.");
+  const form = new FormData();
+  files.forEach((f) => form.append("files", f));
+  const url = `${API_URL_FOR_UPLOAD}/api/upload/multiple?folder=${folder}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as { error?: string }).error || "Upload failed");
+  return (data as { urls: string[] }).urls;
+}
 
 export const adminApi = {
   stats: () => api<AdminStats>("/api/admin/stats"),
@@ -122,6 +181,22 @@ export interface User {
   isAdmin?: boolean;
   company?: string;
   rejectionReason?: string;
+  profilePhoto?: string;
+  portfolio?: string[];
+  idPhotoUrl?: string;
+  selfieWithIdUrl?: string;
+  bio?: string;
+  country?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  city?: string;
+  height?: string;
+  weight?: string;
+  eyeColor?: string;
+  hairColor?: string;
+  categories?: string[];
+  instagram?: string;
+  idNumber?: string;
   createdAt?: string;
 }
 

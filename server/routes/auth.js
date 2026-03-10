@@ -138,10 +138,10 @@ router.get("/check-admin", auth, (req, res) => {
   res.json({ isAdmin: !!req.user.isAdmin });
 });
 
-// PATCH /api/auth/me — update current user (role, profileComplete, status, fullName, phone, company)
+// PATCH /api/auth/me — update current user (role, profileComplete, status, fullName, phone, company, profilePhoto, portfolio, idPhotoUrl, selfieWithIdUrl, bio, country)
 router.patch("/me", auth, async (req, res) => {
   try {
-    const allowed = ["role", "profileComplete", "status", "fullName", "phone", "company"];
+    const allowed = ["role", "profileComplete", "status", "fullName", "phone", "company", "profilePhoto", "portfolio", "idPhotoUrl", "selfieWithIdUrl", "bio", "country", "dateOfBirth", "gender", "city", "height", "weight", "eyeColor", "hairColor", "categories", "instagram", "idNumber"];
     const updates = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];
@@ -160,6 +160,14 @@ router.patch("/me", auth, async (req, res) => {
       } else if (current !== updates.status) {
         return res.status(403).json({ error: "Only admin can change your status" });
       }
+    }
+    if (updates.portfolio !== undefined) {
+      if (!Array.isArray(updates.portfolio)) return res.status(400).json({ error: "Portfolio must be an array of URLs" });
+      updates.portfolio = updates.portfolio.filter((u) => typeof u === "string" && u.length > 0).slice(0, 10);
+    }
+    if (updates.categories !== undefined) {
+      if (!Array.isArray(updates.categories)) return res.status(400).json({ error: "Categories must be an array" });
+      updates.categories = updates.categories.filter((c) => typeof c === "string").slice(0, 20);
     }
     const user = await User.findByIdAndUpdate(req.user._id, { $set: updates }, { new: true }).select("-password");
     res.json({ user });

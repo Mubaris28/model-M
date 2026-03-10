@@ -39,6 +39,8 @@ const AdminPanelPage = () => {
   const [actionModal, setActionModal] = useState<{ user: User; action: "reject" | "changes_requested" } | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [viewUser, setViewUser] = useState<User | null>(null);
+  const [viewUserLoading, setViewUserLoading] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -99,6 +101,19 @@ const AdminPanelPage = () => {
   const openRejectModal = (u: User, action: "reject" | "changes_requested") => {
     setActionModal({ user: u, action });
     setRejectionReason("");
+  };
+
+  const openViewUser = async (u: User) => {
+    setViewUserLoading(true);
+    setViewUser(null);
+    try {
+      const full = await adminApi.user(u._id);
+      setViewUser(full);
+    } catch {
+      setAuthError("Failed to load user details.");
+    } finally {
+      setViewUserLoading(false);
+    }
   };
 
   const handleConfirmReject = async () => {
@@ -332,7 +347,7 @@ const AdminPanelPage = () => {
                                 <button onClick={() => openRejectModal(u, "reject")} disabled={actionLoading} className="text-xs px-2 py-1 border border-primary text-primary hover:bg-primary/10">Reject</button>
                               </>
                             )}
-                            <button className="text-primary text-xs hover:underline">View</button>
+                            <button onClick={() => openViewUser(u)} className="text-primary text-xs hover:underline">View</button>
                           </td>
                         </tr>
                       ))}
@@ -385,6 +400,110 @@ const AdminPanelPage = () => {
               <button onClick={() => setActionModal(null)} disabled={actionLoading} className="flex-1 border border-border py-2 font-body text-sm uppercase hover:border-primary">
                 Cancel
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View user details modal */}
+      {(viewUser !== null || viewUserLoading) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => !viewUserLoading && setViewUser(null)}>
+          <div
+            className="bg-background border border-border max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-background border-b border-border px-6 py-4 flex items-center justify-between">
+              <h3 className="font-display text-xl text-primary">User details</h3>
+              <button onClick={() => setViewUser(null)} disabled={viewUserLoading} className="text-muted-foreground hover:text-foreground text-sm font-body">
+                Close
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              {viewUserLoading ? (
+                <p className="text-muted-foreground font-body">Loading...</p>
+              ) : viewUser ? (
+                <>
+                  <div className="flex flex-wrap gap-4 items-start">
+                    {viewUser.profilePhoto ? (
+                      <img src={viewUser.profilePhoto} alt="" className="w-24 h-24 rounded-full object-cover border border-border" />
+                    ) : (
+                      <div className="w-24 h-24 rounded-full bg-secondary flex items-center justify-center text-muted-foreground text-xs">No photo</div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-display text-lg text-foreground">{viewUser.fullName || "—"}</p>
+                      <p className="text-muted-foreground text-sm font-body">{viewUser.email}</p>
+                      <p className="text-sm font-body">Role: {viewUser.role || "—"} · Status: {viewUser.status || "—"}</p>
+                      <p className="text-muted-foreground text-xs font-body">Joined: {viewUser.createdAt ? new Date(viewUser.createdAt).toLocaleString() : "—"}</p>
+                      {viewUser.phone && <p className="text-sm font-body">Phone: {viewUser.phone}</p>}
+                      {viewUser.company && <p className="text-sm font-body">Company: {viewUser.company}</p>}
+                      {viewUser.rejectionReason && (
+                        <div className="mt-2 p-2 bg-destructive/10 border border-destructive/30 rounded text-sm font-body text-destructive">
+                          Rejection reason: {viewUser.rejectionReason}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {(viewUser.bio || viewUser.country || viewUser.dateOfBirth || viewUser.gender) && (
+                    <div className="border-t border-border pt-4">
+                      <h4 className="font-display text-sm text-primary uppercase mb-2">Profile & application</h4>
+                      <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm font-body">
+                        {viewUser.dateOfBirth && <><dt className="text-muted-foreground">Date of birth</dt><dd>{viewUser.dateOfBirth}</dd></>}
+                        {viewUser.gender && <><dt className="text-muted-foreground">Gender</dt><dd>{viewUser.gender}</dd></>}
+                        {viewUser.country && <><dt className="text-muted-foreground">Country</dt><dd>{viewUser.country}</dd></>}
+                        {viewUser.city && <><dt className="text-muted-foreground">City</dt><dd>{viewUser.city}</dd></>}
+                        {viewUser.height && <><dt className="text-muted-foreground">Height</dt><dd>{viewUser.height} cm</dd></>}
+                        {viewUser.weight && <><dt className="text-muted-foreground">Weight</dt><dd>{viewUser.weight} kg</dd></>}
+                        {viewUser.eyeColor && <><dt className="text-muted-foreground">Eye color</dt><dd>{viewUser.eyeColor}</dd></>}
+                        {viewUser.hairColor && <><dt className="text-muted-foreground">Hair color</dt><dd>{viewUser.hairColor}</dd></>}
+                        {viewUser.instagram && <><dt className="text-muted-foreground">Instagram</dt><dd>{viewUser.instagram}</dd></>}
+                        {viewUser.idNumber && <><dt className="text-muted-foreground">ID / Passport number</dt><dd>{viewUser.idNumber}</dd></>}
+                      </dl>
+                      {viewUser.categories && viewUser.categories.length > 0 && (
+                        <p className="mt-2 text-sm font-body">Categories: {viewUser.categories.join(", ")}</p>
+                      )}
+                      {viewUser.bio && <p className="mt-2 text-sm font-body text-muted-foreground">{viewUser.bio}</p>}
+                    </div>
+                  )}
+
+                  {(viewUser.portfolio?.length ?? 0) > 0 && (
+                    <div className="border-t border-border pt-4">
+                      <h4 className="font-display text-sm text-primary uppercase mb-2">Portfolio ({viewUser.portfolio!.length} images)</h4>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                        {viewUser.portfolio!.map((url) => (
+                          <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-[3/4] rounded overflow-hidden bg-secondary">
+                            <img src={url} alt="" className="w-full h-full object-cover" />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {(viewUser.idPhotoUrl || viewUser.selfieWithIdUrl) && (
+                    <div className="border-t border-border pt-4">
+                      <h4 className="font-display text-sm text-primary uppercase mb-2">Verification</h4>
+                      <div className="flex flex-wrap gap-4">
+                        {viewUser.idPhotoUrl && (
+                          <div>
+                            <p className="text-xs text-muted-foreground font-body mb-1">ID / Passport photo</p>
+                            <a href={viewUser.idPhotoUrl} target="_blank" rel="noopener noreferrer" className="block w-32 aspect-[3/4] rounded overflow-hidden bg-secondary">
+                              <img src={viewUser.idPhotoUrl} alt="ID" className="w-full h-full object-cover" />
+                            </a>
+                          </div>
+                        )}
+                        {viewUser.selfieWithIdUrl && (
+                          <div>
+                            <p className="text-xs text-muted-foreground font-body mb-1">Selfie with ID</p>
+                            <a href={viewUser.selfieWithIdUrl} target="_blank" rel="noopener noreferrer" className="block w-32 aspect-[3/4] rounded overflow-hidden bg-secondary">
+                              <img src={viewUser.selfieWithIdUrl} alt="Selfie" className="w-full h-full object-cover" />
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : null}
             </div>
           </div>
         </div>

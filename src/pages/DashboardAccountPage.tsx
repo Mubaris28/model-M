@@ -1,9 +1,10 @@
 import Navbar from "@/components/Navbar";
 import BackButton from "@/components/BackButton";
-import { User, Save, Globe, Bell } from "lucide-react";
+import { User, Save, Globe, Bell, Upload, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { authApi, uploadFile } from "@/lib/api";
 
 type TabId = "personal" | "public" | "notifications";
 
@@ -14,9 +15,52 @@ const tabs: { id: TabId; label: string; icon: typeof User }[] = [
 ];
 
 const DashboardAccountPage = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>("personal");
   const [saved, setSaved] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [bio, setBio] = useState("");
+  const [country, setCountry] = useState("");
+  const [profilePhoto, setProfilePhoto] = useState("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setFullName(user?.fullName ?? "");
+    setPhone(user?.phone ?? "");
+    setBio(user?.bio ?? "");
+    setCountry(user?.country ?? "");
+    setProfilePhoto(user?.profilePhoto ?? "");
+  }, [user]);
+
+  const onPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const url = await uploadFile(file, "profile");
+      setProfilePhoto(url);
+      await authApi.updateProfile({ profilePhoto: url });
+      await refreshUser();
+    } finally {
+      setUploadingPhoto(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaved(false);
+    try {
+      await authApi.updateProfile({ fullName, phone, bio, country: country || undefined, profilePhoto: profilePhoto || undefined });
+      await refreshUser();
+      setSaved(true);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,7 +100,7 @@ const DashboardAccountPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="form-label">Full name</label>
-                    <input type="text" defaultValue={user?.fullName || ""} className="form-input" placeholder="Your name" />
+                    <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="form-input" placeholder="Your name" />
                   </div>
                   <div>
                     <label className="form-label">Email</label>
@@ -64,7 +108,7 @@ const DashboardAccountPage = () => {
                   </div>
                   <div className="md:col-span-2">
                     <label className="form-label">Phone</label>
-                    <input type="tel" defaultValue={user?.phone || ""} className="form-input" placeholder="+230..." />
+                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="form-input" placeholder="+230..." />
                   </div>
                   <div>
                     <label className="form-label">Date of birth</label>
@@ -86,19 +130,40 @@ const DashboardAccountPage = () => {
                 <p className="text-muted-foreground text-xs font-body">What others see. Upload profile picture and add a short bio.</p>
                 <div className="grid grid-cols-1 gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center text-muted-foreground text-xs font-body">Photo</div>
+                    <input ref={photoInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={onPhotoChange} />
+                    <div
+                      className={cn(
+                        "w-20 h-20 rounded-full bg-secondary flex items-center justify-center overflow-hidden",
+                        profilePhoto && "ring-2 ring-primary/30"
+                      )}
+                    >
+                      {uploadingPhoto ? (
+                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                      ) : profilePhoto ? (
+                        <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-muted-foreground text-xs font-body">Photo</span>
+                      )}
+                    </div>
                     <div>
-                      <button type="button" className="text-primary text-xs font-body tracking-[0.15em] uppercase hover:underline">Upload photo</button>
-                      <p className="text-muted-foreground text-[10px] mt-1">JPEG, PNG. Max 2MB.</p>
+                      <button
+                        type="button"
+                        onClick={() => photoInputRef.current?.click()}
+                        disabled={uploadingPhoto}
+                        className="text-primary text-xs font-body tracking-[0.15em] uppercase hover:underline disabled:opacity-50"
+                      >
+                        <Upload className="w-4 h-4 inline mr-1" /> Upload photo
+                      </button>
+                      <p className="text-muted-foreground text-[10px] mt-1">JPEG, PNG, WebP. Max 10MB.</p>
                     </div>
                   </div>
                   <div>
                     <label className="form-label">Bio</label>
-                    <textarea rows={4} className="form-input min-h-[120px] resize-none" placeholder="A short bio for your public profile" />
+                    <textarea rows={4} value={bio} onChange={(e) => setBio(e.target.value)} className="form-input min-h-[120px] resize-none" placeholder="A short bio for your public profile" />
                   </div>
                   <div>
                     <label className="form-label">Country</label>
-                    <select className="form-input">
+                    <select className="form-input" value={country} onChange={(e) => setCountry(e.target.value)}>
                       <option value="">Select country</option>
                       <option value="MU">Mauritius</option>
                       <option value="OTHER">Other</option>
@@ -136,8 +201,8 @@ const DashboardAccountPage = () => {
             )}
 
             <div className="flex gap-3 pt-4 border-t border-border">
-              <button type="button" onClick={() => setSaved(true)} className="btn-primary">
-                <Save className="w-4 h-4" /> Save
+              <button type="button" onClick={handleSave} disabled={saving} className="btn-primary">
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save
               </button>
               <BackButton label="Cancel" />
             </div>

@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/auth.js";
 import contactRoutes from "./routes/contact.js";
 import adminRoutes from "./routes/admin.js";
+import uploadRoutes from "./routes/upload.js";
 
 const PORT = process.env.PORT || 3001;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 

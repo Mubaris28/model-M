@@ -17,6 +17,24 @@ const userSchema = new mongoose.Schema(
     isAdmin: { type: Boolean, default: false },
     company: { type: String, default: "" },
     rejectionReason: { type: String, default: "" },
+    profilePhoto: { type: String, default: "" },
+    portfolio: { type: [String], default: [] },
+    idPhotoUrl: { type: String, default: "" },
+    selfieWithIdUrl: { type: String, default: "" },
+    bio: { type: String, default: "" },
+    country: { type: String, default: "" },
+    // Model application (Step 1)
+    dateOfBirth: { type: String, default: "" },
+    gender: { type: String, default: "" },
+    city: { type: String, default: "" },
+    height: { type: String, default: "" },
+    weight: { type: String, default: "" },
+    eyeColor: { type: String, default: "" },
+    hairColor: { type: String, default: "" },
+    categories: { type: [String], default: [] },
+    instagram: { type: String, default: "" },
+    // Model application (Step 2)
+    idNumber: { type: String, default: "" },
   },
   { timestamps: true }
 );

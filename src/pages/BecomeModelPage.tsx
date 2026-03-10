@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate } from "@/lib/router-next";
-import { ArrowRight, ArrowLeft, Upload } from "lucide-react";
+import { ArrowRight, ArrowLeft, Upload, X, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { authApi } from "@/lib/api";
+import { authApi, uploadFile, uploadFiles } from "@/lib/api";
 import FlowStepper from "@/components/FlowStepper";
 
 const DRAFT_KEY = "become-model-draft";
@@ -26,6 +26,8 @@ const defaultStep2 = {
   idNumber: "",
   idPhotoNote: "",
   selfieNote: "",
+  idPhotoUrl: "",
+  selfieWithIdUrl: "",
 };
 
 const CATEGORY_OPTIONS = ["Runway", "Commercial", "Editorial", "Fitness", "Fashion", "Swimwear", "Lingerie", "Glamour", "Bold"];
@@ -56,8 +58,13 @@ const BecomeModelPage = () => {
   const [step, setStep] = useState(1);
   const [step1, setStep1] = useState(defaultStep1);
   const [step2, setStep2] = useState(defaultStep2);
+  const [portfolioUrls, setPortfolioUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const portfolioInputRef = useRef<HTMLInputElement>(null);
+  const idPhotoInputRef = useRef<HTMLInputElement>(null);
+  const selfieInputRef = useRef<HTMLInputElement>(null);
   const userId = user?._id ?? "";
 
   useEffect(() => {
@@ -94,16 +101,91 @@ const BecomeModelPage = () => {
       setError("Please select at least one modeling category.");
       return;
     }
+    if (portfolioUrls.length < 4 || portfolioUrls.length > 6) {
+      setError("Please upload between 4 and 6 portfolio images.");
+      return;
+    }
     persistDraft();
     setStep(2);
   };
 
+  const onPortfolioChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    setUploading("portfolio");
+    setError(null);
+    try {
+      const list = Array.from(files).slice(0, 6 - portfolioUrls.length);
+      const urls = await uploadFiles(list, "portfolio");
+      setPortfolioUrls((prev) => [...prev, ...urls].slice(0, 6));
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setUploading(null);
+      e.target.value = "";
+    }
+  };
+
+  const onIdPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading("id");
+    setError(null);
+    try {
+      const url = await uploadFile(file, "id");
+      setStep2((s) => ({ ...s, idPhotoUrl: url }));
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setUploading(null);
+      e.target.value = "";
+    }
+  };
+
+  const onSelfieChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading("selfie");
+    setError(null);
+    try {
+      const url = await uploadFile(file, "selfie");
+      setStep2((s) => ({ ...s, selfieWithIdUrl: url }));
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setUploading(null);
+      e.target.value = "";
+    }
+  };
+
   const handleSubmit = async () => {
     if (loading) return;
+    if (!step2.idPhotoUrl || !step2.selfieWithIdUrl) {
+      setError("Please upload both ID photo and selfie with ID.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      await authApi.updateProfile({ profileComplete: true, status: "pending" });
+      await authApi.updateProfile({
+        profileComplete: true,
+        status: "pending",
+        portfolio: portfolioUrls,
+        idPhotoUrl: step2.idPhotoUrl,
+        selfieWithIdUrl: step2.selfieWithIdUrl,
+        dateOfBirth: step1.dateOfBirth,
+        gender: step1.gender,
+        country: step1.country,
+        city: step1.city,
+        height: step1.height,
+        weight: step1.weight,
+        eyeColor: step1.eyeColor,
+        hairColor: step1.hairColor,
+        categories: step1.categories,
+        instagram: step1.instagram,
+        bio: step1.bio,
+        idNumber: step2.idNumber,
+      });
       if (userId) localStorage.removeItem(`${DRAFT_KEY}-${userId}`);
       await refreshUser();
       navigate("/verification-pending");
@@ -202,10 +284,47 @@ const BecomeModelPage = () => {
               </div>
               <div>
                 <label className="form-label">Portfolio (4–6 images)</label>
-                <div className="border-2 border-dashed border-border p-8 text-center">
-                  <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-muted-foreground text-xs font-body">Upload area — JPG, PNG, WebP. Min 4, max 6.</p>
+                <input
+                  ref={portfolioInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  multiple
+                  className="hidden"
+                  onChange={onPortfolioChange}
+                />
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => portfolioInputRef.current?.click()}
+                  onKeyDown={(e) => e.key === "Enter" && portfolioInputRef.current?.click()}
+                  className="border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  {uploading === "portfolio" ? (
+                    <Loader2 className="w-8 h-8 text-primary mx-auto mb-2 animate-spin" />
+                  ) : (
+                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                  )}
+                  <p className="text-muted-foreground text-xs font-body">
+                    {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — click to add more` : "Click or drop — JPG, PNG, WebP. Min 4, max 6."}
+                  </p>
                 </div>
+                {portfolioUrls.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {portfolioUrls.map((url, i) => (
+                      <div key={url} className="relative w-16 h-16 rounded overflow-hidden bg-secondary">
+                        <img src={url} alt="" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setPortfolioUrls((p) => p.filter((_, j) => j !== i))}
+                          className="absolute top-0 right-0 w-5 h-5 bg-black/60 flex items-center justify-center text-white rounded-bl"
+                          aria-label="Remove"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <p className="text-muted-foreground text-xs font-body">After clicking continue, your progress is saved. You can complete the verification step later.</p>
             </div>
@@ -221,16 +340,46 @@ const BecomeModelPage = () => {
               </div>
               <div>
                 <label className="form-label">ID / Passport photo</label>
-                <div className="border-2 border-dashed border-border p-6 text-center">
-                  <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-muted-foreground text-xs font-body">Upload one image (JPEG, PNG, WebP)</p>
+                <input ref={idPhotoInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={onIdPhotoChange} />
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => idPhotoInputRef.current?.click()}
+                  onKeyDown={(e) => e.key === "Enter" && idPhotoInputRef.current?.click()}
+                  className="border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  {uploading === "id" ? (
+                    <Loader2 className="w-6 h-6 text-primary mx-auto mb-2 animate-spin" />
+                  ) : step2.idPhotoUrl ? (
+                    <img src={step2.idPhotoUrl} alt="ID" className="w-20 h-20 object-cover mx-auto rounded" />
+                  ) : (
+                    <>
+                      <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-muted-foreground text-xs font-body">Upload one image (JPEG, PNG, WebP)</p>
+                    </>
+                  )}
                 </div>
               </div>
               <div>
                 <label className="form-label">Selfie with ID</label>
-                <div className="border-2 border-dashed border-border p-6 text-center">
-                  <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-muted-foreground text-xs font-body">One image: selfie holding your ID</p>
+                <input ref={selfieInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={onSelfieChange} />
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => selfieInputRef.current?.click()}
+                  onKeyDown={(e) => e.key === "Enter" && selfieInputRef.current?.click()}
+                  className="border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  {uploading === "selfie" ? (
+                    <Loader2 className="w-6 h-6 text-primary mx-auto mb-2 animate-spin" />
+                  ) : step2.selfieWithIdUrl ? (
+                    <img src={step2.selfieWithIdUrl} alt="Selfie" className="w-20 h-20 object-cover mx-auto rounded" />
+                  ) : (
+                    <>
+                      <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-muted-foreground text-xs font-body">One image: selfie holding your ID</p>
+                    </>
+                  )}
                 </div>
               </div>
               {error && (

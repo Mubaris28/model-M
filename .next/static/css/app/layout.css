@@ -932,6 +932,9 @@ h1, h2, h3, h4, h5, h6 {
 .top-full{
   top: 100%;
 }
+.top-1{
+  top: 0.25rem;
+}
 .z-10{
   z-index: 10;
 }
@@ -1084,6 +1087,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 .mt-auto{
   margin-top: auto;
+}
+.mr-1{
+  margin-right: 0.25rem;
 }
 .line-clamp-2{
   overflow: hidden;
@@ -1239,6 +1245,9 @@ h1, h2, h3, h4, h5, h6 {
 .h-svh{
   height: 100svh;
 }
+.h-24{
+  height: 6rem;
+}
 .max-h-96{
   max-height: 24rem;
 }
@@ -1247,6 +1256,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 .max-h-screen{
   max-height: 100vh;
+}
+.max-h-\[90vh\]{
+  max-height: 90vh;
 }
 .min-h-0{
   min-height: 0px;
@@ -1365,6 +1377,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 .w-px{
   width: 1px;
+}
+.w-24{
+  width: 6rem;
+}
+.w-32{
+  width: 8rem;
 }
 .min-w-0{
   min-width: 0px;
@@ -1505,6 +1523,15 @@ h1, h2, h3, h4, h5, h6 {
 .animate-pulse{
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+@keyframes spin{
+
+  to{
+    transform: rotate(360deg);
+  }
+}
+.animate-spin{
+  animation: spin 1s linear infinite;
+}
 .cursor-default{
   cursor: default;
 }
@@ -1596,6 +1623,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 .gap-8{
   gap: 2rem;
+}
+.gap-x-4{
+  -moz-column-gap: 1rem;
+       column-gap: 1rem;
+}
+.gap-y-1{
+  row-gap: 0.25rem;
 }
 .space-x-1 > :not([hidden]) ~ :not([hidden]){
   --tw-space-x-reverse: 0;
@@ -1708,6 +1742,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 .rounded-tl-sm{
   border-top-left-radius: calc(var(--radius) - 4px);
+}
+.rounded-bl{
+  border-bottom-left-radius: 0.25rem;
 }
 .border{
   border-width: 1px;
@@ -2363,6 +2400,9 @@ h1, h2, h3, h4, h5, h6 {
 .ring-sidebar-ring{
   --tw-ring-color: hsl(var(--sidebar-ring));
 }
+.ring-primary\/30{
+  --tw-ring-color: hsl(var(--primary) / 0.3);
+}
 .ring-offset-background{
   --tw-ring-offset-color: hsl(var(--background));
 }
@@ -2719,6 +2759,10 @@ h1, h2, h3, h4, h5, h6 {
   background-color: hsl(var(--sidebar-accent));
 }
 
+.hover\:bg-black\/80:hover{
+  background-color: rgb(0 0 0 / 0.8);
+}
+
 .hover\:text-accent-foreground:hover{
   color: hsl(var(--accent-foreground));
 }
@@ -2816,6 +2860,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .focus\:ring-ring:focus{
   --tw-ring-color: hsl(var(--ring));
+}
+
+.focus\:ring-primary\/30:focus{
+  --tw-ring-color: hsl(var(--primary) / 0.3);
 }
 
 .focus\:ring-offset-2:focus{
@@ -3717,6 +3765,10 @@ h1, h2, h3, h4, h5, h6 {
 
   .sm\:grid-cols-3{
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sm\:grid-cols-4{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .sm\:flex-row{
