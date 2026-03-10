@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { castings } from "@/components/CastingCalls";
-import { useParams } from "react-router-dom";
+import { useParams } from "@/lib/router-next";
 import BackButton from "@/components/BackButton";
 import { Calendar, MapPin, Users, Share2 } from "lucide-react";
 import { motion } from "framer-motion";

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ChevronLeft, ChevronRight, Play, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
 import heroImg from "@/assets/hero-model.jpg";
 import catBold from "@/assets/cat-bold.jpg";
 import catGlamour from "@/assets/cat-glamour.jpg";
@@ -73,7 +74,7 @@ const CinematicSlider = () => {
               controls
               autoPlay
               playsInline
-              poster={slides[current].image}
+              poster={imgSrc(slides[current].image)}
             >
               <source src="" type="video/mp4" />
               Your browser does not support video.
@@ -99,7 +100,7 @@ const CinematicSlider = () => {
           className="absolute inset-0"
         >
           <img
-            src={slides[current].image}
+            src={imgSrc(slides[current].image)}
             alt={slides[current].subtitle}
             className="w-full h-full object-cover"
           />

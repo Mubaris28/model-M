@@ -117,8 +117,22 @@ setAuthToken(t, u);
   );
 }
 
+const noop = () => {};
+const noopAsync = async () => {};
+const defaultAuth: AuthContextType = {
+  user: null,
+  token: null,
+  loading: true,
+  login: noopAsync,
+  adminLogin: noopAsync,
+  adminSignup: noopAsync,
+  signup: noopAsync,
+  logout: noop,
+  setUser: noop,
+  refreshUser: noopAsync,
+};
+
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
+  return ctx ?? defaultAuth;
 }

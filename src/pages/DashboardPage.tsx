@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "@/lib/router-next";
 import { LayoutDashboard, User, Heart, Briefcase, Star, CreditCard, Bell, Settings, ArrowRight, Megaphone, Calendar, MessageSquare, Store, ImagePlus } from "lucide-react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";

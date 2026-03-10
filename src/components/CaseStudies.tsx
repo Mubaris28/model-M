@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
 import { motion } from "framer-motion";
 import model1 from "@/assets/model-1.jpg";
 import model2 from "@/assets/model-2.jpg";
@@ -46,7 +47,7 @@ const CaseStudies = () => {
             >
               <Link to={`/case-studies/${study.id}`} className="group block">
                 <div className="relative h-64 md:h-72 overflow-hidden magazine-border mb-4">
-                  <img src={study.image} alt={study.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img src={imgSrc(study.image)} alt={study.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 cinematic-overlay" />
                 </div>
                 <h3 className="font-display text-2xl text-primary group-hover:text-red-light transition-colors mb-2">{study.title}</h3>

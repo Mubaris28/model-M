@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import BackButton from "@/components/BackButton";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
 import { Store } from "lucide-react";
 
 const DashboardMyMarketplacePage = () => (

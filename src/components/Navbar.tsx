@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Menu, X, Search, User, LayoutDashboard, LogOut } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "@/lib/router-next";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {

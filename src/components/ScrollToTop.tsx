@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "@/lib/router-next";
 
 /** Scrolls window to top on every route change so entered pages show from the top. */
 export default function ScrollToTop() {

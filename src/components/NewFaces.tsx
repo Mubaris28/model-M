@@ -3,7 +3,8 @@ import model2 from "@/assets/model-2.jpg";
 import model3 from "@/assets/model-3.jpg";
 import model4 from "@/assets/model-4.jpg";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 
@@ -67,7 +68,7 @@ const NewFaces = () => {
               <Link to={`/model/${model.id}`} className="group block">
                 <div className="relative aspect-[3/4] overflow-hidden magazine-border mb-4">
                   <img
-                    src={model.image}
+                    src={imgSrc(model.image)}
                     alt={model.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />

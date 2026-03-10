@@ -11,7 +11,7 @@ const AboutPage = () => {
       
       {/* Hero */}
       <div className="relative h-[50vh] overflow-hidden">
-        <img src={heroImg} alt="About ÉLITE" className="w-full h-full object-cover" />
+        <img src={typeof heroImg === "string" ? heroImg : heroImg.src} alt="About ÉLITE" className="w-full h-full object-cover" />
         <div className="absolute inset-0 cinematic-overlay" />
         <div className="absolute inset-0 cinematic-overlay-left" />
         <div className="relative z-10 container mx-auto px-4 md:px-6 h-full flex items-end pb-16">

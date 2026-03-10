@@ -1,7 +1,7 @@
 import { Clock, CheckCircle, FileCheck, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
 import FlowStepper from "@/components/FlowStepper";
 
 const steps = [

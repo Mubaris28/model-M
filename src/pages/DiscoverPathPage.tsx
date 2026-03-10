@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackButton from "@/components/BackButton";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "@/lib/router-next";
 import { motion } from "framer-motion";
 
 const discoverPaths: Record<string, { title: string; description: string }> = {

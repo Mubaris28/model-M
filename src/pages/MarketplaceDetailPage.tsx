@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
 import { motion } from "framer-motion";
 import model1 from "@/assets/model-1.jpg";
@@ -8,7 +9,7 @@ import model2 from "@/assets/model-2.jpg";
 import model3 from "@/assets/model-3.jpg";
 import model4 from "@/assets/model-4.jpg";
 
-const offersMap: Record<string, { title: string; image: string; price: string; description: string }> = {
+const offersMap: Record<string, { title: string; image: string | { src: string }; price: string; description: string }> = {
   "1": { title: "Professional Headshots Package", image: model1, price: "$299", description: "A full professional headshot session with our experienced photographers. Includes 5 edited high-resolution images, perfect for your portfolio and LinkedIn. Session duration: 1–2 hours." },
   "2": { title: "Portfolio Styling Session", image: model2, price: "$199", description: "Curated styling and direction to elevate your portfolio. Work with our stylists to create a cohesive look and receive 3 fully edited images. Ideal for new faces building their book." },
   "3": { title: "Runway Walk Coaching", image: model3, price: "$149", description: "One-on-one runway and walk coaching with industry professionals. Learn posture, pacing, and presence. Session includes video review and tips for castings." },
@@ -43,7 +44,7 @@ const MarketplaceDetailPage = () => {
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="aspect-[4/5] overflow-hidden magazine-border">
-              <img src={offer.image} alt={offer.title} className="w-full h-full object-cover" />
+              <img src={imgSrc(offer.image)} alt={offer.title} className="w-full h-full object-cover" />
             </div>
             <div>
               <span className="bg-primary text-primary-foreground text-[10px] font-body tracking-[0.2em] uppercase px-3 py-1">{offer.price}</span>

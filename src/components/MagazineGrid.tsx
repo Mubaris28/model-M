@@ -5,7 +5,8 @@ import catGlamour from "@/assets/cat-glamour.jpg";
 import catCommercial from "@/assets/cat-commercial.jpg";
 import catFitness from "@/assets/cat-fitness.jpg";
 import { ArrowUpRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 export const categories = [
@@ -41,7 +42,7 @@ const MagazineGrid = () => {
               transition={{ duration: 0.6, delay: i * 0.08 }}
             >
               <Link to={`/category/${cat.slug}`} className="group relative block aspect-square overflow-hidden magazine-border">
-                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img src={imgSrc(cat.image)} alt={cat.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 cinematic-overlay" />
                 <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
                   <span className="bg-primary text-primary-foreground text-[10px] font-body tracking-[0.2em] uppercase px-2 py-0.5 mb-2 inline-block">{cat.count} Models</span>

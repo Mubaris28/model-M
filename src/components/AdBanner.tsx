@@ -38,7 +38,7 @@ const AdBanner = ({ variant = "horizontal" }: { variant?: "horizontal" | "cosmet
 
     return (
       <section className="relative h-[400px] md:h-[450px] overflow-hidden">
-        <img src={ad.image} alt={ad.title} className="w-full h-full object-cover transition-all duration-700" />
+        <img src={typeof ad.image === "string" ? ad.image : (ad.image as { src: string }).src} alt={ad.title} className="w-full h-full object-cover transition-all duration-700" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
         <div className="absolute inset-0 flex items-center z-10">
           <div className="container mx-auto px-4 md:px-6">

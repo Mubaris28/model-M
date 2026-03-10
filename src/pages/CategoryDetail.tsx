@@ -3,7 +3,8 @@ import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
 import { categories } from "@/components/MagazineGrid";
 import { allModels } from "@/components/FeaturedModels";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
 import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
@@ -30,7 +31,7 @@ const CategoryDetail = () => {
       
       {/* Hero */}
       <div className="relative h-[60vh] overflow-hidden">
-        <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
+        <img src={imgSrc(category.image)} alt={category.name} className="w-full h-full object-cover" />
         <div className="absolute inset-0 cinematic-overlay" />
         <div className="absolute inset-0 cinematic-overlay-left" />
         <div className="relative z-10 container mx-auto px-4 md:px-6 h-full flex items-end pb-16">
@@ -57,7 +58,7 @@ const CategoryDetail = () => {
             >
               <Link to={`/model/${model.id}`} className="group block">
                 <div className="relative aspect-[3/4] overflow-hidden magazine-border mb-3">
-                  <img src={model.image} alt={model.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-background/0 group-hover:bg-background/20 transition-colors" />
                 </div>
                 <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors">{model.name}</h3>

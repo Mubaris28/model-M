@@ -1,12 +1,12 @@
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
 import catGlamour from "@/assets/cat-glamour.jpg";
 
 const CampaignManagement = () => {
   return (
     <section className="relative h-[500px] md:h-[550px] overflow-hidden">
-      <img src={catGlamour} alt="Campaign" className="w-full h-full object-cover" />
+      <img src={typeof catGlamour === "string" ? catGlamour : catGlamour.src} alt="Campaign" className="w-full h-full object-cover" />
       <div className="absolute inset-0 bg-black/70" />
       <div className="absolute inset-0 flex items-center z-10">
         <motion.div

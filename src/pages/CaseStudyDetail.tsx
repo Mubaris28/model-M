@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackButton from "@/components/BackButton";
-import { useParams } from "react-router-dom";
+import { useParams } from "@/lib/router-next";
 import { motion } from "framer-motion";
 
 const caseStudiesData: Record<string, { title: string; description: string }> = {

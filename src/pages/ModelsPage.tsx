@@ -3,7 +3,8 @@ import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
 import { allModels } from "@/components/FeaturedModels";
 import { categories } from "@/components/MagazineGrid";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
 import { Heart, Filter, Grid, LayoutList, ChevronDown, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useMemo, useEffect } from "react";
@@ -139,7 +140,7 @@ const ModelsPage = () => {
                 {view === "grid" ? (
                   <Link to={`/model/${model.id}`} className="group block">
                     <div className="relative aspect-[3/4] overflow-hidden magazine-border mb-3">
-                      <img src={model.image} alt={model.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                       <div className="absolute top-3 left-3">
                         <span className="bg-primary text-primary-foreground text-[9px] font-body tracking-[0.2em] uppercase px-2 py-0.5">{model.category}</span>
                       </div>
@@ -150,7 +151,7 @@ const ModelsPage = () => {
                 ) : (
                   <Link to={`/model/${model.id}`} className="group flex items-center gap-6 bg-card magazine-border p-4 hover:border-primary/30 transition-all">
                     <div className="w-20 h-20 flex-shrink-0 overflow-hidden">
-                      <img src={model.image} alt={model.name} className="w-full h-full object-cover" />
+                      <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-display text-xl text-foreground group-hover:text-primary transition-colors">{model.name}</h3>

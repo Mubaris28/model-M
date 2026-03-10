@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import model1 from "@/assets/model-1.jpg";
@@ -45,7 +46,7 @@ const MarketplacePage = () => {
               >
                 <Link to={`/marketplace/${offer.id}`}>
                   <div className="relative h-72 overflow-hidden magazine-border mb-4">
-                    <img src={offer.image} alt={offer.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img src={imgSrc(offer.image)} alt={offer.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                     <div className="absolute inset-0 cinematic-overlay" />
                     <div className="absolute bottom-4 left-4">
                       <span className="bg-primary text-primary-foreground text-[10px] font-body tracking-[0.2em] uppercase px-3 py-1">{offer.price}</span>

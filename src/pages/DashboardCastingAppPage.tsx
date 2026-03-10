@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
 import BackButton from "@/components/BackButton";
 import { Briefcase } from "lucide-react";
 

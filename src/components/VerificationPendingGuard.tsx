@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate } from "@/lib/router-next";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRedirectPath } from "@/lib/authFlow";
 

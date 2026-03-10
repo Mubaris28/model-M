@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
 import catCommercial from "@/assets/cat-commercial.jpg";
 
@@ -14,7 +14,7 @@ const ElevateCareer = () => {
           transition={{ duration: 0.7 }}
           className="relative h-[350px] lg:h-auto overflow-hidden"
         >
-          <img src={catCommercial} alt="Build career" className="w-full h-full object-cover" />
+          <img src={typeof catCommercial === "string" ? catCommercial : catCommercial.src} alt="Build career" className="w-full h-full object-cover" />
         </motion.div>
         <motion.div
           initial={{ opacity: 0, x: 40 }}

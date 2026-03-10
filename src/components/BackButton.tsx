@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-next";
 import { ArrowLeft } from "lucide-react";
 
 type BackButtonProps = {

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
 import { CreditCard } from "lucide-react";
 
 const AdminBankTransfersPage = () => {

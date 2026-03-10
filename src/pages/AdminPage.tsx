@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
 import { Users, Briefcase, ShoppingBag, CreditCard, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 

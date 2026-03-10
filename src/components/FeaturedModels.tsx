@@ -3,7 +3,8 @@ import model2 from "@/assets/model-2.jpg";
 import model3 from "@/assets/model-3.jpg";
 import model4 from "@/assets/model-4.jpg";
 import { Heart } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 export const allModels = [
@@ -39,7 +40,7 @@ const FeaturedModels = () => {
               transition={{ duration: 0.6, delay: i * 0.08 }}
             >
               <Link to={`/model/${model.id}`} className="group relative block aspect-[3/4] overflow-hidden magazine-border">
-                <img src={model.image} alt={model.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 cinematic-overlay" />
                 
                 <div className="absolute top-4 left-4">

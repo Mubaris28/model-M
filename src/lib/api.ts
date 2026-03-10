@@ -1,5 +1,5 @@
-// In dev, Vite proxies /api to backend (3001). In prod, set VITE_API_URL to your API origin.
-const API_URL = import.meta.env.VITE_API_URL ?? "";
+// Next.js rewrites /api to backend (3001). Set NEXT_PUBLIC_API_URL in prod if API is on another origin.
+const API_URL = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "";
 
 function getToken(): string | null {
   return localStorage.getItem("token");
@@ -7,7 +7,7 @@ function getToken(): string | null {
 
 export async function api<T>(
   path: string,
-  options: RequestInit & { body?: object } = {}
+  options: Omit<RequestInit, "body"> & { body?: object } = {}
 ): Promise<T> {
   const { body, ...rest } = options;
   const headers: HeadersInit = {

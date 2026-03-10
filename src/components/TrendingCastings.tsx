@@ -1,5 +1,5 @@
 import { Calendar, MapPin, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
 import { useRef } from "react";
 import { castings } from "./CastingCalls";

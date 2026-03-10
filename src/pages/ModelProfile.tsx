@@ -1,7 +1,8 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { allModels } from "@/components/FeaturedModels";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
 import { Heart, MapPin, Ruler, Calendar, Share2, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
@@ -39,7 +40,7 @@ const ModelProfile = () => {
               className="lg:col-span-5"
             >
               <div className="aspect-[3/4] overflow-hidden magazine-border sticky top-24">
-                <img src={model.image} alt={model.name} className="w-full h-full object-cover" />
+                <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover" />
               </div>
             </motion.div>
 
@@ -113,7 +114,7 @@ const ModelProfile = () => {
                 <div className="grid grid-cols-3 gap-3">
                   {galleryImages.map((img, i) => (
                     <div key={i} className="aspect-square overflow-hidden magazine-border">
-                      <img src={img} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                      <img src={imgSrc(img)} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                     </div>
                   ))}
                 </div>

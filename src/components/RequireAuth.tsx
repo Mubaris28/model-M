@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate } from "@/lib/router-next";
 import { useAuth } from "@/contexts/AuthContext";
 
 /** Redirects to /login if user is not logged in. Use for select-role, become-model, register. */

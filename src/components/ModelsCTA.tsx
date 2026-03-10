@@ -1,12 +1,12 @@
 import { ArrowRight, Sparkles, Star } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
 import heroImg from "@/assets/hero-model.jpg";
 
 const ModelsCTA = () => {
   return (
     <section className="relative h-[500px] md:h-[600px] overflow-hidden">
-      <img src={heroImg} alt="Start modeling" className="w-full h-full object-cover" />
+      <img src={typeof heroImg === "string" ? heroImg : heroImg.src} alt="Start modeling" className="w-full h-full object-cover" />
       <div className="absolute inset-0 bg-black/60" />
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <motion.div

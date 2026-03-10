@@ -1,5 +1,6 @@
 import { Calendar, MapPin, Users, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
 import { motion } from "framer-motion";
 import model1 from "@/assets/model-1.jpg";
 import model2 from "@/assets/model-2.jpg";
@@ -83,7 +84,7 @@ const CastingCalls = () => {
               <Link to={`/casting/${casting.id}`} className="group block bg-background magazine-border overflow-hidden hover:border-primary/30 transition-all duration-300">
                 <div className="flex flex-col sm:flex-row">
                   <div className="w-full sm:w-48 h-40 sm:h-auto sm:min-w-[200px] flex-shrink-0 overflow-hidden">
-                    <img src={casting.image} alt={casting.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={imgSrc(casting.image)} alt={casting.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   </div>
                   <div className="p-6 flex-1">
                 <div className="flex items-start justify-between mb-4">
