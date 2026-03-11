@@ -24,14 +24,18 @@ function loadDraft(userId: string) {
   try {
     const raw = localStorage.getItem(`${DRAFT_KEY}-${userId}`);
     if (raw) return { ...defaultForm, ...JSON.parse(raw) };
-  } catch (_) {}
+  } catch {
+    // ignore parse or storage errors
+  }
   return defaultForm;
 }
 
 function saveDraft(userId: string, data: typeof defaultForm) {
   try {
     localStorage.setItem(`${DRAFT_KEY}-${userId}`, JSON.stringify(data));
-  } catch (_) {}
+  } catch {
+    // ignore storage errors
+  }
 }
 
 const RegisterPage = () => {

@@ -42,14 +42,18 @@ function loadDraft(userId: string): { step1: typeof defaultStep1; step2: typeof 
         step2: { ...defaultStep2, ...parsed.step2 },
       };
     }
-  } catch (_) {}
+  } catch {
+    // ignore parse or storage errors
+  }
   return { step1: defaultStep1, step2: defaultStep2 };
 }
 
 function saveDraft(userId: string, step1: typeof defaultStep1, step2: typeof defaultStep2) {
   try {
     localStorage.setItem(`${DRAFT_KEY}-${userId}`, JSON.stringify({ step1, step2 }));
-  } catch (_) {}
+  } catch {
+    // ignore storage errors
+  }
 }
 
 const BecomeModelPage = () => {
