@@ -105,7 +105,7 @@ const ContactPage = () => {
                     <input
                       type="email"
                       {...register("email")}
-                      placeholder="your@email.com"
+                      placeholder="Enter your email address"
                       className="form-input"
                       autoComplete="email"
                     />

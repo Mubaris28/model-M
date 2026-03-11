@@ -47,7 +47,7 @@ const CategoryDetail = () => {
       </div>
 
       {/* Models Grid */}
-      <div className="container mx-auto px-4 md:px-6 py-16">
+      <div className="container mx-auto px-4 md:px-6 py-16 categories-inner">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {[...allModels, ...allModels].map((model, i) => (
             <motion.div

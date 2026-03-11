@@ -250,4 +250,11 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /* Categories inner pages: at lg use 3 columns instead of 4 */
+  @media (min-width: 1024px) {
+    .categories-inner .lg\:grid-cols-4 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
 }

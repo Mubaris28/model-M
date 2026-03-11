@@ -96,8 +96,7 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
         </div>
 
         <div
-          className={`grid gap-5 md:gap-6 ${homePreview ? "" : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"}`}
-          style={homePreview ? { gridTemplateColumns: "repeat(3, minmax(0, 1fr))" } : undefined}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 md:gap-6"
         >
           {displayList.map((model, i) => (
             <motion.div

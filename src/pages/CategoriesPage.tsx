@@ -20,7 +20,8 @@ const CategoriesPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="categories-inner">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {categories.map((cat, i) => (
               <motion.div
                 key={cat.slug}
@@ -42,6 +43,7 @@ const CategoriesPage = () => {
                 </Link>
               </motion.div>
             ))}
+            </div>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { Providers } from "./Providers";
 import ScrollToTop from "@/components/ScrollToTop";
 import Chatbot from "@/components/Chatbot";
 import FloatingSocialButtons from "@/components/FloatingSocialButtons";
+import NewFeaturePopup from "@/components/NewFeaturePopup";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ScrollToTop />
           <div id="main-content">{children}</div>
           <Chatbot />
+          <NewFeaturePopup />
           <FloatingSocialButtons />
         </Providers>
       </body>

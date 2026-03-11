@@ -141,11 +141,12 @@ export default function Chatbot() {
         {open && (
           <motion.div
             ref={panelRef}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="fixed bottom-24 left-3 z-[45] flex w-[calc(100vw-1.5rem)] max-w-[400px] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl font-body sm:bottom-8 sm:left-4"
+            initial={{ opacity: 0, x: -24, scale: 0.96 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -24, scale: 0.96 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="fixed bottom-24 left-4 z-[45] flex w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl font-body sm:bottom-8 sm:left-6"
+            style={{ marginBottom: "env(safe-area-inset-bottom, 0)", marginLeft: "env(safe-area-inset-left, 0)" }}
             style={{ maxHeight: "75vh" }}
             role="dialog"
             aria-label="Help chat"
@@ -274,11 +275,14 @@ export default function Chatbot() {
       {!open && (
         <motion.button
           type="button"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 left-3 z-[45] flex h-12 w-12 items-center justify-center rounded-full border-2 border-border bg-card text-foreground shadow-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring sm:bottom-6 sm:left-4"
+          className="fixed bottom-6 left-4 z-[45] flex h-12 w-12 items-center justify-center rounded-full border-2 border-border bg-card text-foreground shadow-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring sm:bottom-8 sm:left-6"
+          style={{ marginBottom: "env(safe-area-inset-bottom, 0)", marginLeft: "env(safe-area-inset-left, 0)" }}
           aria-label="Open help chat"
           aria-expanded={false}
         >

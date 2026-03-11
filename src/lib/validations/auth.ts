@@ -29,6 +29,24 @@ export const contactSchema = z.object({
   message: z.string().min(1, "Message is required").max(10000, "Message too long"),
 });
 
+export const REPORT_TYPES = [
+  "Harassment or Inappropriate Behavior",
+  "Safety Concern",
+  "Fraud or Scam",
+  "Technical Issue",
+  "Inappropriate Content",
+  "Other",
+] as const;
+
+export const reportSchema = z.object({
+  name: z.string().min(1, "Full name is required").max(200, "Name too long"),
+  email: z.string().email("Valid email is required"),
+  reportType: z.string().min(1, "Please select a report type"),
+  subject: z.string().min(1, "Subject is required").max(200, "Subject too long"),
+  message: z.string().min(1, "Detailed description is required").max(5000, "Message too long"),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type SignupInput = z.infer<typeof signupSchema>;
 export type ContactInput = z.infer<typeof contactSchema>;
+export type ReportInput = z.infer<typeof reportSchema>;

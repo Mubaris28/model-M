@@ -70,6 +70,11 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/casting/[id]/page.js"
+    ],
+    "/sponsor/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/sponsor/page.js"
     ]
   }
 }

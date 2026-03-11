@@ -210,8 +210,7 @@ const ModelsPage = () => {
           )}
 
           <div
-            className={view === "grid" ? "grid gap-5 md:gap-6" : "flex flex-col gap-4"}
-            style={view === "grid" ? { gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" } : undefined}
+            className={view === "grid" ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 md:gap-6" : "flex flex-col gap-4"}
           >
             {displayedModels.map((model, i) => (
               <motion.div

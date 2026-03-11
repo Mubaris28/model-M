@@ -24,7 +24,9 @@ const Navbar = () => {
     { label: "Categories", path: "/categories" },
     { label: "Casting", path: "/casting" },
     { label: "New Faces", path: "/new-faces" },
+    { label: "Premium", path: "/directory" },
     { label: "Marketplace", path: "/marketplace" },
+    { label: "Partners", path: "/sponsor" },
     { label: "About", path: "/about" },
     { label: "Contact", path: "/contact" },
   ];
