@@ -1,5 +1,6 @@
+"use client";
 import { useState, useEffect } from "react";
-import { Menu, X, Search, User, LayoutDashboard, LogOut } from "lucide-react";
+import { Menu, X, User, LayoutDashboard, LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "@/lib/router-next";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -54,9 +55,6 @@ const Navbar = () => {
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
-          <button className={`hover:text-primary transition-colors p-2 ${isTransparent ? "text-white/80" : "text-muted-foreground"}`} aria-label="Search">
-            <Search className="w-4 h-4" />
-          </button>
           {isLoggedIn ? (
             <div className="relative">
               <button

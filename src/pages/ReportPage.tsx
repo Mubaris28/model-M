@@ -1,3 +1,4 @@
+"use client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AlertCircle, Send, Loader2 } from "lucide-react";

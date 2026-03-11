@@ -146,8 +146,7 @@ export default function Chatbot() {
             exit={{ opacity: 0, x: -24, scale: 0.96 }}
             transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="fixed bottom-24 left-4 z-[45] flex w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl font-body sm:bottom-8 sm:left-6"
-            style={{ marginBottom: "env(safe-area-inset-bottom, 0)", marginLeft: "env(safe-area-inset-left, 0)" }}
-            style={{ maxHeight: "75vh" }}
+            style={{ marginBottom: "env(safe-area-inset-bottom, 0)", marginLeft: "env(safe-area-inset-left, 0)", maxHeight: "75vh" }}
             role="dialog"
             aria-label="Help chat"
           >
