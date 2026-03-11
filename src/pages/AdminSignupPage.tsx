@@ -36,7 +36,7 @@ const AdminSignupPage = () => {
       <div className="w-full max-w-md form-card">
         <h1 className="font-display text-3xl text-primary mb-1">Create Admin Account</h1>
         <p className="text-muted-foreground text-sm font-body mb-8">
-          Sign up with an authorized admin email (e.g. mubarismuhammed33@gmail.com). After this you can log in at the admin panel.
+          Only emails listed in the server&apos;s ADMIN_EMAILS setting can create an admin account. After signup you can log in at the admin panel.
         </p>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -56,7 +56,7 @@ const AdminSignupPage = () => {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="form-input"
-              placeholder="mubarismuhammed33@gmail.com"
+              placeholder="your-authorized-email@example.com"
               required
             />
           </div>

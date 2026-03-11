@@ -1,12 +1,16 @@
-import { Sparkles, Star, Camera, Palette, ArrowRight } from "lucide-react";
+import { Sparkles, Star, Camera, Palette, Shirt, Brush, Link2, Rocket, ArrowRight } from "lucide-react";
 import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
 
 const actions = [
   { icon: Sparkles, label: "I'm New to the Spotlight", link: "/discover-path/im-new-to-the-spotlight", description: "Start your modeling journey" },
   { icon: Star, label: "I'm a Full-Time Model", link: "/discover-path/im-a-full-time-model", description: "Explore opportunities" },
-  { icon: Camera, label: "I'm a Photographer", link: "/discover-path/im-a-creative-photographer", description: "Connect with talent" },
-  { icon: Palette, label: "I'm a Creative Professional", link: "/discover-path/im-an-influencer-with-a-passion-for-creating", description: "Join our directory" },
+  { icon: Palette, label: "I'm an Influencer with a passion for creating", link: "/discover-path/im-an-influencer-with-a-passion-for-creating", description: "Content creation & influence" },
+  { icon: Camera, label: "I'm a Creative Photographer", link: "/discover-path/im-a-creative-photographer", description: "Connect with talent" },
+  { icon: Shirt, label: "I'm a Stylist", link: "/discover-path/im-a-stylist", description: "Fashion & styling" },
+  { icon: Brush, label: "I'm a Talent Artist", link: "/discover-path/im-a-talent-artist", description: "Creative collaborations" },
+  { icon: Link2, label: "Connect Now", link: "/discover-path/were-more-than-a-brand", description: "We're more than a brand" },
+  { icon: Rocket, label: "Get Started", link: "/discover-path/we-are-your-go-to-agency", description: "We are your go-to agency" },
 ];
 
 const QuickActions = () => {

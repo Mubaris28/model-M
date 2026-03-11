@@ -11,6 +11,16 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Model Management Mauritius - Professional Modeling Platform",
   description: "Professional modeling platform for models and talent in Mauritius.",
+  openGraph: {
+    title: "Model Management Mauritius - Professional Modeling Platform",
+    description: "Professional modeling platform for models and talent in Mauritius.",
+    images: [{ url: "/images/og-hero.jpg", width: 1200, height: 630, alt: "Model Management Mauritius" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Model Management Mauritius - Professional Modeling Platform",
+    description: "Professional modeling platform for models and talent in Mauritius.",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

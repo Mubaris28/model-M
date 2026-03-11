@@ -21,6 +21,9 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN;
 
 const app = express();
 
+// Required when behind a proxy (e.g. Render, Vercel). Enables correct client IP for rate limiting.
+app.set("trust proxy", 1);
+
 const corsOptions = {
   credentials: true,
   origin:

@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import CinematicSlider from "@/components/CinematicSlider";
+import HeroSingle from "@/components/HeroSingle";
 import MagazineGrid from "@/components/MagazineGrid";
 import NewFaces from "@/components/NewFaces";
 import FeaturedModels from "@/components/FeaturedModels";
@@ -16,7 +16,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <h1 className="sr-only">Model Management Mauritius - Professional Modeling Platform for Models and Talent</h1>
       <Navbar />
-      <CinematicSlider />
+      <HeroSingle />
 
       <MagazineGrid />
       <NewFaces homePreview />
