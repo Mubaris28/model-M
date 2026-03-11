@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Providers } from "./Providers";
 import ScrollToTop from "@/components/ScrollToTop";
+import Chatbot from "@/components/Chatbot";
 import FloatingSocialButtons from "@/components/FloatingSocialButtons";
 import "./globals.css";
 
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <ScrollToTop />
           <div id="main-content">{children}</div>
+          <Chatbot />
           <FloatingSocialButtons />
         </Providers>
       </body>

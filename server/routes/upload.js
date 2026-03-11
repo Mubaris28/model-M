@@ -19,6 +19,9 @@ const BUNNY_CDN_URL = (process.env.BUNNY_CDN_URL || "").replace(/\/$/, "");
 const BUNNY_REGION = process.env.BUNNY_STORAGE_REGION || "storage";
 const STORAGE_HOST = BUNNY_REGION === "storage" ? "storage.bunnycdn.com" : `${BUNNY_REGION}.storage.bunnycdn.com`;
 
+// All uploads go under "images/" then by type and user id: images/portfolio/{userId}/, images/id/{userId}/, etc.
+const UPLOAD_PATH_PREFIX = "images";
+
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB per file
 
@@ -37,7 +40,9 @@ const upload = multer({
 
 async function uploadToBunny(buffer, contentType, path) {
   if (!BUNNY_API_KEY) {
-    throw new Error("Storage is not configured. Please try again later or contact support.");
+    const err = new Error("Storage is not configured. Please try again later or contact support.");
+    err.code = "STORAGE_NOT_CONFIGURED";
+    throw err;
   }
   const url = `https://${STORAGE_HOST}/${BUNNY_STORAGE_ZONE}/${path}`;
   const res = await fetch(url, {
@@ -50,7 +55,16 @@ async function uploadToBunny(buffer, contentType, path) {
   });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error("Upload failed. Please try again.");
+    if (res.status === 401) {
+      console.error("[upload] Bunny Storage 401: Invalid AccessKey. Check BUNNY_STORAGE_API_KEY.");
+      throw new Error("Storage credentials are invalid. Please contact support.");
+    }
+    if (res.status === 403) {
+      console.error("[upload] Bunny Storage 403:", text.slice(0, 200));
+      throw new Error("Storage access denied. Please try again or contact support.");
+    }
+    console.error("[upload] Bunny Storage error", res.status, text.slice(0, 300));
+    throw new Error(`Upload failed (${res.status}). Please try again.`);
   }
   if (BUNNY_CDN_URL) {
     return `${BUNNY_CDN_URL}/${path}`;
@@ -70,11 +84,21 @@ router.post("/", auth, upload.single("file"), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded. Use field name 'file'." });
     }
+    if (!req.user?._id) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    if (!BUNNY_API_KEY) {
+      return res.status(503).json({ error: "Storage is not configured. Please try again later or contact support." });
+    }
     const folder = (req.query.folder || "uploads").replace(/[^a-z0-9_-]/gi, "") || "uploads";
-    const path = `${folder}/${req.user._id}/${safeFilename(req.file.originalname)}`;
+    const path = `${UPLOAD_PATH_PREFIX}/${folder}/${String(req.user._id)}/${safeFilename(req.file.originalname)}`;
     const url = await uploadToBunny(req.file.buffer, req.file.mimetype, path);
     res.json({ url });
   } catch (e) {
+    if (e.code === "STORAGE_NOT_CONFIGURED") {
+      return res.status(503).json({ error: e.message });
+    }
+    console.error("[upload] single error:", e.message || e);
     res.status(500).json({ error: e.message || "Upload failed" });
   }
 });
@@ -86,15 +110,26 @@ router.post("/multiple", auth, upload.array("files", 10), async (req, res) => {
     if (files.length === 0) {
       return res.status(400).json({ error: "No files uploaded. Use field name 'files'." });
     }
+    if (!req.user?._id) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    if (!BUNNY_API_KEY) {
+      return res.status(503).json({ error: "Storage is not configured. Please try again later or contact support." });
+    }
     const folder = (req.query.folder || "uploads").replace(/[^a-z0-9_-]/gi, "") || "uploads";
+    const userId = String(req.user._id);
     const urls = [];
     for (const file of files) {
-      const path = `${folder}/${req.user._id}/${safeFilename(file.originalname)}`;
+      const path = `${UPLOAD_PATH_PREFIX}/${folder}/${userId}/${safeFilename(file.originalname)}`;
       const url = await uploadToBunny(file.buffer, file.mimetype, path);
       urls.push(url);
     }
     res.json({ urls });
   } catch (e) {
+    if (e.code === "STORAGE_NOT_CONFIGURED") {
+      return res.status(503).json({ error: e.message });
+    }
+    console.error("[upload] multiple error:", e.message || e);
     res.status(500).json({ error: e.message || "Upload failed" });
   }
 });

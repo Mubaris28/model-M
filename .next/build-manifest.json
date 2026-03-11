@@ -5,8 +5,8 @@
   "devFiles": [],
   "ampDevFiles": [],
   "lowPriorityFiles": [
-    "static/Ne80uzXVJT2Exr8lYYTNI/_buildManifest.js",
-    "static/Ne80uzXVJT2Exr8lYYTNI/_ssgManifest.js"
+    "static/tfMCJl0k_88hu_CUASklk/_buildManifest.js",
+    "static/tfMCJl0k_88hu_CUASklk/_ssgManifest.js"
   ],
   "rootMainFiles": [
     "static/chunks/webpack-5403b7dfe22cb755.js",
@@ -74,7 +74,7 @@
       "static/chunks/3717-229482d8bcd16ea5.js",
       "static/chunks/587-df0e34456f714dcf.js",
       "static/chunks/1362-94a44e39fa944349.js",
-      "static/chunks/pages/BecomeModelPage-eef6fc5b433859f6.js"
+      "static/chunks/pages/BecomeModelPage-f305286baaba68a9.js"
     ],
     "/CaseStudyDetail": [
       "static/chunks/webpack-5403b7dfe22cb755.js",
@@ -357,7 +357,7 @@
       "static/chunks/3717-229482d8bcd16ea5.js",
       "static/chunks/587-df0e34456f714dcf.js",
       "static/chunks/1362-94a44e39fa944349.js",
-      "static/chunks/pages/RegisterPage-ed6a3502b0e4b94b.js"
+      "static/chunks/pages/RegisterPage-f1cc8cb37ec0c490.js"
     ],
     "/RejectedPage": [
       "static/chunks/webpack-5403b7dfe22cb755.js",

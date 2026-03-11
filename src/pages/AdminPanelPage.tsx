@@ -508,8 +508,21 @@ const AdminPanelPage = () => {
                       <h4 className="font-display text-sm text-primary uppercase mb-2">Portfolio ({viewUser.portfolio!.length} images)</h4>
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                         {viewUser.portfolio!.map((url) => (
-                          <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-[3/4] rounded overflow-hidden bg-secondary">
-                            <img src={url} alt="" className="w-full h-full object-cover" />
+                          <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-[3/4] rounded overflow-hidden bg-secondary relative">
+                            <img
+                              src={url}
+                              alt=""
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const img = e.currentTarget;
+                                img.style.display = "none";
+                                const fallback = img.nextElementSibling;
+                                if (fallback) (fallback as HTMLElement).style.display = "flex";
+                              }}
+                            />
+                            <div className="absolute inset-0 hidden items-center justify-center text-xs text-muted-foreground font-body" style={{ display: "none" }}>
+                              Image unavailable
+                            </div>
                           </a>
                         ))}
                       </div>
@@ -523,16 +536,42 @@ const AdminPanelPage = () => {
                         {viewUser.idPhotoUrl && (
                           <div>
                             <p className="text-xs text-muted-foreground font-body mb-1">ID / Passport photo</p>
-                            <a href={viewUser.idPhotoUrl} target="_blank" rel="noopener noreferrer" className="block w-32 aspect-[3/4] rounded overflow-hidden bg-secondary">
-                              <img src={viewUser.idPhotoUrl} alt="ID" className="w-full h-full object-cover" />
+                            <a href={viewUser.idPhotoUrl} target="_blank" rel="noopener noreferrer" className="block w-32 aspect-[3/4] rounded overflow-hidden bg-secondary relative">
+                              <img
+                                src={viewUser.idPhotoUrl}
+                                alt="ID"
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const img = e.currentTarget;
+                                  img.style.display = "none";
+                                  const fallback = img.nextElementSibling;
+                                  if (fallback) (fallback as HTMLElement).style.display = "flex";
+                                }}
+                              />
+                              <div className="absolute inset-0 hidden items-center justify-center text-xs text-muted-foreground font-body" style={{ display: "none" }}>
+                                Unavailable
+                              </div>
                             </a>
                           </div>
                         )}
                         {viewUser.selfieWithIdUrl && (
                           <div>
                             <p className="text-xs text-muted-foreground font-body mb-1">Selfie with ID</p>
-                            <a href={viewUser.selfieWithIdUrl} target="_blank" rel="noopener noreferrer" className="block w-32 aspect-[3/4] rounded overflow-hidden bg-secondary">
-                              <img src={viewUser.selfieWithIdUrl} alt="Selfie" className="w-full h-full object-cover" />
+                            <a href={viewUser.selfieWithIdUrl} target="_blank" rel="noopener noreferrer" className="block w-32 aspect-[3/4] rounded overflow-hidden bg-secondary relative">
+                              <img
+                                src={viewUser.selfieWithIdUrl}
+                                alt="Selfie"
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const img = e.currentTarget;
+                                  img.style.display = "none";
+                                  const fallback = img.nextElementSibling;
+                                  if (fallback) (fallback as HTMLElement).style.display = "flex";
+                                }}
+                              />
+                              <div className="absolute inset-0 hidden items-center justify-center text-xs text-muted-foreground font-body" style={{ display: "none" }}>
+                                Unavailable
+                              </div>
                             </a>
                           </div>
                         )}
