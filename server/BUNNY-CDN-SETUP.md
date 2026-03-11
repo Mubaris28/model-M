@@ -49,7 +49,7 @@ You do **not** need to create these folders manually; the API creates them when 
 
 ## 4. Environment variables (summary)
 
-| Variable | Where to get it | Required |
+| Varible | Where to get it | Required |
 |----------|------------------|----------|
 | `BUNNY_STORAGE_ZONE` | Storage Zone name (e.g. `model-m`) | Optional, default `model-m` |
 | `BUNNY_STORAGE_API_KEY` | Storage → FTP & API access → **Password (Full Access)** | Yes (or uploads return 503) |
