@@ -37,7 +37,7 @@ const upload = multer({
 
 async function uploadToBunny(buffer, contentType, path) {
   if (!BUNNY_API_KEY) {
-    throw new Error("Bunny storage is not configured. Set BUNNY_STORAGE_API_KEY (or BUNNY_API_KEY) in server environment.");
+    throw new Error("Storage is not configured. Please try again later or contact support.");
   }
   const url = `https://${STORAGE_HOST}/${BUNNY_STORAGE_ZONE}/${path}`;
   const res = await fetch(url, {
@@ -50,7 +50,7 @@ async function uploadToBunny(buffer, contentType, path) {
   });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Bunny upload failed: ${res.status} ${text}`);
+    throw new Error("Upload failed. Please try again.");
   }
   if (BUNNY_CDN_URL) {
     return `${BUNNY_CDN_URL}/${path}`;

@@ -90,13 +90,18 @@ const DashboardUpdatePortfolioPage = () => {
             className="border-2 border-dashed border-border p-8 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {uploading ? (
-              <Loader2 className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
+              <>
+                <Loader2 className="w-12 h-12 text-primary mx-auto mb-3 animate-spin" aria-hidden />
+                <p className="text-primary font-body text-sm font-medium">Uploading...</p>
+              </>
             ) : (
-              <ImagePlus className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <>
+                <ImagePlus className="w-12 h-12 text-muted-foreground mx-auto mb-3" aria-hidden />
+                <p className="text-muted-foreground font-body text-sm">
+                  {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — click to add more` : "Click to upload — JPG, PNG, WebP. Min 4, max 6."}
+                </p>
+              </>
             )}
-            <p className="text-muted-foreground font-body text-sm">
-              {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — click to add more` : "Click to upload — JPG, PNG, WebP. Min 4, max 6."}
-            </p>
           </div>
 
           {portfolioUrls.length > 0 && (

@@ -118,40 +118,66 @@ export const contactApi = {
     api<{ message: string }>("/api/contact", { method: "POST", body }),
 };
 
-const API_URL_FOR_UPLOAD = (() => {
-  const raw = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "";
-  return raw && !/^https?:\/\//i.test(raw) ? `https://${raw.replace(/^\/+/, "")}` : raw;
-})();
+function getUploadBaseUrl(): string {
+  if (typeof window !== "undefined") {
+    const raw = (process.env?.NEXT_PUBLIC_API_URL as string) || "";
+    const base = raw && !/^https?:\/\//i.test(raw) ? `https://${raw.replace(/^\/+/, "")}` : raw;
+    return base;
+  }
+  return (process.env?.NEXT_PUBLIC_API_URL as string) || "";
+}
 
 export async function uploadFile(file: File, folder: "profile" | "portfolio" | "id" | "selfie"): Promise<string> {
   const token = getToken();
   if (!token) throw new Error("You must be logged in to upload.");
-  const form = new FormData();
-  form.append("file", file);
-  const url = `${API_URL_FOR_UPLOAD}/api/upload?folder=${folder}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: form,
-  });
+  const base = getUploadBaseUrl();
+  const url = `${base ? base.replace(/\/$/, "") : ""}/api/upload?folder=${folder}`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: (() => {
+        const form = new FormData();
+        form.append("file", file);
+        return form;
+      })(),
+    });
+  } catch (e) {
+    const msg = (e as Error).message?.toLowerCase() || "";
+    if (msg.includes("fetch") || msg.includes("network") || msg.includes("failed"))
+      throw new Error("Cannot reach server. Check your connection and try again.");
+    throw e;
+  }
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((data as { error?: string }).error || "Upload failed");
+  if (!res.ok) throw new Error((data as { error?: string }).error || "Upload failed. Please try again.");
   return (data as { url: string }).url;
 }
 
 export async function uploadFiles(files: File[], folder: "portfolio"): Promise<string[]> {
   const token = getToken();
   if (!token) throw new Error("You must be logged in to upload.");
-  const form = new FormData();
-  files.forEach((f) => form.append("files", f));
-  const url = `${API_URL_FOR_UPLOAD}/api/upload/multiple?folder=${folder}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: form,
-  });
+  const base = getUploadBaseUrl();
+  const url = `${base ? base.replace(/\/$/, "") : ""}/api/upload/multiple?folder=${folder}`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: (() => {
+        const form = new FormData();
+        files.forEach((f) => form.append("files", f));
+        return form;
+      })(),
+    });
+  } catch (e) {
+    const msg = (e as Error).message?.toLowerCase() || "";
+    if (msg.includes("fetch") || msg.includes("network") || msg.includes("failed"))
+      throw new Error("Cannot reach server. Check your connection and try again.");
+    throw e;
+  }
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((data as { error?: string }).error || "Upload failed");
+  if (!res.ok) throw new Error((data as { error?: string }).error || "Upload failed. Please try again.");
   return (data as { urls: string[] }).urls;
 }
 

@@ -18,6 +18,8 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { adminApi, User, AdminStats } from "@/lib/api";
 
+const USERS_PAGE_SIZE = 20;
+
 type TabId = "dashboard" | "users" | "castings" | "marketplace";
 
 const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
@@ -35,7 +37,29 @@ const AdminPanelPage = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
+  const [usersPage, setUsersPage] = useState(0);
   const [authError, setAuthError] = useState("");
+
+  const loadUsers = async () => {
+    setUsersLoading(true);
+    try {
+      const data = await adminApi.users();
+      setUsers(data);
+    } catch {
+      setAuthError("Failed to load users.");
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  const paginatedUsers = users.slice(usersPage * USERS_PAGE_SIZE, (usersPage + 1) * USERS_PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(users.length / USERS_PAGE_SIZE));
+
+  useEffect(() => {
+    if (activeTab === "users" && totalPages > 0 && usersPage >= totalPages) {
+      setUsersPage(Math.max(0, totalPages - 1));
+    }
+  }, [activeTab, totalPages, usersPage]);
   const [actionModal, setActionModal] = useState<{ user: User; action: "reject" | "changes_requested" } | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
@@ -63,18 +87,6 @@ const AdminPanelPage = () => {
     }
   };
 
-  const loadUsers = async () => {
-    setUsersLoading(true);
-    try {
-      const data = await adminApi.users();
-      setUsers(data);
-    } catch {
-      setAuthError("Failed to load users.");
-    } finally {
-      setUsersLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (user?.isAdmin) {
       loadStats();
@@ -91,7 +103,7 @@ const AdminPanelPage = () => {
     setActionLoading(true);
     try {
       await adminApi.updateUser(u._id, { status: "approved", rejectionReason: "" });
-      await loadUsers();
+      loadUsers();
       loadStats();
     } finally {
       setActionLoading(false);
@@ -128,7 +140,7 @@ const AdminPanelPage = () => {
         status: actionModal.action === "reject" ? "rejected" : "changes_requested",
         rejectionReason: reason,
       });
-      await loadUsers();
+      loadUsers();
       loadStats();
       setActionModal(null);
       setRejectionReason("");
@@ -318,7 +330,7 @@ const AdminPanelPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {users.map((u) => (
+                      {paginatedUsers.map((u) => (
                         <tr key={u._id} className="border-t border-border">
                           <td className="p-3">
                             <span className="font-medium">{u.fullName || "—"}</span>
@@ -355,6 +367,31 @@ const AdminPanelPage = () => {
                   </table>
                   {users.length === 0 && !usersLoading && (
                     <p className="p-6 text-center text-muted-foreground">No users found.</p>
+                  )}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between p-3 border-t border-border">
+                      <p className="text-muted-foreground text-xs font-body">
+                        {users.length} total · page {usersPage + 1} of {totalPages}
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setUsersPage((p) => Math.max(0, p - 1))}
+                          disabled={usersPage === 0}
+                          className="text-xs px-2 py-1 border border-border disabled:opacity-50 hover:border-primary text-primary"
+                        >
+                          Previous
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setUsersPage((p) => Math.min(totalPages - 1, p + 1))}
+                          disabled={usersPage >= totalPages - 1}
+                          className="text-xs px-2 py-1 border border-border disabled:opacity-50 hover:border-primary text-primary"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
               )}

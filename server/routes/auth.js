@@ -2,6 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { auth } from "../middleware/auth.js";
+import { signupValidation, loginValidation, adminSignupValidation } from "../middleware/validate.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
@@ -19,15 +20,9 @@ function signToken(user) {
 }
 
 // POST /api/auth/signup
-router.post("/signup", async (req, res) => {
+router.post("/signup", signupValidation, async (req, res, next) => {
   try {
     const { email, password, fullName, phone } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
-    }
-    if (password.length < 6) {
-      return res.status(400).json({ error: "Password must be at least 6 characters" });
-    }
     const existing = await User.findOne({ email: email.toLowerCase() });
     if (existing) return res.status(400).json({ error: "Email already registered" });
 
@@ -46,17 +41,15 @@ router.post("/signup", async (req, res) => {
     const u = await User.findById(user._id).select("-password");
     res.status(201).json({ user: u, token });
   } catch (e) {
-    res.status(500).json({ error: e.message || "Signup failed" });
+    e.statusCode = e.statusCode || 500;
+    next(e);
   }
 });
 
 // POST /api/auth/login
-router.post("/login", async (req, res) => {
+router.post("/login", loginValidation, async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
-    }
     const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
     if (!user) return res.status(401).json({ error: "Invalid email or password" });
     const ok = await user.comparePassword(password);
@@ -66,20 +59,15 @@ router.post("/login", async (req, res) => {
     const u = await User.findById(user._id).select("-password");
     res.json({ user: u, token });
   } catch (e) {
-    res.status(500).json({ error: e.message || "Login failed" });
+    e.statusCode = e.statusCode || 500;
+    next(e);
   }
 });
 
 // POST /api/auth/admin/signup — create admin account (only for emails listed in ADMIN_EMAILS)
-router.post("/admin/signup", async (req, res) => {
+router.post("/admin/signup", adminSignupValidation, async (req, res, next) => {
   try {
     const { email, password, fullName } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
-    }
-    if (password.length < 6) {
-      return res.status(400).json({ error: "Password must be at least 6 characters" });
-    }
     const emailLower = email.toLowerCase();
     if (!ADMIN_EMAILS.includes(emailLower)) {
       return res.status(403).json({ error: "This email is not authorized to create an admin account." });
@@ -102,17 +90,15 @@ router.post("/admin/signup", async (req, res) => {
     const u = await User.findById(user._id).select("-password");
     res.status(201).json({ user: u, token });
   } catch (e) {
-    res.status(500).json({ error: e.message || "Admin signup failed" });
+    e.statusCode = e.statusCode || 500;
+    next(e);
   }
 });
 
 // POST /api/auth/admin/login — same as login but returns 403 if not admin
-router.post("/admin/login", async (req, res) => {
+router.post("/admin/login", loginValidation, async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
-    }
     const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
     if (!user) return res.status(401).json({ error: "Invalid email or password" });
     const ok = await user.comparePassword(password);
@@ -124,7 +110,8 @@ router.post("/admin/login", async (req, res) => {
     const u = await User.findById(user._id).select("-password");
     res.json({ user: u, token });
   } catch (e) {
-    res.status(500).json({ error: e.message || "Login failed" });
+    e.statusCode = e.statusCode || 500;
+    next(e);
   }
 });
 
@@ -139,7 +126,7 @@ router.get("/check-admin", auth, (req, res) => {
 });
 
 // PATCH /api/auth/me — update current user (role, profileComplete, status, fullName, phone, company, profilePhoto, portfolio, idPhotoUrl, selfieWithIdUrl, bio, country)
-router.patch("/me", auth, async (req, res) => {
+router.patch("/me", auth, async (req, res, next) => {
   try {
     const allowed = ["role", "profileComplete", "status", "fullName", "phone", "company", "profilePhoto", "portfolio", "idPhotoUrl", "selfieWithIdUrl", "bio", "country", "dateOfBirth", "gender", "city", "height", "weight", "eyeColor", "hairColor", "categories", "instagram", "idNumber"];
     const updates = {};
@@ -172,7 +159,8 @@ router.patch("/me", auth, async (req, res) => {
     const user = await User.findByIdAndUpdate(req.user._id, { $set: updates }, { new: true }).select("-password");
     res.json({ user });
   } catch (e) {
-    res.status(500).json({ error: e.message || "Update failed" });
+    e.statusCode = e.statusCode || 500;
+    next(e);
   }
 });
 

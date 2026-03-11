@@ -295,18 +295,23 @@ const BecomeModelPage = () => {
                 <div
                   role="button"
                   tabIndex={0}
-                  onClick={() => portfolioInputRef.current?.click()}
-                  onKeyDown={(e) => e.key === "Enter" && portfolioInputRef.current?.click()}
-                  className="border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  onClick={() => portfolioUrls.length < 6 && portfolioInputRef.current?.click()}
+                  onKeyDown={(e) => e.key === "Enter" && portfolioUrls.length < 6 && portfolioInputRef.current?.click()}
+                  className={`border-2 border-dashed p-6 text-center transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${portfolioUrls.length >= 6 ? "border-primary/30 bg-secondary/50 cursor-default" : "border-border cursor-pointer hover:border-primary/50"}`}
                 >
                   {uploading === "portfolio" ? (
-                    <Loader2 className="w-8 h-8 text-primary mx-auto mb-2 animate-spin" />
+                    <>
+                      <Loader2 className="w-8 h-8 text-primary mx-auto mb-2 animate-spin" aria-hidden />
+                      <p className="text-primary text-sm font-body font-medium">Uploading...</p>
+                    </>
                   ) : (
-                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                    <>
+                      <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" aria-hidden />
+                      <p className="text-muted-foreground text-xs font-body">
+                        {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — click to add more` : "Click or drop — JPG, PNG, WebP. Min 4, max 6."}
+                      </p>
+                    </>
                   )}
-                  <p className="text-muted-foreground text-xs font-body">
-                    {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — click to add more` : "Click or drop — JPG, PNG, WebP. Min 4, max 6."}
-                  </p>
                 </div>
                 {portfolioUrls.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-3">
@@ -349,7 +354,10 @@ const BecomeModelPage = () => {
                   className="border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   {uploading === "id" ? (
-                    <Loader2 className="w-6 h-6 text-primary mx-auto mb-2 animate-spin" />
+                    <>
+                      <Loader2 className="w-6 h-6 text-primary mx-auto mb-2 animate-spin" aria-hidden />
+                      <p className="text-primary text-sm font-body">Uploading...</p>
+                    </>
                   ) : step2.idPhotoUrl ? (
                     <img src={step2.idPhotoUrl} alt="ID" className="w-20 h-20 object-cover mx-auto rounded" />
                   ) : (
@@ -371,7 +379,10 @@ const BecomeModelPage = () => {
                   className="border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   {uploading === "selfie" ? (
-                    <Loader2 className="w-6 h-6 text-primary mx-auto mb-2 animate-spin" />
+                    <>
+                      <Loader2 className="w-6 h-6 text-primary mx-auto mb-2 animate-spin" aria-hidden />
+                      <p className="text-primary text-sm font-body">Uploading...</p>
+                    </>
                   ) : step2.selfieWithIdUrl ? (
                     <img src={step2.selfieWithIdUrl} alt="Selfie" className="w-20 h-20 object-cover mx-auto rounded" />
                   ) : (
@@ -403,8 +414,22 @@ const BecomeModelPage = () => {
                 Continue to verification <ArrowRight className="w-4 h-4" />
               </button>
             ) : (
-              <button type="button" onClick={handleSubmit} disabled={loading} className="btn-primary">
-                {loading ? "Submitting..." : "Submit application"} <ArrowRight className="w-4 h-4" />
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="btn-primary inline-flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    Submit application <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
             )}
           </div>

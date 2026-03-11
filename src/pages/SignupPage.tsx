@@ -1,49 +1,48 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@/lib/router-next";
-import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/contexts/AuthContext";
+import { signupSchema, type SignupInput } from "@/lib/validations/auth";
 
 const SignupPage = () => {
   const navigate = useNavigate();
   const { signup } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "", agreeTerms: false });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState("");
 
-  const validate = () => {
-    const errs: Record<string, string> = {};
-    if (!form.name.trim()) errs.name = "Name is required";
-    if (!form.email.trim()) errs.email = "Email is required";
-    // Phone optional for signup
-    if (form.password.length < 6) errs.password = "Password must be at least 6 characters";
-    if (form.password !== form.confirmPassword) errs.confirmPassword = "Passwords do not match";
-    if (!form.agreeTerms) errs.agreeTerms = "You must agree to the terms";
-    return errs;
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupInput>({
+    resolver: zodResolver(signupSchema),
+    mode: "onBlur",
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+      agreeTerms: false,
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const errs = validate();
-    setErrors(errs);
-    if (Object.keys(errs).length > 0) return;
-    setLoading(true);
+  const onSubmit = async (data: SignupInput) => {
+    setFormError("");
     try {
-      await signup(form.email, form.password, form.name, form.phone);
-      // Always send new signups to select-role (never to admin). Admin panel is for login only.
+      await signup(data.email, data.password, data.name, data.phone || undefined);
       navigate("/select-role");
     } catch (err) {
-      setErrors({ form: (err as Error).message });
-    } finally {
-      setLoading(false);
+      setFormError((err as Error).message);
     }
   };
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Left side - branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-red items-center justify-center p-12 relative overflow-hidden">
         <div className="relative z-10 text-center">
           <Link to="/" className="inline-block mb-8">
@@ -58,7 +57,6 @@ const SignupPage = () => {
         </div>
       </div>
 
-      {/* Right side - form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -78,89 +76,88 @@ const SignupPage = () => {
           <h2 className="font-display text-4xl mb-2">Create Account</h2>
           <p className="text-muted-foreground text-sm font-body mb-8">Join thousands of models and professionals</p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
             <div>
               <label className="form-label">Full name</label>
               <input
                 type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                {...register("name")}
                 className="form-input"
                 placeholder="Enter your full name"
+                autoComplete="name"
               />
-              {errors.name && <p className="form-error">{errors.name}</p>}
+              {errors.name && <p className="form-error">{errors.name.message}</p>}
             </div>
             <div>
               <label className="form-label">Email</label>
               <input
                 type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                {...register("email")}
                 className="form-input"
                 placeholder="your@email.com"
+                autoComplete="email"
               />
-              {errors.email && <p className="form-error">{errors.email}</p>}
+              {errors.email && <p className="form-error">{errors.email.message}</p>}
             </div>
             <div>
               <label className="form-label">Phone (optional)</label>
               <input
                 type="tel"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                {...register("phone")}
                 className="form-input"
                 placeholder="+230..."
+                autoComplete="tel"
               />
-              {errors.phone && <p className="form-error">{errors.phone}</p>}
+              {errors.phone && <p className="form-error">{errors.phone.message}</p>}
             </div>
             <div className="relative">
               <label className="form-label">Password</label>
               <input
                 type={showPassword ? "text" : "password"}
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                {...register("password")}
                 className="form-input pr-12"
                 placeholder="Min. 6 characters"
+                autoComplete="new-password"
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-[38px] text-muted-foreground hover:text-foreground" aria-label={showPassword ? "Hide password" : "Show password"}>
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
-              {errors.password && <p className="form-error">{errors.password}</p>}
+              {errors.password && <p className="form-error">{errors.password.message}</p>}
             </div>
             <div className="relative">
               <label className="form-label">Confirm password</label>
               <input
                 type={showConfirm ? "text" : "password"}
-                value={form.confirmPassword}
-                onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                {...register("confirmPassword")}
                 className="form-input pr-12"
                 placeholder="Repeat password"
+                autoComplete="new-password"
               />
               <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-[38px] text-muted-foreground hover:text-foreground" aria-label={showConfirm ? "Hide password" : "Show password"}>
                 {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
-              {errors.confirmPassword && <p className="form-error">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && <p className="form-error">{errors.confirmPassword.message}</p>}
             </div>
             <div className="flex items-start gap-3">
               <input
                 type="checkbox"
                 id="agreeTerms"
-                checked={form.agreeTerms}
-                onChange={(e) => setForm({ ...form, agreeTerms: e.target.checked })}
+                {...register("agreeTerms")}
                 className="mt-1.5 h-4 w-4 rounded border-input accent-primary"
               />
               <label htmlFor="agreeTerms" className="text-sm font-body text-muted-foreground cursor-pointer">
                 I agree to the <Link to="#" className="text-primary hover:underline">Terms of Service</Link> and <Link to="#" className="text-primary hover:underline">Privacy Policy</Link>
               </label>
             </div>
-            {errors.agreeTerms && <p className="form-error">{errors.agreeTerms}</p>}
-            {errors.form && (
+            {errors.agreeTerms && <p className="form-error">{errors.agreeTerms.message}</p>}
+            {formError && (
               <div className="p-4 rounded-md bg-primary/10 border border-primary/30 text-primary text-sm font-body">
-                {errors.form}
+                {formError}
               </div>
             )}
-            <button type="submit" disabled={loading} className="btn-primary w-full">
-              {loading ? "Creating..." : "Create account"}
-              <ArrowRight className="w-4 h-4" />
+            <button type="submit" disabled={isSubmitting} className="btn-primary w-full inline-flex items-center justify-center gap-2">
+              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : <ArrowRight className="w-4 h-4" />}
+              {isSubmitting ? "Creating account..." : "Create account"}
             </button>
           </form>
 

@@ -1,28 +1,35 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Mail, Phone, MapPin, Send } from "lucide-react";
-import { motion } from "framer-motion";
+import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { contactApi } from "@/lib/api";
+import { contactSchema, type ContactInput } from "@/lib/validations/auth";
 
 const ContactPage = () => {
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
-  const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSending(true);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<ContactInput>({
+    resolver: zodResolver(contactSchema),
+    mode: "onBlur",
+    defaultValues: { name: "", email: "", message: "" },
+  });
+
+  const onSubmit = async (data: ContactInput) => {
     try {
-      await contactApi.send(formData);
+      await contactApi.send(data);
       setSuccess(true);
-      setFormData({ name: "", email: "", message: "" });
+      reset();
     } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setSending(false);
+      setError("root", { message: (err as Error).message });
     }
   };
 
@@ -41,12 +48,11 @@ const ContactPage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="grid grid-cols-1 lg:grid-cols-12 gap-12"
           >
-            {/* Info - Get in Touch from migration */}
             <div className="lg:col-span-4 space-y-8">
               <div>
                 <h2 className="font-display text-2xl text-foreground mb-2">Get in Touch</h2>
                 <p className="text-muted-foreground text-sm font-body leading-relaxed">
-                  We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+                  We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
                 </p>
               </div>
               {[
@@ -75,51 +81,49 @@ const ContactPage = () => {
               </div>
             </div>
 
-            {/* Form - Send Message from migration */}
             <div className="lg:col-span-8">
               <h2 className="font-display text-2xl text-foreground mb-2">Send Message</h2>
-              <p className="text-muted-foreground text-sm font-body mb-6">Fill out the form below and we'll get back to you</p>
-              {error && <p className="text-primary font-body text-sm mb-6">{error}</p>}
+              <p className="text-muted-foreground text-sm font-body mb-6">Fill out the form below and we&apos;ll get back to you</p>
+              {errors.root && <p className="text-destructive font-body text-sm mb-6">{errors.root.message}</p>}
               {success ? (
                 <p className="text-primary font-body text-sm mb-6">Thank you! Your message has been sent.</p>
               ) : (
-                <form onSubmit={handleSubmit} className="form-card space-y-5">
+                <form onSubmit={handleSubmit(onSubmit)} className="form-card space-y-5" noValidate>
                   <div>
                     <label className="form-label">Full name</label>
                     <input
                       type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      {...register("name")}
                       placeholder="Enter your full name"
                       className="form-input"
-                      required
+                      autoComplete="name"
                     />
+                    {errors.name && <p className="form-error">{errors.name.message}</p>}
                   </div>
                   <div>
                     <label className="form-label">Email address</label>
                     <input
                       type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      {...register("email")}
                       placeholder="your@email.com"
                       className="form-input"
-                      required
+                      autoComplete="email"
                     />
+                    {errors.email && <p className="form-error">{errors.email.message}</p>}
                   </div>
                   <div>
                     <label className="form-label">Message</label>
                     <textarea
                       rows={5}
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      {...register("message")}
                       placeholder="Tell us how we can help you..."
                       className="form-input resize-none min-h-[120px]"
-                      required
                     />
+                    {errors.message && <p className="form-error">{errors.message.message}</p>}
                   </div>
-                  <button type="submit" disabled={sending} className="btn-primary">
-                    {sending ? "Sending..." : "Send message"}
-                    <Send className="w-4 h-4" />
+                  <button type="submit" disabled={isSubmitting} className="btn-primary inline-flex items-center justify-center gap-2">
+                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : <Send className="w-4 h-4" />}
+                    {isSubmitting ? "Sending..." : "Send message"}
                   </button>
                 </form>
               )}
