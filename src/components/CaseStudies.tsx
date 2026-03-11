@@ -36,7 +36,7 @@ const CaseStudies = () => {
           <h2 className="font-display text-5xl md:text-6xl line-accent text-primary">Case Studies</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {caseStudies.map((study, i) => (
             <motion.div
               key={study.id}
@@ -46,8 +46,8 @@ const CaseStudies = () => {
               transition={{ duration: 0.5, delay: i * 0.1 }}
             >
               <Link to={`/case-studies/${study.id}`} className="group block">
-                <div className="relative h-64 md:h-72 overflow-hidden magazine-border mb-4">
-                  <img src={imgSrc(study.image)} alt={study.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <div className="relative w-full aspect-[4/3] min-h-[320px] md:min-h-[400px] overflow-hidden magazine-border mb-4">
+                  <img src={imgSrc(study.image)} alt={study.title} className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 cinematic-overlay" />
                 </div>
                 <h3 className="font-display text-2xl text-primary group-hover:text-red-light transition-colors mb-2">{study.title}</h3>

@@ -1,15 +1,85 @@
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { allModels } from "@/components/FeaturedModels";
-import { useParams, Link } from "@/lib/router-next";
+import { useParams } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
+import { publicApi, type PublicModel } from "@/lib/api";
 import { Heart, MapPin, Ruler, Calendar, Share2, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
 
+type DisplayModel = {
+  id: string;
+  name: string;
+  image: string | { src: string };
+  category: string;
+  location: string;
+  height: string;
+  age: number;
+  likes: number;
+  bio: string;
+  instagram: string;
+  portfolio: (string | { src: string })[];
+};
+
+const ObjectIdRegex = /^[a-f0-9]{24}$/i;
+
 const ModelProfile = () => {
   const { id } = useParams();
-  const model = allModels.find((m) => m.id === id);
+  const [model, setModel] = useState<DisplayModel | null>(() => {
+    const staticModel = allModels.find((m) => m.id === id);
+    if (staticModel)
+      return {
+        id: staticModel.id,
+        name: staticModel.name,
+        image: staticModel.image,
+        category: staticModel.category,
+        location: staticModel.location,
+        height: staticModel.height,
+        age: staticModel.age,
+        likes: staticModel.likes,
+        bio: "",
+        instagram: "",
+        portfolio: Array(6).fill(staticModel.image),
+      };
+    return null;
+  });
+  const [loading, setLoading] = useState(!!id && ObjectIdRegex.test(id));
+
+  useEffect(() => {
+    if (!id || !ObjectIdRegex.test(id)) return;
+    publicApi
+      .model(id)
+      .then((m: PublicModel) => {
+        const photo = m.profilePhoto || m.portfolio?.[0] || "";
+        const age = m.dateOfBirth ? new Date().getFullYear() - new Date(m.dateOfBirth).getFullYear() : 0;
+        setModel({
+          id: m._id,
+          name: m.fullName || "Model",
+          image: photo,
+          category: m.categories?.[0] || "Model",
+          location: [m.city, m.country].filter(Boolean).join(", ") || "—",
+          height: m.height || "—",
+          age: age || 0,
+          likes: 0,
+          bio: m.bio || "",
+          instagram: m.instagram || "",
+          portfolio: m.portfolio?.length ? m.portfolio : [photo],
+        });
+      })
+      .catch(() => setModel(null))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Navbar />
+        <div className="text-center text-muted-foreground font-body">Loading...</div>
+      </div>
+    );
+  }
 
   if (!model) {
     return (
@@ -23,7 +93,7 @@ const ModelProfile = () => {
     );
   }
 
-  const galleryImages = [model.image, model.image, model.image, model.image, model.image, model.image];
+  const galleryImages = model.portfolio.length ? model.portfolio : [model.image, model.image, model.image];
 
   return (
     <div className="min-h-screen bg-background">
@@ -59,8 +129,8 @@ const ModelProfile = () => {
               <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm font-body mb-8">
                 <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-primary" /> {model.location}</span>
                 <span className="flex items-center gap-1.5"><Ruler className="w-4 h-4 text-primary" /> {model.height}</span>
-                <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-primary" /> Age {model.age}</span>
-                <span className="flex items-center gap-1.5"><Heart className="w-4 h-4 text-primary" /> {model.likes.toLocaleString()} likes</span>
+                {model.age > 0 && <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-primary" /> Age {model.age}</span>}
+                {model.likes > 0 && <span className="flex items-center gap-1.5"><Heart className="w-4 h-4 text-primary" /> {model.likes.toLocaleString()} likes</span>}
               </div>
 
               <div className="flex gap-3 mb-10">
@@ -79,12 +149,9 @@ const ModelProfile = () => {
               <div className="grid grid-cols-3 gap-4 mb-10">
                 {[
                   { label: "Height", value: model.height },
-                  { label: "Bust", value: "34\"" },
-                  { label: "Waist", value: "24\"" },
-                  { label: "Hips", value: "35\"" },
-                  { label: "Shoe", value: "8 US" },
-                  { label: "Eyes", value: "Brown" },
-                ].map((stat) => (
+                  { label: "Location", value: model.location },
+                  { label: "Category", value: model.category },
+                ].filter((s) => s.value && s.value !== "—").map((stat) => (
                   <div key={stat.label} className="bg-card magazine-border p-4 text-center">
                     <p className="text-muted-foreground text-[10px] font-body tracking-[0.2em] uppercase mb-1">{stat.label}</p>
                     <p className="font-display text-xl text-foreground">{stat.value}</p>
@@ -92,26 +159,33 @@ const ModelProfile = () => {
                 ))}
               </div>
 
-              <div className="mb-10">
-                <h3 className="font-display text-2xl text-foreground mb-3">About</h3>
-                <p className="text-muted-foreground text-sm font-body leading-relaxed">
-                  {model.name} is an internationally recognized model with experience in editorial, commercial, and runway work.
-                  Based in {model.location}, she has worked with top brands and photographers worldwide. Known for her striking
-                  presence and versatility, she brings a unique energy to every project.
-                </p>
-              </div>
+              {model.bio && (
+                <div className="mb-10">
+                  <h3 className="font-display text-2xl text-foreground mb-3">About</h3>
+                  <p className="text-muted-foreground text-sm font-body leading-relaxed">{model.bio}</p>
+                </div>
+              )}
 
-              <div className="flex items-center gap-3">
-                <a href="#" className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors">
-                  <Instagram className="w-4 h-4" />
-                </a>
-                <span className="text-muted-foreground text-xs font-body">@{model.name.toLowerCase().replace(/\s/g, "")}</span>
-              </div>
+              {(model.instagram || model.bio) && (
+                <div className="flex items-center gap-3 mb-10">
+                  {model.instagram && (
+                    <a
+                      href={model.instagram.startsWith("http") ? model.instagram : `https://instagram.com/${model.instagram.replace(/^@/, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors"
+                    >
+                      <Instagram className="w-4 h-4" />
+                    </a>
+                  )}
+                  <span className="text-muted-foreground text-xs font-body">{model.instagram ? `@${model.instagram.replace(/^@/, "").split("/").pop()}` : ""}</span>
+                </div>
+              )}
 
               {/* Gallery */}
               <div className="mt-12">
                 <h3 className="font-display text-2xl text-foreground mb-4">Portfolio</h3>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {galleryImages.map((img, i) => (
                     <div key={i} className="aspect-square overflow-hidden magazine-border">
                       <img src={imgSrc(img)} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />

@@ -11,6 +11,7 @@ import authRoutes from "./routes/auth.js";
 import contactRoutes from "./routes/contact.js";
 import adminRoutes from "./routes/admin.js";
 import uploadRoutes from "./routes/upload.js";
+import publicRoutes from "./routes/public.js";
 
 validateEnv();
 
@@ -36,6 +37,7 @@ app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/contact", contactLimiter, contactRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadLimiter, uploadRoutes);
+app.use("/api/public", publicRoutes);
 
 app.get("/api/health", async (_req, res) => {
   try {

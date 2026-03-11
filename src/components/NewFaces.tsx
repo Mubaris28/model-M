@@ -6,9 +6,10 @@ import { motion } from "framer-motion";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { publicApi, type PublicModel } from "@/lib/api";
 
-const newFaces = [
+const fallbackFaces = [
   { name: "Sophia Laurent", image: model1, age: 19, location: "Paris", country: "France", id: "sophia-laurent" },
   { name: "Marco Rossi", image: model2, age: 21, location: "Milan", country: "Italy", id: "marco-rossi" },
   { name: "Zara Williams", image: model3, age: 20, location: "London", country: "UK", id: "zara-williams" },
@@ -21,10 +22,48 @@ const newFaces = [
 
 const countries = ["All", "France", "Italy", "UK", "Japan", "Senegal", "Spain", "UAE", "USA"];
 
-const NewFaces = () => {
-  const [activeCountry, setActiveCountry] = useState("All");
+type FaceCard = {
+  id: string;
+  name: string;
+  image: string | { src: string };
+  age: number;
+  location: string;
+  country: string;
+};
 
-  const filtered = activeCountry === "All" ? newFaces : newFaces.filter((m) => m.country === activeCountry);
+function toFaceCard(m: PublicModel): FaceCard {
+  const photo = m.profilePhoto || m.portfolio?.[0] || "";
+  const age = m.dateOfBirth ? new Date().getFullYear() - new Date(m.dateOfBirth).getFullYear() : 0;
+  return {
+    id: m._id,
+    name: m.fullName || "Model",
+    image: photo,
+    age: age || 20,
+    location: m.city || "",
+    country: m.country || "—",
+  };
+}
+
+type NewFacesProps = {
+  /** On home page: show 6 cards in 2 rows (3 columns). Omit on dedicated new-faces page. */
+  homePreview?: boolean;
+};
+
+const NewFaces = ({ homePreview }: NewFacesProps) => {
+  const [activeCountry, setActiveCountry] = useState("All");
+  const [faces, setFaces] = useState<FaceCard[]>(fallbackFaces.map((f) => ({ ...f, image: f.image as { src: string } })));
+
+  useEffect(() => {
+    publicApi
+      .models()
+      .then((list) => {
+        if (list?.length) setFaces(list.map(toFaceCard));
+      })
+      .catch(() => {});
+  }, []);
+
+  const filtered = activeCountry === "All" ? faces : faces.filter((m) => m.country === activeCountry);
+  const displayList = homePreview ? filtered.slice(0, 6) : filtered;
 
   return (
     <section className="py-24 bg-card">
@@ -56,8 +95,11 @@ const NewFaces = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
-          {filtered.map((model, i) => (
+        <div
+          className={`grid gap-5 md:gap-6 ${homePreview ? "" : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"}`}
+          style={homePreview ? { gridTemplateColumns: "repeat(3, minmax(0, 1fr))" } : undefined}
+        >
+          {displayList.map((model, i) => (
             <motion.div
               key={model.id}
               initial={{ opacity: 0, y: 40 }}
@@ -66,7 +108,7 @@ const NewFaces = () => {
               transition={{ duration: 0.5, delay: i * 0.08 }}
             >
               <Link to={`/model/${model.id}`} className="group block">
-                <div className="relative aspect-[3/4] overflow-hidden magazine-border mb-4">
+                <div className="relative aspect-[3/4] min-h-[220px] sm:min-h-[260px] overflow-hidden magazine-border mb-4">
                   <img
                     src={imgSrc(model.image)}
                     alt={model.name}
@@ -82,12 +124,12 @@ const NewFaces = () => {
                 </div>
                 <h3 className="font-display text-xl text-foreground group-hover:text-primary transition-colors">{model.name}</h3>
                 <p className="text-muted-foreground text-xs font-body tracking-wider mt-1">
-                  {model.age} yrs • {model.location}, {model.country}
+                  {model.age ? `${model.age} yrs • ` : ""}{model.location}{model.country && model.country !== "—" ? `, ${model.country}` : ""}
                 </p>
               </Link>
             </motion.div>
           ))}
-          {filtered.length === 0 && (
+          {displayList.length === 0 && (
             <p className="text-muted-foreground text-sm font-body py-8">No models found for this country yet.</p>
           )}
         </div>

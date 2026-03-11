@@ -30,8 +30,8 @@ const CastingPage = () => {
                 transition={{ duration: 0.4, delay: i * 0.05 }}
               >
                 <Link to={`/casting/${casting.id}`} className="group flex flex-col md:flex-row md:items-center gap-4 md:gap-6 bg-card magazine-border overflow-hidden hover:border-primary/30 transition-all">
-                  <div className="w-full md:w-56 h-48 md:h-32 flex-shrink-0 overflow-hidden">
-                    <img src={imgSrc(casting.image)} alt={casting.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="w-full md:w-[240px] h-64 md:h-80 flex-shrink-0 overflow-hidden">
+                    <img src={imgSrc(casting.image)} alt={casting.title} className="w-full h-full object-contain object-center transition-transform duration-500 group-hover:scale-105" />
                   </div>
                   <div className="flex-1 min-w-0 px-4 md:px-0">
                     <div className="flex items-center gap-3 mb-2">

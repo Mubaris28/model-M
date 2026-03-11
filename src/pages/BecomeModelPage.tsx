@@ -15,12 +15,26 @@ const defaultStep1 = {
   city: "",
   height: "",
   weight: "",
+  dressSize: "",
+  shoeSize: "",
   eyeColor: "",
   hairColor: "",
   categories: [] as string[],
   instagram: "",
   bio: "",
 };
+
+const HEIGHT_OPTIONS = [
+  "",
+  "Under 5'5\" (under 165 cm)",
+  "5'5\"–5'7\" (165–170 cm)",
+  "5'8\"–5'10\" (173–178 cm)",
+  "5'11\"–6'1\" (180–185 cm)",
+  "6'2\" and over (188+ cm)",
+];
+
+const DRESS_SIZES = ["", "XS", "S", "M", "L", "XL", "XXL"];
+const SHOE_SIZES = ["", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 
 const defaultStep2 = {
   idNumber: "",
@@ -183,6 +197,8 @@ const BecomeModelPage = () => {
         city: step1.city,
         height: step1.height,
         weight: step1.weight,
+        dressSize: step1.dressSize,
+        shoeSize: step1.shoeSize,
         eyeColor: step1.eyeColor,
         hairColor: step1.hairColor,
         categories: step1.categories,
@@ -226,66 +242,113 @@ const BecomeModelPage = () => {
           </div>
 
           {step === 1 && (
-            <div className="space-y-6">
+            <div className="space-y-8">
               <h3 className="font-display text-2xl mb-4">Step 1 — Personal & portfolio</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+              <section className="space-y-4">
+                <h4 className="text-xs font-body text-muted-foreground tracking-[0.2em] uppercase border-b border-border pb-2">Personal details</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="form-label">Date of birth</label>
+                    <input type="date" value={step1.dateOfBirth} onChange={(e) => setStep1((s) => ({ ...s, dateOfBirth: e.target.value }))} className="form-input" />
+                  </div>
+                  <div>
+                    <label className="form-label">Gender</label>
+                    <select value={step1.gender} onChange={(e) => setStep1((s) => ({ ...s, gender: e.target.value }))} className="form-input">
+                      <option value="">Select</option>
+                      <option>Female</option>
+                      <option>Male</option>
+                      <option>Non-binary</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <h4 className="text-xs font-body text-muted-foreground tracking-[0.2em] uppercase border-b border-border pb-2">Location</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="form-label">Country</label>
+                    <input type="text" value={step1.country} onChange={(e) => setStep1((s) => ({ ...s, country: e.target.value }))} className="form-input" placeholder="e.g. Mauritius" />
+                  </div>
+                  <div>
+                    <label className="form-label">City</label>
+                    <input type="text" value={step1.city} onChange={(e) => setStep1((s) => ({ ...s, city: e.target.value }))} className="form-input" placeholder="e.g. Port Louis" />
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <h4 className="text-xs font-body text-muted-foreground tracking-[0.2em] uppercase border-b border-border pb-2">Physical stats</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="form-label">Height</label>
+                    <select value={step1.height} onChange={(e) => setStep1((s) => ({ ...s, height: e.target.value }))} className="form-input">
+                      {HEIGHT_OPTIONS.map((opt) => (
+                        <option key={opt || "blank"} value={opt}>{opt || "Select height range"}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label">Weight (kg)</label>
+                    <input type="number" value={step1.weight} onChange={(e) => setStep1((s) => ({ ...s, weight: e.target.value }))} className="form-input" placeholder="60" min={1} max={300} />
+                  </div>
+                  <div>
+                    <label className="form-label">Dress / clothing size</label>
+                    <select value={step1.dressSize} onChange={(e) => setStep1((s) => ({ ...s, dressSize: e.target.value }))} className="form-input">
+                      {DRESS_SIZES.map((sz) => (
+                        <option key={sz || "blank"} value={sz}>{sz || "Select"}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label">Shoe size (US)</label>
+                    <select value={step1.shoeSize} onChange={(e) => setStep1((s) => ({ ...s, shoeSize: e.target.value }))} className="form-input">
+                      {SHOE_SIZES.map((sz) => (
+                        <option key={sz || "blank"} value={sz}>{sz || "Select"}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label">Eye color</label>
+                    <input type="text" value={step1.eyeColor} onChange={(e) => setStep1((s) => ({ ...s, eyeColor: e.target.value }))} className="form-input" placeholder="Brown" />
+                  </div>
+                  <div>
+                    <label className="form-label">Hair color</label>
+                    <input type="text" value={step1.hairColor} onChange={(e) => setStep1((s) => ({ ...s, hairColor: e.target.value }))} className="form-input" placeholder="Black" />
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <h4 className="text-xs font-body text-muted-foreground tracking-[0.2em] uppercase border-b border-border pb-2">Modeling categories</h4>
                 <div>
-                  <label className="form-label">Date of birth</label>
-                  <input type="date" value={step1.dateOfBirth} onChange={(e) => setStep1((s) => ({ ...s, dateOfBirth: e.target.value }))} className="form-input" />
+                  <label className="form-label">Select all that apply</label>
+                  <div className="flex flex-wrap gap-2">
+                    {CATEGORY_OPTIONS.map((cat) => (
+                      <button key={cat} type="button" onClick={() => toggleCategory(cat)} className={`px-4 py-2 text-xs font-body tracking-[0.1em] uppercase border transition-colors ${step1.categories.includes(cat) ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary hover:text-primary"}`}>
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <h4 className="text-xs font-body text-muted-foreground tracking-[0.2em] uppercase border-b border-border pb-2">Social & bio</h4>
+                <div>
+                  <label className="form-label">Instagram</label>
+                  <input type="text" value={step1.instagram} onChange={(e) => setStep1((s) => ({ ...s, instagram: e.target.value }))} className="form-input" placeholder="@username" />
                 </div>
                 <div>
-                  <label className="form-label">Gender</label>
-                  <select value={step1.gender} onChange={(e) => setStep1((s) => ({ ...s, gender: e.target.value }))} className="form-input">
-                    <option value="">Select</option>
-                    <option>Female</option>
-                    <option>Male</option>
-                    <option>Non-binary</option>
-                    <option>Other</option>
-                  </select>
+                  <label className="form-label">Bio</label>
+                  <textarea value={step1.bio} onChange={(e) => setStep1((s) => ({ ...s, bio: e.target.value }))} className="form-input min-h-[120px] resize-none" placeholder="Tell us about yourself..." />
                 </div>
-                <div>
-                  <label className="form-label">Country</label>
-                  <input type="text" value={step1.country} onChange={(e) => setStep1((s) => ({ ...s, country: e.target.value }))} className="form-input" placeholder="e.g. Mauritius" />
-                </div>
-                <div>
-                  <label className="form-label">City</label>
-                  <input type="text" value={step1.city} onChange={(e) => setStep1((s) => ({ ...s, city: e.target.value }))} className="form-input" placeholder="e.g. Port Louis" />
-                </div>
-                <div>
-                  <label className="form-label">Height (cm)</label>
-                  <input type="number" value={step1.height} onChange={(e) => setStep1((s) => ({ ...s, height: e.target.value }))} className="form-input" placeholder="175" />
-                </div>
-                <div>
-                  <label className="form-label">Weight (kg)</label>
-                  <input type="number" value={step1.weight} onChange={(e) => setStep1((s) => ({ ...s, weight: e.target.value }))} className="form-input" placeholder="60" />
-                </div>
-                <div>
-                  <label className="form-label">Eye color</label>
-                  <input type="text" value={step1.eyeColor} onChange={(e) => setStep1((s) => ({ ...s, eyeColor: e.target.value }))} className="form-input" placeholder="Brown" />
-                </div>
-                <div>
-                  <label className="form-label">Hair color</label>
-                  <input type="text" value={step1.hairColor} onChange={(e) => setStep1((s) => ({ ...s, hairColor: e.target.value }))} className="form-input" placeholder="Black" />
-                </div>
-              </div>
-              <div>
-                <label className="form-label">Modeling categories (select all that apply)</label>
-                <div className="flex flex-wrap gap-2">
-                  {CATEGORY_OPTIONS.map((cat) => (
-                    <button key={cat} type="button" onClick={() => toggleCategory(cat)} className={`px-4 py-2 text-xs font-body tracking-[0.1em] uppercase border transition-colors ${step1.categories.includes(cat) ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary hover:text-primary"}`}>
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="form-label">Instagram</label>
-                <input type="text" value={step1.instagram} onChange={(e) => setStep1((s) => ({ ...s, instagram: e.target.value }))} className="form-input" placeholder="@username" />
-              </div>
-              <div>
-                <label className="form-label">Bio</label>
-                <textarea value={step1.bio} onChange={(e) => setStep1((s) => ({ ...s, bio: e.target.value }))} className="form-input min-h-[120px] resize-none" placeholder="Tell us about yourself..." />
-              </div>
+              </section>
+
+              <section className="space-y-4">
+                <h4 className="text-xs font-body text-muted-foreground tracking-[0.2em] uppercase border-b border-border pb-2">Portfolio</h4>
               <div>
                 <label className="form-label">Portfolio (4–6 images)</label>
                 <input
@@ -335,6 +398,7 @@ const BecomeModelPage = () => {
                   </div>
                 )}
               </div>
+              </section>
               <p className="text-muted-foreground text-xs font-body">After clicking continue, your progress is saved. You can complete the verification step later.</p>
             </div>
           )}

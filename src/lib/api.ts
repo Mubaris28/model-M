@@ -92,6 +92,8 @@ export const authApi = {
     city?: string;
     height?: string;
     weight?: string;
+    dressSize?: string;
+    shoeSize?: string;
     eyeColor?: string;
     hairColor?: string;
     categories?: string[];
@@ -218,6 +220,8 @@ export interface User {
   city?: string;
   height?: string;
   weight?: string;
+  dressSize?: string;
+  shoeSize?: string;
   eyeColor?: string;
   hairColor?: string;
   categories?: string[];
@@ -247,5 +251,45 @@ export interface Casting {
   brand?: string;
   approvalStatus?: string;
   creatorId?: User;
+  createdAt?: string;
+}
+
+/** Public API (no auth). Approved models for /models and /new-faces. */
+export interface PublicModel {
+  _id: string;
+  fullName?: string;
+  profilePhoto?: string;
+  portfolio?: string[];
+  categories?: string[];
+  country?: string;
+  city?: string;
+  height?: string;
+  weight?: string;
+  dressSize?: string;
+  shoeSize?: string;
+  gender?: string;
+  dateOfBirth?: string;
+  bio?: string;
+  instagram?: string;
+  role?: string;
+  createdAt?: string;
+}
+
+export const publicApi = {
+  models: () => api<PublicModel[]>("/api/public/models"),
+  model: (id: string) => api<PublicModel>(`/api/public/models/${id}`),
+  castings: () => api<PublicCasting[]>("/api/public/castings"),
+};
+
+export interface PublicCasting {
+  _id: string;
+  title: string;
+  description?: string;
+  castingType?: string;
+  location?: string;
+  date?: string;
+  slots?: number;
+  brand?: string;
+  approvalStatus?: string;
   createdAt?: string;
 }

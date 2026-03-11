@@ -5,7 +5,8 @@ import { allModels } from "@/components/FeaturedModels";
 import { categories } from "@/components/MagazineGrid";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
-import { Heart, Filter, Grid, LayoutList, ChevronDown, X } from "lucide-react";
+import { publicApi, type PublicModel } from "@/lib/api";
+import { Heart, Filter, Grid, LayoutList, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useMemo, useEffect } from "react";
 import {
@@ -18,13 +19,62 @@ import {
 
 const INITIAL_SHOW = 12;
 
+type ModelCard = {
+  id: string;
+  name: string;
+  image: string | { src: string };
+  category: string;
+  location: string;
+  height: string;
+  dressSize?: string;
+  likes: number;
+};
+
+function toCard(m: PublicModel): ModelCard {
+  const photo = m.profilePhoto || m.portfolio?.[0] || "";
+  return {
+    id: m._id,
+    name: m.fullName || "Model",
+    image: photo,
+    category: m.categories?.[0] || "Model",
+    location: [m.city, m.country].filter(Boolean).join(", ") || "—",
+    height: m.height || "—",
+    dressSize: m.dressSize,
+    likes: 0,
+  };
+}
+
+const HEIGHT_FILTER_OPTIONS: string[] = ["all", "Under 5'5\" (under 165 cm)", "5'5\"–5'7\" (165–170 cm)", "5'8\"–5'10\" (173–178 cm)", "5'11\"–6'1\" (180–185 cm)", "6'2\" and over (188+ cm)"];
+const SIZE_FILTER_OPTIONS: string[] = ["all", "XS", "S", "M", "L", "XL", "XXL"];
+
 const ModelsPage = () => {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [locationFilter, setLocationFilter] = useState<string>("all");
+  const [heightFilter, setHeightFilter] = useState<string>("all");
+  const [sizeFilter, setSizeFilter] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
   const [showCount, setShowCount] = useState(INITIAL_SHOW);
-  const models = useMemo(() => [...allModels, ...allModels, ...allModels], []);
+  const [models, setModels] = useState<ModelCard[]>(() =>
+    [...allModels, ...allModels, ...allModels].map((m) => ({
+      id: m.id,
+      name: m.name,
+      image: m.image,
+      category: m.category,
+      location: m.location,
+      height: m.height,
+      likes: m.likes,
+    }))
+  );
+
+  useEffect(() => {
+    publicApi
+      .models()
+      .then((list) => {
+        if (list?.length) setModels(list.map(toCard));
+      })
+      .catch(() => {});
+  }, []);
 
   const locations = useMemo(() => Array.from(new Set(models.map((m) => m.location))).sort(), [models]);
 
@@ -32,9 +82,11 @@ const ModelsPage = () => {
     return models.filter((m) => {
       if (categoryFilter !== "all" && m.category !== categoryFilter) return false;
       if (locationFilter !== "all" && m.location !== locationFilter) return false;
+      if (heightFilter !== "all" && m.height !== heightFilter) return false;
+      if (sizeFilter !== "all" && m.dressSize !== sizeFilter) return false;
       return true;
     });
-  }, [models, categoryFilter, locationFilter]);
+  }, [models, categoryFilter, locationFilter, heightFilter, sizeFilter]);
 
   const displayedModels = filteredModels.slice(0, showCount);
   const hasMore = filteredModels.length > showCount;
@@ -42,10 +94,12 @@ const ModelsPage = () => {
   const clearFilters = () => {
     setCategoryFilter("all");
     setLocationFilter("all");
+    setHeightFilter("all");
+    setSizeFilter("all");
     setShowCount(INITIAL_SHOW);
   };
 
-  const hasActiveFilters = categoryFilter !== "all" || locationFilter !== "all";
+  const hasActiveFilters = categoryFilter !== "all" || locationFilter !== "all" || heightFilter !== "all" || sizeFilter !== "all";
 
   useEffect(() => {
     document.title = "Professional Models Directory | Model Management Mauritius";
@@ -121,6 +175,32 @@ const ModelsPage = () => {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="w-full sm:w-auto min-w-[160px]">
+                <label className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-2">Height</label>
+                <Select value={heightFilter} onValueChange={setHeightFilter}>
+                  <SelectTrigger className="w-full bg-background">
+                    <SelectValue placeholder="All heights" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {HEIGHT_FILTER_OPTIONS.map((h) => (
+                      <SelectItem key={h} value={h}>{h === "all" ? "All heights" : h}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-full sm:w-auto min-w-[160px]">
+                <label className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-2">Size</label>
+                <Select value={sizeFilter} onValueChange={setSizeFilter}>
+                  <SelectTrigger className="w-full bg-background">
+                    <SelectValue placeholder="All sizes" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SIZE_FILTER_OPTIONS.map((sz) => (
+                      <SelectItem key={sz} value={sz}>{sz === "all" ? "All sizes" : sz}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               {hasActiveFilters && (
                 <button onClick={clearFilters} className="flex items-center gap-1.5 text-primary text-xs font-body tracking-wider uppercase hover:underline">
                   <X className="w-3 h-3" /> Clear filters
@@ -129,7 +209,10 @@ const ModelsPage = () => {
             </motion.div>
           )}
 
-          <div className={view === "grid" ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6" : "flex flex-col gap-4"}>
+          <div
+            className={view === "grid" ? "grid gap-5 md:gap-6" : "flex flex-col gap-4"}
+            style={view === "grid" ? { gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" } : undefined}
+          >
             {displayedModels.map((model, i) => (
               <motion.div
                 key={`${model.id}-${i}`}
@@ -139,8 +222,8 @@ const ModelsPage = () => {
               >
                 {view === "grid" ? (
                   <Link to={`/model/${model.id}`} className="group block">
-                    <div className="relative aspect-[3/4] overflow-hidden magazine-border mb-3">
-                      <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <div className="relative aspect-[3/4] min-h-[240px] md:min-h-[280px] overflow-hidden magazine-border mb-3">
+                      <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105" />
                       <div className="absolute top-3 left-3">
                         <span className="bg-primary text-primary-foreground text-[9px] font-body tracking-[0.2em] uppercase px-2 py-0.5">{model.category}</span>
                       </div>

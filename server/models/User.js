@@ -29,6 +29,8 @@ const userSchema = new mongoose.Schema(
     city: { type: String, default: "" },
     height: { type: String, default: "" },
     weight: { type: String, default: "" },
+    dressSize: { type: String, default: "" },
+    shoeSize: { type: String, default: "" },
     eyeColor: { type: String, default: "" },
     hairColor: { type: String, default: "" },
     categories: { type: [String], default: [] },

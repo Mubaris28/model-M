@@ -30,8 +30,8 @@ const FeaturedModels = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {allModels.map((model, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-6">
+          {allModels.slice(0, 6).map((model, i) => (
             <motion.div
               key={model.id}
               initial={{ opacity: 0, y: 40 }}
@@ -39,7 +39,7 @@ const FeaturedModels = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.08 }}
             >
-              <Link to={`/model/${model.id}`} className="group relative block aspect-[3/4] overflow-hidden magazine-border">
+              <Link to={`/model/${model.id}`} className="group relative block aspect-[3/4] min-h-[240px] md:min-h-[280px] overflow-hidden magazine-border">
                 <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 cinematic-overlay" />
                 

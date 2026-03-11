@@ -145,8 +145,8 @@ export default function Chatbot() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="fixed bottom-20 left-3 z-[45] flex w-[calc(100vw-1.5rem)] max-w-[380px] flex-col overflow-hidden rounded-lg border border-border bg-card shadow-lg font-body sm:bottom-6 sm:left-4"
-            style={{ maxHeight: "70vh" }}
+            className="fixed bottom-24 left-3 z-[45] flex w-[calc(100vw-1.5rem)] max-w-[400px] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xl font-body sm:bottom-8 sm:left-4"
+            style={{ maxHeight: "75vh" }}
             role="dialog"
             aria-label="Help chat"
           >
@@ -245,22 +245,22 @@ export default function Chatbot() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="border-t border-border p-3">
-              <div className="flex gap-2">
+            <form onSubmit={handleSubmit} className="border-t border-border bg-muted/30 p-3">
+              <div className="flex gap-2 items-center">
                 <input
                   ref={inputRef}
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Type a message..."
-                  className="flex-1 rounded border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="min-w-0 flex-1 rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                   aria-label="Message"
                   disabled={loading}
                 />
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
-                  className="flex items-center justify-center rounded bg-primary px-3 py-2 text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                  className="flex-shrink-0 flex items-center justify-center rounded-lg bg-primary p-2.5 text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                   aria-label="Send"
                 >
                   <Send className="h-4 w-4" />
@@ -271,18 +271,20 @@ export default function Chatbot() {
         )}
       </AnimatePresence>
 
-      <motion.button
-        type="button"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
-        onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-6 left-3 z-[45] flex h-12 w-12 items-center justify-center rounded-full border-2 border-border bg-card text-foreground shadow-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring sm:bottom-6 sm:left-4"
-        aria-label={open ? "Close chat" : "Open help chat"}
-        aria-expanded={open}
-      >
-        <MessageCircle className="h-6 w-6" />
-      </motion.button>
+      {!open && (
+        <motion.button
+          type="button"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
+          onClick={() => setOpen(true)}
+          className="fixed bottom-6 left-3 z-[45] flex h-12 w-12 items-center justify-center rounded-full border-2 border-border bg-card text-foreground shadow-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring sm:bottom-6 sm:left-4"
+          aria-label="Open help chat"
+          aria-expanded={false}
+        >
+          <MessageCircle className="h-6 w-6" />
+        </motion.button>
+      )}
     </>
   );
 }
