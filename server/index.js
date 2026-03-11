@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 
 import validateEnv from "./config/env.js";
 import { errorHandler } from "./middleware/errorHandler.js";
-import { generalLimiter, authLimiter, contactLimiter, uploadLimiter } from "./middleware/rateLimit.js";
+import { generalLimiter, contactLimiter, uploadLimiter } from "./middleware/rateLimit.js";
 
 import authRoutes from "./routes/auth.js";
 import contactRoutes from "./routes/contact.js";
@@ -33,7 +33,7 @@ app.use(express.json({ limit: "1mb" }));
 
 app.use(generalLimiter);
 
-app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/contact", contactLimiter, contactRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadLimiter, uploadRoutes);

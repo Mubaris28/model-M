@@ -2,7 +2,7 @@ import rateLimit from "express-rate-limit";
 
 const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_GENERAL = 200; // per window for general API
-const MAX_AUTH = 10; // login/signup per IP per window
+const MAX_AUTH = 20; // login/signup/admin signup per IP per window
 const MAX_CONTACT = 5;
 const MAX_UPLOAD = 30;
 
@@ -17,7 +17,7 @@ export const generalLimiter = rateLimit({
 export const authLimiter = rateLimit({
   windowMs: WINDOW_MS,
   max: MAX_AUTH,
-  message: { error: "Too many login attempts. Please try again later." },
+  message: { error: "Too many attempts. Please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
 });

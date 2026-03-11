@@ -1,11 +1,39 @@
 import { Calendar, MapPin, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
-import { useRef } from "react";
-import { castings } from "./CastingCalls";
+import { useRef, useState, useEffect } from "react";
+import { castings as fallbackCastings } from "./CastingCalls";
+import { publicApi, type PublicCasting } from "@/lib/api";
+
+type CastingCard = { id: string; title: string; brand: string; date: string; location: string; slots: number; categories: string[]; urgent?: boolean };
+
+function toCastingCard(c: PublicCasting): CastingCard {
+  const dateStr = c.date ? new Date(c.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+  return {
+    id: c._id,
+    title: c.title,
+    brand: c.brand || "—",
+    date: dateStr,
+    location: c.location || "—",
+    slots: c.slots ?? 0,
+    categories: c.castingType ? [c.castingType] : [],
+  };
+}
 
 const TrendingCastings = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [castings, setCastings] = useState<CastingCard[]>(() =>
+    fallbackCastings.map((c) => ({ id: c.id, title: c.title, brand: c.brand, date: c.date, location: c.location, slots: c.slots, categories: c.categories, urgent: c.urgent }))
+  );
+
+  useEffect(() => {
+    publicApi
+      .castings()
+      .then((list) => {
+        if (list?.length) setCastings(list.map(toCastingCard));
+      })
+      .catch(() => {});
+  }, []);
 
   const scroll = (dir: "left" | "right") => {
     if (scrollRef.current) {

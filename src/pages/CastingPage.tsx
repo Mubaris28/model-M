@@ -1,13 +1,65 @@
+"use client";
+
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
-import { castings } from "@/components/CastingCalls";
+import { castings as fallbackCastings } from "@/components/CastingCalls";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { Calendar, MapPin, Users, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { publicApi, type PublicCasting } from "@/lib/api";
+
+type CastingRow = {
+  id: string;
+  title: string;
+  brand: string;
+  date: string;
+  location: string;
+  slots: number;
+  description: string;
+  urgent?: boolean;
+  image?: string | { src: string };
+};
+
+function toCastingRow(c: PublicCasting): CastingRow {
+  const dateStr = c.date ? new Date(c.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+  return {
+    id: c._id,
+    title: c.title,
+    brand: c.brand || "—",
+    date: dateStr,
+    location: c.location || "—",
+    slots: c.slots ?? 0,
+    description: c.description || "",
+  };
+}
 
 const CastingPage = () => {
+  const [castings, setCastings] = useState<CastingRow[]>(() =>
+    fallbackCastings.map((c) => ({
+      id: c.id,
+      title: c.title,
+      brand: c.brand,
+      date: c.date,
+      location: c.location,
+      slots: c.slots,
+      description: c.description,
+      urgent: c.urgent,
+      image: c.image,
+    }))
+  );
+
+  useEffect(() => {
+    publicApi
+      .castings()
+      .then((list) => {
+        if (list?.length) setCastings(list.map(toCastingRow));
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -22,16 +74,20 @@ const CastingPage = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            {[...castings, ...castings].map((casting, i) => (
+            {castings.map((casting, i) => (
               <motion.div
-                key={`${casting.id}-${i}`}
+                key={casting.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.05 }}
               >
                 <Link to={`/casting/${casting.id}`} className="group flex flex-col md:flex-row md:items-center gap-4 md:gap-6 bg-card magazine-border overflow-hidden hover:border-primary/30 transition-all">
-                  <div className="w-full md:w-[240px] h-64 md:h-80 flex-shrink-0 overflow-hidden">
-                    <img src={imgSrc(casting.image)} alt={casting.title} className="w-full h-full object-contain object-center transition-transform duration-500 group-hover:scale-105" />
+                  <div className="w-full md:w-[240px] h-64 md:h-80 flex-shrink-0 overflow-hidden bg-muted">
+                    {casting.image ? (
+                      <img src={imgSrc(casting.image)} alt={casting.title} className="w-full h-full object-contain object-center transition-transform duration-500 group-hover:scale-105" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground font-body text-sm">Casting</div>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0 px-4 md:px-0">
                     <div className="flex items-center gap-3 mb-2">

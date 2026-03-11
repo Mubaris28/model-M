@@ -6,6 +6,8 @@ import { Heart } from "lucide-react";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { publicApi, type PublicModel } from "@/lib/api";
 
 export const allModels = [
   { name: "Sophia Laurent", image: model1, category: "Editorial", age: 24, location: "Paris", height: "5'10\"", likes: 1240, id: "sophia-laurent" },
@@ -16,7 +18,33 @@ export const allModels = [
   { name: "Marco Rossi", image: model2, category: "Fitness", age: 27, location: "Milan", height: "6'1\"", likes: 760, id: "marco-rossi-2" },
 ];
 
+type ModelCard = { id: string; name: string; image: string | { src: string }; category: string; location: string; height: string; likes: number };
+
+function toCard(m: PublicModel): ModelCard {
+  const photo = m.profilePhoto || m.portfolio?.[0] || "";
+  return {
+    id: m._id,
+    name: m.fullName || "Model",
+    image: photo,
+    category: m.categories?.[0] || "Model",
+    location: [m.city, m.country].filter(Boolean).join(", ") || "—",
+    height: m.height || "—",
+    likes: 0,
+  };
+}
+
 const FeaturedModels = () => {
+  const [models, setModels] = useState<ModelCard[]>(allModels.slice(0, 6).map((m) => ({ ...m, image: m.image as { src: string } })));
+
+  useEffect(() => {
+    publicApi
+      .models()
+      .then((list) => {
+        if (list?.length) setModels(list.slice(0, 6).map(toCard));
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section id="models" className="py-24 bg-background">
       <div className="container mx-auto px-4 md:px-6">
@@ -31,7 +59,7 @@ const FeaturedModels = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-6">
-          {allModels.slice(0, 6).map((model, i) => (
+          {models.slice(0, 6).map((model, i) => (
             <motion.div
               key={model.id}
               initial={{ opacity: 0, y: 40 }}
