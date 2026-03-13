@@ -1,0 +1,10 @@
+{
+  "generatedAt": "2026-03-13T11:09:28.297Z",
+  "phase": "phase1",
+  "collections": {
+    "users": 238,
+    "models": 119,
+    "castings": 5,
+    "contact-submissions": 13
+  }
+}

@@ -4,7 +4,11 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "migrate:phase1:export": "node scripts/phase1-export-firebase.js",
+    "migrate:phase1:transform": "node scripts/phase1-transform-only.js",
+    "migrate:phase1:import": "node scripts/phase1-transform-import.js",
+    "migrate:phase1:import:transformed": "node scripts/phase1-import-transformed.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -13,6 +17,7 @@
     "express": "^4.21.0",
     "express-rate-limit": "^7.5.1",
     "express-validator": "^7.3.1",
+    "firebase-admin": "^12.7.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.0",
     "multer": "^1.4.5-lts.1",

@@ -1,8 +1,6 @@
 {
   "/page": "app/page.js",
-  "/categories/page": "app/categories/page.js",
-  "/discover-path/[slug]/page": "app/discover-path/[slug]/page.js",
-  "/professionals/page": "app/professionals/page.js",
-  "/login/page": "app/login/page.js",
-  "/modelsTalents/page": "app/modelsTalents/page.js"
+  "/model/[id]/page": "app/model/[id]/page.js",
+  "/category/[slug]/page": "app/category/[slug]/page.js",
+  "/signup/page": "app/signup/page.js"
 }
