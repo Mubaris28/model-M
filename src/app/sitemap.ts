@@ -30,10 +30,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/footer/terms-of-service",
     "/professionals",
     "/modelsTalents",
-  ].map((path) => ({
+  ].map((path): MetadataRoute.Sitemap[number] => ({
     url: `${baseUrl}${path}`,
     lastModified: new Date(),
-    changeFrequency: path === "" ? "daily" : ("weekly" as const),
+    changeFrequency: path === "" ? "daily" : "weekly",
     priority: path === "" ? 1 : 0.8,
   }));
 
