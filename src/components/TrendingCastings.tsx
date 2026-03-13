@@ -63,7 +63,7 @@ const TrendingCastings = () => {
           {castings.length === 0 ? (
             <p className="text-muted-foreground font-body text-sm py-4">No castings to show yet.</p>
           ) : (
-          castings.map((casting, i) => (
+            castings.map((casting, i) => (
             <motion.div
               key={casting.id}
               initial={{ opacity: 0, y: 30 }}
@@ -102,7 +102,8 @@ const TrendingCastings = () => {
                 </div>
               </Link>
             </motion.div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </section>

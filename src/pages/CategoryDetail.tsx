@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
+import PageLoader from "@/components/PageLoader";
 import { categories } from "@/components/MagazineGrid";
 import { useParams, Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
@@ -27,9 +28,11 @@ const CategoryDetail = () => {
   const { slug } = useParams();
   const category = categories.find((c) => c.slug === slug);
   const [models, setModels] = useState<ModelCard[]>([]);
+  const [pageLoading, setPageLoading] = useState(true);
 
   useEffect(() => {
-    if (!category) return;
+    if (!category) { setPageLoading(false); return; }
+    setPageLoading(true);
     publicApi
       .models()
       .then((list) => {
@@ -39,8 +42,11 @@ const CategoryDetail = () => {
         );
         setModels(filtered.map(toCard));
       })
-      .catch(() => setModels([]));
+      .catch(() => setModels([]))
+      .finally(() => setPageLoading(false));
   }, [category]);
+
+  if (pageLoading) return <PageLoader label={`Loading ${category?.name ?? ""}...`} />;
 
   if (!category) {
     return (
@@ -71,7 +77,7 @@ const CategoryDetail = () => {
 
       {/* Models Grid */}
       <div className="container mx-auto px-4 md:px-6 py-12 categories-inner">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {models.length === 0 && (
             <p className="col-span-full text-muted-foreground font-body text-sm py-8">No models in this category yet.</p>
           )}

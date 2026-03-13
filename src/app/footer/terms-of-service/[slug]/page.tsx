@@ -218,11 +218,12 @@ const pageComponents: Record<string, React.FC> = {
 };
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-export default function TermsSubPage({ params }: Props) {
-  const slug = params?.slug ?? "";
+export default async function TermsSubPage({ params }: Props) {
+  const resolved = await params;
+  const slug = resolved?.slug ?? "";
   const meta = slugMeta[slug];
   const Content = pageComponents[slug];
 

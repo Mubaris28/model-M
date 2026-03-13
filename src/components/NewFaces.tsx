@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { Link } from "@/lib/router-next";
+import { Link, useNavigate } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { publicApi, type PublicModel } from "@/lib/api";
 
@@ -35,6 +35,7 @@ type NewFacesProps = {
 const NewFaces = ({ homePreview }: NewFacesProps) => {
   const [activeCountry, setActiveCountry] = useState("All");
   const [faces, setFaces] = useState<FaceCard[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     publicApi
@@ -56,9 +57,20 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
     <section className="py-24 bg-card">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-          <div>
-            <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Fresh Talent</p>
-            <h2 className="font-display text-5xl md:text-6xl line-accent text-primary">New Faces</h2>
+          <div className="flex items-start gap-3">
+            {!homePreview && (
+              <button
+                onClick={() => navigate(-1)}
+                className="mt-2 flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors text-xs font-body tracking-wider uppercase shrink-0"
+                aria-label="Go back"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <div>
+              <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Fresh Talent</p>
+              <h2 className="font-display text-5xl md:text-6xl line-accent text-primary">New Faces</h2>
+            </div>
           </div>
           <Link to="/new-faces" className="text-primary text-xs font-body tracking-[0.15em] uppercase hover:text-red-light transition-colors whitespace-nowrap">
             View All →

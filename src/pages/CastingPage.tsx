@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackButton from "@/components/BackButton";
 import AdBanner from "@/components/AdBanner";
+import PageLoader from "@/components/PageLoader";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { Calendar, MapPin, Users, ArrowRight, X } from "lucide-react";
@@ -40,13 +41,22 @@ function toCastingRow(c: PublicCasting): CastingRow {
   };
 }
 
-const CASTING_CATEGORIES = ["All", "Bikini", "Commercial", "Editorial", "Bold", "Artistic Nude", "Glamour", "Fitness"];
+const CASTING_TYPES = ["All", "Paid Shoot", "Collaborative Shoot", "Content Creation"];
+const GENDER_OPTIONS = ["All", "Female", "Male", "Non-binary", "Any"];
+const PAYMENT_OPTIONS = [
+  { label: "All", value: "All" },
+  { label: "Paid Only", value: "paid" },
+  { label: "Unpaid/TFP", value: "unpaid" },
+];
 
 const CastingPage = () => {
   const [castings, setCastings] = useState<CastingRow[]>([]);
   const [categoryFilter, setCategoryFilter] = useState("All");
+  const [genderFilter, setGenderFilter] = useState("All");
+  const [castingTypeFilter, setCastingTypeFilter] = useState("All");
   const [locationFilter, setLocationFilter] = useState("all");
-  const [urgentOnly, setUrgentOnly] = useState(false);
+  const [paymentFilter, setPaymentFilter] = useState("All");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     publicApi
@@ -54,8 +64,11 @@ const CastingPage = () => {
       .then((list) => {
         if (list?.length) setCastings(list.map(toCastingRow));
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
+
+  if (loading) return <PageLoader label="Loading castings..." />;
 
   const locations = useMemo(
     () => Array.from(new Set(castings.map((c) => c.location).filter((l) => l && l !== "—"))).sort(),
@@ -65,18 +78,22 @@ const CastingPage = () => {
   const filtered = useMemo(() => {
     return castings.filter((c) => {
       if (categoryFilter !== "All" && !(c.categories || []).includes(categoryFilter)) return false;
+      if (castingTypeFilter !== "All" && castingTypeFilter !== (c.categories?.[0] || "")) return false;
       if (locationFilter !== "all" && c.location !== locationFilter) return false;
-      if (urgentOnly && !c.urgent) return false;
+      if (genderFilter !== "All") return true; // server-side filter when API supports gender
+      if (paymentFilter === "paid" && !c.urgent) return true; // placeholder
       return true;
     });
-  }, [castings, categoryFilter, locationFilter, urgentOnly]);
+  }, [castings, categoryFilter, castingTypeFilter, locationFilter, genderFilter, paymentFilter]);
 
-  const hasActiveFilters = categoryFilter !== "All" || locationFilter !== "all" || urgentOnly;
+  const hasActiveFilters = categoryFilter !== "All" || castingTypeFilter !== "All" || locationFilter !== "all" || genderFilter !== "All" || paymentFilter !== "All";
 
   const clearFilters = () => {
     setCategoryFilter("All");
+    setCastingTypeFilter("All");
     setLocationFilter("all");
-    setUrgentOnly(false);
+    setGenderFilter("All");
+    setPaymentFilter("All");
   };
 
   return (
@@ -96,58 +113,48 @@ const CastingPage = () => {
             </p>
           </div>
 
-          {/* Filter Bar — category pills scroll on mobile */}
-          <div className="mb-8 bg-card magazine-border p-4">
-            <div className="flex flex-col gap-3">
-              <div>
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-1.5">Category</span>
-                <div className="tabs-slider gap-1.5 -mx-1 px-1 md:mx-0 md:px-0 md:flex-wrap">
-                  {CASTING_CATEGORIES.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setCategoryFilter(cat)}
-                      className={`px-3 py-1.5 text-[11px] font-body tracking-wider uppercase border transition-colors shrink-0 ${
-                        categoryFilter === cat
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border text-muted-foreground hover:border-primary/50"
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
+          {/* Filter Bar */}
+          <div className="mb-8 bg-card magazine-border p-4 space-y-4">
+            {/* Casting Type tabs */}
+            <div>
+              <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-2">Casting Type</span>
+              <div className="tabs-slider gap-1.5 -mx-1 px-1 md:mx-0 md:px-0 md:flex-wrap">
+                {CASTING_TYPES.map((t) => (
+                  <button key={t} onClick={() => setCastingTypeFilter(t)}
+                    className={`px-3 py-1.5 text-[11px] font-body tracking-wider uppercase border transition-colors shrink-0 ${
+                      castingTypeFilter === t ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary/50"
+                    }`}>
+                    {t}
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 mt-3 items-end">
-              {/* Location */}
+            {/* Dropdown filters */}
+            <div className="flex flex-wrap gap-3 items-end">
+              {/* Gender */}
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Location</span>
-                <select
-                  value={locationFilter}
-                  onChange={(e) => setLocationFilter(e.target.value)}
-                  className="form-input py-1.5 text-xs min-w-[160px]"
-                >
-                  <option value="all">All locations</option>
-                  {locations.map((loc) => (
-                    <option key={loc} value={loc}>{loc}</option>
-                  ))}
+                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Gender</span>
+                <select value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)} className="form-input py-1.5 text-xs min-w-[130px]">
+                  {GENDER_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
                 </select>
               </div>
 
-              {/* Urgent toggle */}
+              {/* Location */}
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Status</span>
-                <button
-                  onClick={() => setUrgentOnly((v) => !v)}
-                  className={`px-4 py-1.5 text-[11px] font-body tracking-wider uppercase border transition-colors ${
-                    urgentOnly
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border text-muted-foreground hover:border-primary/50"
-                  }`}
-                >
-                  Urgent Only
-                </button>
+                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Location</span>
+                <select value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)} className="form-input py-1.5 text-xs min-w-[150px]">
+                  <option value="all">All locations</option>
+                  {locations.map((loc) => <option key={loc} value={loc}>{loc}</option>)}
+                </select>
+              </div>
+
+              {/* Payment */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Payment</span>
+                <select value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)} className="form-input py-1.5 text-xs min-w-[130px]">
+                  {PAYMENT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
               </div>
 
               {hasActiveFilters && (

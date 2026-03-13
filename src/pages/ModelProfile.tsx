@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageLoader from "@/components/PageLoader";
 import { useParams, Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
@@ -83,14 +84,7 @@ const ModelProfile = () => {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Navbar />
-        <div className="text-center text-muted-foreground font-body">Loading...</div>
-      </div>
-    );
-  }
+  if (loading) return <PageLoader label="Loading profile..." />;
 
   if (!model) {
     return (

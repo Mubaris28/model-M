@@ -7,6 +7,7 @@ import BackButton from "@/components/BackButton";
 import { Calendar, MapPin, Users, Share2, CheckCircle, Loader2, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import PageLoader from "@/components/PageLoader";
 import { publicApi, type PublicCasting, contactApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "@/lib/router-next";
@@ -97,14 +98,7 @@ const CastingDetailPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Navbar />
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
-    );
-  }
+  if (loading) return <PageLoader label="Loading casting..." />;
 
   if (!casting) {
     return (

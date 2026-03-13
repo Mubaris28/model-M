@@ -215,7 +215,6 @@ export default function Chatbot() {
                   className="flex flex-col items-center text-center"
                 >
                   <div className="relative w-16 h-16 rounded-full overflow-hidden bg-muted/60 mb-3 flex-shrink-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={WELCOME_GIF}
                       alt=""
@@ -253,7 +252,6 @@ export default function Chatbot() {
                     >
                       {msg.role === "bot" && msg.gifUrl && (
                         <div className="relative w-24 h-24 rounded-lg overflow-hidden mb-2">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={msg.gifUrl}
                             alt=""
