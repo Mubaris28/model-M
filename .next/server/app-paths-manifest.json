@@ -1,7 +1,0 @@
-{
-  "/page": "app/page.js",
-  "/models/page": "app/models/page.js",
-  "/about/page": "app/about/page.js",
-  "/footer/safety-and-trust/[slug]/page": "app/footer/safety-and-trust/[slug]/page.js",
-  "/login/page": "app/login/page.js"
-}
