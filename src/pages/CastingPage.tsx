@@ -68,8 +68,6 @@ const CastingPage = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <PageLoader label="Loading castings..." />;
-
   const locations = useMemo(
     () => Array.from(new Set(castings.map((c) => c.location).filter((l) => l && l !== "—"))).sort(),
     [castings]
@@ -80,11 +78,9 @@ const CastingPage = () => {
       if (categoryFilter !== "All" && !(c.categories || []).includes(categoryFilter)) return false;
       if (castingTypeFilter !== "All" && castingTypeFilter !== (c.categories?.[0] || "")) return false;
       if (locationFilter !== "all" && c.location !== locationFilter) return false;
-      if (genderFilter !== "All") return true; // server-side filter when API supports gender
-      if (paymentFilter === "paid" && !c.urgent) return true; // placeholder
       return true;
     });
-  }, [castings, categoryFilter, castingTypeFilter, locationFilter, genderFilter, paymentFilter]);
+  }, [castings, categoryFilter, castingTypeFilter, locationFilter]);
 
   const hasActiveFilters = categoryFilter !== "All" || castingTypeFilter !== "All" || locationFilter !== "all" || genderFilter !== "All" || paymentFilter !== "All";
 
@@ -95,6 +91,8 @@ const CastingPage = () => {
     setGenderFilter("All");
     setPaymentFilter("All");
   };
+
+  if (loading) return <PageLoader label="Loading castings..." />;
 
   return (
     <div className="min-h-screen bg-background">
