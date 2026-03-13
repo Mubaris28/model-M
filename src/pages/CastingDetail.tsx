@@ -57,7 +57,7 @@ const CastingDetailPage = () => {
               location: found.location || "—",
               slots: found.slots ?? 0,
               description: found.description || "",
-              categories: found.categories || [],
+              categories: found.castingType ? [found.castingType] : [],
             });
           }
         })
