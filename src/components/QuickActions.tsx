@@ -3,14 +3,14 @@ import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
 
 const actions = [
-  { icon: Sparkles, label: "I'm New to the Spotlight", link: "/discover-path/im-new-to-the-spotlight", description: "Start your modeling journey" },
-  { icon: Star, label: "I'm a Full-Time Model", link: "/discover-path/im-a-full-time-model", description: "Explore opportunities" },
-  { icon: Palette, label: "I'm an Influencer with a passion for creating", link: "/discover-path/im-an-influencer-with-a-passion-for-creating", description: "Content creation & influence" },
-  { icon: Camera, label: "I'm a Creative Photographer", link: "/discover-path/im-a-creative-photographer", description: "Connect with talent" },
-  { icon: Shirt, label: "I'm a Stylist", link: "/discover-path/im-a-stylist", description: "Fashion & styling" },
-  { icon: Brush, label: "I'm a Talent Artist", link: "/discover-path/im-a-talent-artist", description: "Creative collaborations" },
-  { icon: Link2, label: "Connect Now", link: "/discover-path/were-more-than-a-brand", description: "We're more than a brand" },
-  { icon: Rocket, label: "Get Started", link: "/discover-path/we-are-your-go-to-agency", description: "We are your go-to agency" },
+  { icon: Sparkles, label: "I'm New to the Spotlight", link: "/discover-path/im-new-to-the-spotlight", description: "Start your modeling journey", image: "/images/how_it_works/1.webp" },
+  { icon: Star, label: "I'm a Full-Time Model", link: "/discover-path/im-a-full-time-model", description: "Explore opportunities", image: "/images/how_it_works/2.webp" },
+  { icon: Palette, label: "I'm an Influencer with a passion for creating", link: "/discover-path/im-an-influencer-with-a-passion-for-creating", description: "Content creation & influence", image: "/images/how_it_works/2.1.webp" },
+  { icon: Camera, label: "I'm a Creative Photographer", link: "/discover-path/im-a-creative-photographer", description: "Connect with talent", image: "/images/how_it_works/2.2.webp" },
+  { icon: Shirt, label: "I'm a Stylist", link: "/discover-path/im-a-stylist", description: "Fashion & styling", image: "/images/how_it_works/2.3.webp" },
+  { icon: Brush, label: "I'm a Talent Artist", link: "/discover-path/im-a-talent-artist", description: "Creative collaborations", image: "/images/how_it_works/2.4.webp" },
+  { icon: Link2, label: "Connect Now", link: "/discover-path/were-more-than-a-brand", description: "We're more than a brand", image: "/images/how_it_works/3.webp" },
+  { icon: Rocket, label: "Get Started", link: "/discover-path/we-are-your-go-to-agency", description: "We are your go-to agency", image: "/images/how_it_works/4.webp" },
 ];
 
 const QuickActions = () => {
@@ -21,7 +21,7 @@ const QuickActions = () => {
           <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Get Started</p>
           <h2 className="font-display text-4xl md:text-5xl line-accent text-primary">Find Your Path</h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="mobile-slider gap-4">
           {actions.map((action, i) => (
             <motion.div
               key={action.label}
@@ -32,14 +32,24 @@ const QuickActions = () => {
             >
               <Link
                 to={action.link}
-                className="group flex flex-col items-center text-center p-6 magazine-border hover:border-primary/40 transition-all duration-300 hover-lift h-full"
+                className="group flex flex-col magazine-border hover:border-primary/40 transition-all duration-300 overflow-hidden h-full bg-card"
               >
-                <div className="w-12 h-12 bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary transition-colors">
-                  <action.icon className="w-5 h-5 text-primary group-hover:text-primary-foreground transition-colors" />
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                  <img
+                    src={action.image}
+                    alt=""
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute top-3 left-3 w-10 h-10 bg-primary/90 flex items-center justify-center">
+                    <action.icon className="w-5 h-5 text-primary-foreground" />
+                  </div>
                 </div>
-                <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors mb-1">{action.label}</h3>
-                <p className="text-muted-foreground text-xs font-body mb-3">{action.description}</p>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                <div className="flex flex-col items-center text-center p-5">
+                  <h3 className="font-display text-base md:text-lg text-foreground group-hover:text-primary transition-colors mb-1">{action.label}</h3>
+                  <p className="text-muted-foreground text-xs font-body mb-3 line-clamp-2">{action.description}</p>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
               </Link>
             </motion.div>
           ))}

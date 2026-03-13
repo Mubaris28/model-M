@@ -109,6 +109,10 @@ export default function PremiumPage() {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 cinematic-overlay pointer-events-none" />
+                    {/* Premium badge */}
+                    <div className="absolute top-2 right-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-black text-[9px] font-body font-bold tracking-[0.2em] uppercase px-2 py-0.5 flex items-center gap-1">
+                      ★ Premium
+                    </div>
                     <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                       <span className="text-[10px] font-body tracking-[0.2em] uppercase text-primary">{model.category}</span>
                       <h3 className="font-display text-lg text-white mt-1">{model.name}</h3>
@@ -170,8 +174,10 @@ export default function PremiumPage() {
                         </span>
                       )}
                     </div>
-                    {casting.categories.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <span className="bg-gradient-to-r from-amber-500 to-yellow-400 text-black text-[9px] font-body font-bold tracking-[0.2em] uppercase px-2 py-0.5">
+                          ★ Premium
+                        </span>
                         {casting.categories.map((cat) => (
                           <span
                             key={cat}
@@ -181,7 +187,6 @@ export default function PremiumPage() {
                           </span>
                         ))}
                       </div>
-                    )}
                   </Link>
                 ))
               )}

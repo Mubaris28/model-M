@@ -16,17 +16,19 @@ import {
   Building2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { adminApi, User, AdminStats } from "@/lib/api";
+import { adminApi, User, AdminStats, ContactMessage, Casting } from "@/lib/api";
+import { imgSrc } from "@/lib/utils";
 
 const USERS_PAGE_SIZE = 20;
 
-type TabId = "dashboard" | "users" | "castings" | "marketplace";
+type TabId = "dashboard" | "users" | "castings" | "marketplace" | "bookings";
 
 const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "users", label: "User Management", icon: Users },
   { id: "castings", label: "Casting Management", icon: Briefcase },
   { id: "marketplace", label: "Marketplace Offers", icon: ShoppingBag },
+  { id: "bookings", label: "Bookings & Applications", icon: CreditCard },
 ];
 
 const AdminPanelPage = () => {
@@ -60,6 +62,52 @@ const AdminPanelPage = () => {
       setUsersPage(Math.max(0, totalPages - 1));
     }
   }, [activeTab, totalPages, usersPage]);
+  const [castingList, setCastingList] = useState<Casting[]>([]);
+  const [castingsLoading, setCastingsLoading] = useState(false);
+  const [castingStatusFilter, setCastingStatusFilter] = useState<string>("all");
+  const [castingActionLoading, setCastingActionLoading] = useState<string | null>(null);
+
+  const loadCastings = async (status?: string) => {
+    setCastingsLoading(true);
+    try {
+      const data = await adminApi.castings(status && status !== "all" ? { status } : undefined);
+      setCastingList(data);
+    } catch {
+      setAuthError("Failed to load castings.");
+    } finally {
+      setCastingsLoading(false);
+    }
+  };
+
+  const handleCastingAction = async (id: string, action: "approved" | "rejected") => {
+    setCastingActionLoading(id);
+    try {
+      await adminApi.updateCasting(id, { approvalStatus: action });
+      await loadCastings(castingStatusFilter);
+      await loadStats();
+    } catch {
+      setAuthError("Failed to update casting.");
+    } finally {
+      setCastingActionLoading(null);
+    }
+  };
+
+  const [contacts, setContacts] = useState<ContactMessage[]>([]);
+  const [contactsLoading, setContactsLoading] = useState(false);
+  const [contactTypeFilter, setContactTypeFilter] = useState<"all" | "booking" | "application" | "partner">("all");
+
+  const loadContacts = async (type?: "booking" | "application" | "partner" | "all") => {
+    setContactsLoading(true);
+    try {
+      const data = await adminApi.contacts(type || "all");
+      setContacts(data);
+    } catch {
+      setAuthError("Failed to load contacts.");
+    } finally {
+      setContactsLoading(false);
+    }
+  };
+
   const [actionModal, setActionModal] = useState<{ user: User; action: "reject" | "changes_requested" } | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
@@ -91,12 +139,16 @@ const AdminPanelPage = () => {
     if (user?.isAdmin) {
       loadStats();
       if (activeTab === "users") loadUsers();
+      if (activeTab === "castings") loadCastings(castingStatusFilter);
+      if (activeTab === "bookings") loadContacts(contactTypeFilter === "all" ? "all" : contactTypeFilter);
     }
   }, [user?.isAdmin, activeTab]);
 
   const handleRefresh = () => {
     loadStats();
     if (activeTab === "users") loadUsers();
+    if (activeTab === "castings") loadCastings(castingStatusFilter);
+    if (activeTab === "bookings") loadContacts(contactTypeFilter === "all" ? "all" : contactTypeFilter);
   };
 
   const handleApprove = async (u: User) => {
@@ -307,6 +359,9 @@ const AdminPanelPage = () => {
                 <button onClick={() => setActiveTab("castings")} className="px-4 py-2 bg-primary/10 text-primary text-sm font-body hover:bg-primary/20">
                   Manage Castings
                 </button>
+                <button onClick={() => { setActiveTab("bookings"); loadContacts("all"); }} className="px-4 py-2 bg-primary/10 text-primary text-sm font-body hover:bg-primary/20">
+                  View Bookings &amp; Applications
+                </button>
               </div>
             </>
           )}
@@ -333,8 +388,19 @@ const AdminPanelPage = () => {
                       {paginatedUsers.map((u) => (
                         <tr key={u._id} className="border-t border-border">
                           <td className="p-3">
-                            <span className="font-medium">{u.fullName || "—"}</span>
-                            <span className="text-muted-foreground text-xs block">ID: {u._id.slice(-6)}</span>
+                            <div className="flex items-center gap-2">
+                              {u.profilePhoto ? (
+                                <img src={imgSrc(u.profilePhoto)} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+                                  {u.role === "model" ? <Camera className="w-4 h-4 text-muted-foreground" /> : <Building2 className="w-4 h-4 text-muted-foreground" />}
+                                </div>
+                              )}
+                              <div>
+                                <span className="font-medium text-sm">{u.fullName || "—"}</span>
+                                <span className="text-muted-foreground text-xs block">ID: {u._id.slice(-6)}</span>
+                              </div>
+                            </div>
                           </td>
                           <td className="p-3">{u.email}</td>
                           <td className="p-3">
@@ -400,8 +466,110 @@ const AdminPanelPage = () => {
 
           {activeTab === "castings" && (
             <>
-              <h2 className="font-display text-xl text-foreground mb-4">Casting Management</h2>
-              <p className="text-muted-foreground font-body">Casting list — connect to API when castings exist.</p>
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
+                <h2 className="font-display text-xl text-foreground">Casting Management</h2>
+                <div className="flex flex-wrap gap-2">
+                  {(["all", "pending", "approved", "rejected"] as const).map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => { setCastingStatusFilter(s); loadCastings(s); }}
+                      className={`px-3 py-1.5 text-xs font-body uppercase tracking-wider border transition-colors ${
+                        castingStatusFilter === s ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary/50"
+                      }`}
+                    >
+                      {s === "all" ? "All" : s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {castingsLoading ? (
+                <p className="text-muted-foreground font-body">Loading castings...</p>
+              ) : (
+                <div className="border border-border overflow-x-auto">
+                  <table className="w-full text-sm font-body min-w-[600px]">
+                    <thead className="bg-secondary">
+                      <tr>
+                        <th className="text-left p-3 font-medium">Title</th>
+                        <th className="text-left p-3 font-medium">Brand</th>
+                        <th className="text-left p-3 font-medium">Creator</th>
+                        <th className="text-left p-3 font-medium">Type</th>
+                        <th className="text-left p-3 font-medium">Status</th>
+                        <th className="text-left p-3 font-medium">Date</th>
+                        <th className="text-left p-3 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {castingList.map((c) => (
+                        <tr key={c._id} className="border-t border-border hover:bg-secondary/30">
+                          <td className="p-3">
+                            <span className="font-medium text-foreground">{c.title}</span>
+                            <span className="text-muted-foreground text-xs block">{c.location || "—"}</span>
+                          </td>
+                          <td className="p-3 text-muted-foreground">{c.brand || "—"}</td>
+                          <td className="p-3">
+                            {c.creatorId ? (
+                              <div className="flex items-center gap-2">
+                                {(c.creatorId as unknown as User).profilePhoto ? (
+                                  <img
+                                    src={imgSrc((c.creatorId as unknown as User).profilePhoto!)}
+                                    alt=""
+                                    className="w-6 h-6 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
+                                    <Building2 className="w-3 h-3 text-muted-foreground" />
+                                  </div>
+                                )}
+                                <span className="text-xs text-muted-foreground">
+                                  {(c.creatorId as unknown as User).fullName || (c.creatorId as unknown as User).email || "—"}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">—</span>
+                            )}
+                          </td>
+                          <td className="p-3 text-muted-foreground text-xs">{c.castingType || "—"}</td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 text-xs font-medium uppercase tracking-wider ${
+                              c.approvalStatus === "approved" ? "bg-green-100 text-green-700" :
+                              c.approvalStatus === "rejected" ? "bg-red-100 text-red-700" :
+                              "bg-yellow-100 text-yellow-700"
+                            }`}>
+                              {c.approvalStatus || "pending"}
+                            </span>
+                          </td>
+                          <td className="p-3 text-muted-foreground text-xs">
+                            {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}
+                          </td>
+                          <td className="p-3 flex gap-1.5 flex-wrap">
+                            {c.approvalStatus !== "approved" && (
+                              <button
+                                onClick={() => handleCastingAction(c._id, "approved")}
+                                disabled={castingActionLoading === c._id}
+                                className="text-xs px-2 py-1 bg-green-100 text-green-700 hover:bg-green-200 disabled:opacity-50"
+                              >
+                                {castingActionLoading === c._id ? "..." : "Approve"}
+                              </button>
+                            )}
+                            {c.approvalStatus !== "rejected" && (
+                              <button
+                                onClick={() => handleCastingAction(c._id, "rejected")}
+                                disabled={castingActionLoading === c._id}
+                                className="text-xs px-2 py-1 bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50"
+                              >
+                                {castingActionLoading === c._id ? "..." : "Reject"}
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {castingList.length === 0 && !castingsLoading && (
+                    <p className="p-6 text-center text-muted-foreground text-sm">No castings found for this filter.</p>
+                  )}
+                </div>
+              )}
             </>
           )}
 
@@ -411,11 +579,77 @@ const AdminPanelPage = () => {
               <p className="text-muted-foreground font-body">Marketplace offers — approve/reject from this tab when connected.</p>
             </>
           )}
+
+          {activeTab === "bookings" && (
+            <>
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <h2 className="font-display text-xl text-foreground">Bookings &amp; Applications</h2>
+                <div className="flex flex-wrap gap-2">
+                  {(["all", "booking", "application", "partner"] as const).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => {
+                        setContactTypeFilter(t);
+                        loadContacts(t);
+                      }}
+                      className={`px-3 py-1.5 text-xs font-body uppercase tracking-wider border transition-colors ${
+                        contactTypeFilter === t ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary/50"
+                      }`}
+                    >
+                      {t === "all" ? "All Messages" : t === "booking" ? "Booking Requests" : t === "application" ? "Casting Applications" : "Partner Applications"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {contactsLoading ? (
+                <p className="text-muted-foreground font-body">Loading...</p>
+              ) : contacts.length === 0 ? (
+                <div className="border border-border p-8 text-center">
+                  <p className="text-muted-foreground font-body text-sm">No messages found for this filter.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {contacts.map((c) => {
+                    const isBooking = c.message.startsWith("[BOOKING REQUEST]");
+                    const isApplication = c.message.startsWith("[CASTING APPLICATION]");
+                    const isPartner = c.message.startsWith("[Partner Application]");
+                    const tag = isBooking ? "Booking" : isApplication ? "Application" : isPartner ? "Partner" : "Message";
+                    const tagColor = isBooking
+                      ? "bg-blue-100 text-blue-700"
+                      : isApplication
+                      ? "bg-primary/10 text-primary"
+                      : isPartner
+                      ? "bg-amber-100 text-amber-700"
+                      : "bg-secondary text-secondary-foreground";
+                    return (
+                      <div key={c._id} className="border border-border bg-card p-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[10px] font-body font-bold tracking-[0.2em] uppercase px-2 py-0.5 ${tagColor}`}>
+                              {tag}
+                            </span>
+                            <span className="font-body text-sm font-medium text-foreground">{c.name}</span>
+                            <span className="text-muted-foreground text-xs font-body">&lt;{c.email}&gt;</span>
+                          </div>
+                          <span className="text-muted-foreground text-xs font-body">
+                            {c.createdAt ? new Date(c.createdAt).toLocaleString() : "—"}
+                          </span>
+                        </div>
+                        <pre className="text-muted-foreground text-xs font-body whitespace-pre-wrap leading-relaxed bg-secondary/50 px-3 py-2 max-h-40 overflow-y-auto">
+                          {c.message}
+                        </pre>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </main>
 
       {actionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => !actionLoading && setActionModal(null)}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm" onClick={() => !actionLoading && setActionModal(null)}>
           <div className="bg-background border border-border p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-display text-xl mb-2">
               {actionModal.action === "reject" ? "Reject application" : "Request changes"}
@@ -444,9 +678,9 @@ const AdminPanelPage = () => {
 
       {/* View user details modal */}
       {(viewUser !== null || viewUserLoading) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => !viewUserLoading && setViewUser(null)}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm" onClick={() => !viewUserLoading && setViewUser(null)}>
           <div
-            className="bg-background border border-border max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-background border border-border w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-sm shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="sticky top-0 bg-background border-b border-border px-6 py-4 flex items-center justify-between">

@@ -34,7 +34,7 @@ function toCard(m: PublicModel): ModelCard {
 }
 
 const FeaturedModels = () => {
-  const [models, setModels] = useState<ModelCard[]>(allModels.slice(0, 6).map((m) => ({ ...m, image: m.image as { src: string } })));
+  const [models, setModels] = useState<ModelCard[]>([]);
 
   useEffect(() => {
     publicApi
@@ -58,7 +58,7 @@ const FeaturedModels = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-6">
+        <div className="mobile-slider gap-5 md:gap-6" style={{ gridTemplateColumns: "repeat(3,minmax(0,1fr))" }}>
           {models.slice(0, 6).map((model, i) => (
             <motion.div
               key={model.id}

@@ -26,50 +26,40 @@
       "static/chunks/main-app.js",
       "static/chunks/app/not-found.js"
     ],
-    "/discover-path/[slug]/page": [
+    "/models/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/discover-path/[slug]/page.js"
+      "static/chunks/app/models/page.js"
     ],
-    "/signup/page": [
+    "/categories/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/signup/page.js"
+      "static/chunks/app/categories/page.js"
     ],
-    "/admin/signup/page": [
+    "/casting/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/signup/page.js"
+      "static/chunks/app/casting/page.js"
     ],
-    "/sponsor/page": [
+    "/new-faces/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/sponsor/page.js"
-    ],
-    "/marketplace/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/marketplace/page.js"
-    ],
-    "/directory/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/directory/page.js"
+      "static/chunks/app/new-faces/page.js"
     ],
     "/about/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/about/page.js"
     ],
-    "/footer/blog/page": [
+    "/footer/how-it-works/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/footer/blog/page.js"
+      "static/chunks/app/footer/how-it-works/page.js"
     ],
-    "/footer/careers/page": [
+    "/footer/how-it-works/models/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/footer/careers/page.js"
+      "static/chunks/app/footer/how-it-works/models/page.js"
     ],
     "/footer/safety-and-trust/page": [
       "static/chunks/webpack.js",
@@ -81,40 +71,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/footer/safety-and-trust/[slug]/page.js"
     ],
-    "/models/page": [
+    "/footer/blog/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/models/page.js"
+      "static/chunks/app/footer/blog/page.js"
     ],
-    "/professionals/page": [
+    "/footer/blog/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/professionals/page.js"
-    ],
-    "/contact/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/contact/page.js"
-    ],
-    "/_not-found/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
-    ],
-    "/categories/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/categories/page.js"
-    ],
-    "/modelsTalents/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/modelsTalents/page.js"
-    ],
-    "/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
+      "static/chunks/app/footer/blog/[id]/page.js"
     ]
   }
 }

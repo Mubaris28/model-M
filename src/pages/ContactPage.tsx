@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Loader2, Instagram, Facebook, Linkedin } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -36,94 +36,188 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-24 pb-16">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="mb-12">
-            <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Get in Touch</p>
-            <h1 className="font-display text-6xl md:text-8xl line-accent">Contact</h1>
-          </div>
 
+      {/* Hero */}
+      <div className="relative h-[45vh] min-h-[280px] overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1400&q=80"
+          alt="Contact"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 cinematic-overlay" />
+        <div className="absolute inset-0 cinematic-overlay-left" />
+        <div className="relative z-10 container mx-auto px-4 md:px-6 h-full flex flex-col justify-end pb-12">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-3">Get in Touch</p>
+            <h1 className="font-display text-7xl md:text-9xl text-white leading-none">Contact</h1>
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="py-16 md:py-20">
+        <div className="container mx-auto px-4 md:px-6">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-12"
+            className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16"
           >
-            <div className="lg:col-span-4 space-y-8">
+            {/* Info sidebar */}
+            <div className="lg:col-span-4 space-y-6">
               <div>
-                <h2 className="font-display text-2xl text-foreground mb-2">Get in Touch</h2>
+                <h2 className="font-display text-3xl text-foreground mb-2">We&apos;d love to hear from you</h2>
                 <p className="text-muted-foreground text-sm font-body leading-relaxed">
-                  We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
+                  Send us a message and we&apos;ll respond as soon as possible — usually within 24 hours.
                 </p>
               </div>
-              {[
-                { icon: Mail, label: "Email Us", value: "info@modelmanagement.mu", sub: "We'll respond within 24 hours" },
-                { icon: Phone, label: "Call Us", value: "+230 468 6969", sub: "Mon-Fri from 8am to 6pm" },
-                { icon: MapPin, label: "Visit Us", value: "2nd Floor, Unity House, Rue Du Savoir, Cybercity, Ebene", sub: "Mauritius, 72201" },
-              ].map((item) => (
-                <div key={item.label} className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-gradient-red flex items-center justify-center flex-shrink-0">
-                    <item.icon className="w-4 h-4 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase mb-1">{item.label}</p>
-                    <p className="text-foreground text-sm font-body">{item.value}</p>
-                    {item.sub && <p className="text-muted-foreground text-xs font-body mt-0.5">{item.sub}</p>}
-                  </div>
-                </div>
-              ))}
 
-              <div className="bg-card magazine-border p-6 mt-8">
-                <h3 className="font-display text-xl text-foreground mb-2">Flash Communications Ltd</h3>
+              <div className="space-y-5">
+                {[
+                  {
+                    icon: Mail,
+                    label: "Email Us",
+                    value: "info@modelmanagement.mu",
+                    sub: "We respond within 24 hours",
+                    href: "mailto:info@modelmanagement.mu",
+                  },
+                  {
+                    icon: Phone,
+                    label: "Call Us",
+                    value: "+230 468 6969",
+                    sub: "Mon–Fri, 8am – 6pm",
+                    href: "tel:+2304686969",
+                  },
+                  {
+                    icon: MapPin,
+                    label: "Visit Us",
+                    value: "2nd Floor, Unity House",
+                    sub: "Rue Du Savoir, Cybercity, Ebene, Mauritius 72201",
+                    href: undefined,
+                  },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-start gap-4 group">
+                    <div className="w-11 h-11 bg-primary flex items-center justify-center flex-shrink-0">
+                      <item.icon className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase mb-0.5">{item.label}</p>
+                      {item.href ? (
+                        <a href={item.href} className="text-foreground text-sm font-body hover:text-primary transition-colors">
+                          {item.value}
+                        </a>
+                      ) : (
+                        <p className="text-foreground text-sm font-body">{item.value}</p>
+                      )}
+                      {item.sub && <p className="text-muted-foreground text-xs font-body mt-0.5">{item.sub}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Social */}
+              <div className="pt-4 border-t border-border">
+                <p className="text-[10px] text-muted-foreground font-body tracking-[0.3em] uppercase mb-3">Follow Us</p>
+                <div className="flex gap-3">
+                  {[
+                    { icon: Instagram, label: "Instagram", href: "#" },
+                    { icon: Facebook, label: "Facebook", href: "#" },
+                    { icon: Linkedin, label: "LinkedIn", href: "#" },
+                  ].map((s) => (
+                    <a
+                      key={s.label}
+                      href={s.href}
+                      aria-label={s.label}
+                      className="w-10 h-10 border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors"
+                    >
+                      <s.icon className="w-4 h-4" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-card magazine-border p-5">
+                <h3 className="font-display text-lg text-foreground mb-1">Flash Communications Ltd</h3>
                 <p className="text-muted-foreground text-xs font-body leading-relaxed">
-                  2nd Floor, Unity House, Rue Du Savoir, Cybercity, Ebene, Mauritius, 72201. Website: www.theflashgroups.com
+                  2nd Floor, Unity House, Rue Du Savoir, Cybercity, Ebene, Mauritius, 72201
                 </p>
-                <p className="text-muted-foreground text-xs font-body mt-2">Follow Us: Stay updated with our latest news and updates — Instagram, TikTok, LinkedIn, Facebook</p>
+                <p className="text-muted-foreground text-xs font-body mt-1.5">
+                  <a href="https://www.theflashgroups.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                    www.theflashgroups.com
+                  </a>
+                </p>
               </div>
             </div>
 
+            {/* Form */}
             <div className="lg:col-span-8">
-              <h2 className="font-display text-2xl text-foreground mb-2">Send Message</h2>
-              <p className="text-muted-foreground text-sm font-body mb-6">Fill out the form below and we&apos;ll get back to you</p>
-              {errors.root && <p className="text-destructive font-body text-sm mb-6">{errors.root.message}</p>}
+              <h2 className="font-display text-3xl text-foreground mb-1">Send a Message</h2>
+              <p className="text-muted-foreground text-sm font-body mb-8">Fill out the form below and we&apos;ll get back to you.</p>
+
+              {errors.root && (
+                <p className="text-destructive font-body text-sm mb-6 bg-destructive/10 px-4 py-3">
+                  {errors.root.message}
+                </p>
+              )}
+
               {success ? (
-                <p className="text-primary font-body text-sm mb-6">Thank you! Your message has been sent.</p>
+                <div className="bg-primary/5 border border-primary/20 p-8 text-center">
+                  <div className="w-12 h-12 bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Mail className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="font-display text-2xl text-foreground mb-2">Message Sent!</h3>
+                  <p className="text-muted-foreground font-body text-sm">Thank you! We&apos;ll respond within 24 hours.</p>
+                  <button
+                    onClick={() => setSuccess(false)}
+                    className="mt-6 text-primary font-body text-xs tracking-wider uppercase hover:underline"
+                  >
+                    Send another message
+                  </button>
+                </div>
               ) : (
-                <form onSubmit={handleSubmit(onSubmit)} className="form-card space-y-5" noValidate>
-                  <div>
-                    <label className="form-label">Full name</label>
-                    <input
-                      type="text"
-                      {...register("name")}
-                      placeholder="Enter your full name"
-                      className="form-input"
-                      autoComplete="name"
-                    />
-                    {errors.name && <p className="form-error">{errors.name.message}</p>}
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="form-label">Full name *</label>
+                      <input
+                        type="text"
+                        {...register("name")}
+                        placeholder="Your full name"
+                        className="form-input"
+                        autoComplete="name"
+                      />
+                      {errors.name && <p className="form-error">{errors.name.message}</p>}
+                    </div>
+                    <div>
+                      <label className="form-label">Email address *</label>
+                      <input
+                        type="email"
+                        {...register("email")}
+                        placeholder="your@email.com"
+                        className="form-input"
+                        autoComplete="email"
+                      />
+                      {errors.email && <p className="form-error">{errors.email.message}</p>}
+                    </div>
                   </div>
                   <div>
-                    <label className="form-label">Email address</label>
-                    <input
-                      type="email"
-                      {...register("email")}
-                      placeholder="Enter your email address"
-                      className="form-input"
-                      autoComplete="email"
-                    />
-                    {errors.email && <p className="form-error">{errors.email.message}</p>}
-                  </div>
-                  <div>
-                    <label className="form-label">Message</label>
+                    <label className="form-label">Message *</label>
                     <textarea
-                      rows={5}
+                      rows={6}
                       {...register("message")}
-                      placeholder="Tell us how we can help you..."
-                      className="form-input resize-none min-h-[120px]"
+                      placeholder="How can we help you? Tell us about your project, inquiry, or anything you'd like to discuss..."
+                      className="form-input resize-none"
                     />
                     {errors.message && <p className="form-error">{errors.message.message}</p>}
                   </div>
-                  <button type="submit" disabled={isSubmitting} className="btn-primary inline-flex items-center justify-center gap-2">
-                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : <Send className="w-4 h-4" />}
-                    {isSubmitting ? "Sending..." : "Send message"}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="btn-primary inline-flex items-center justify-center gap-2 px-10"
+                  >
+                    {isSubmitting ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>
+                    ) : (
+                      <><Send className="w-4 h-4" /> Send Message</>
+                    )}
                   </button>
                 </form>
               )}
@@ -131,6 +225,7 @@ const ContactPage = () => {
           </motion.div>
         </div>
       </div>
+
       <Footer />
     </div>
   );

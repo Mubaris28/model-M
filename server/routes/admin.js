@@ -103,14 +103,44 @@ router.patch("/users/:id", async (req, res) => {
   }
 });
 
+// GET /api/admin/contacts — all contact messages (bookings, applications, general)
+router.get("/contacts", async (req, res) => {
+  try {
+    const { type } = req.query;
+    const filter = {};
+    if (type === "booking") filter.message = { $regex: /^\[BOOKING REQUEST\]/i };
+    else if (type === "application") filter.message = { $regex: /^\[CASTING APPLICATION\]/i };
+    else if (type === "partner") filter.message = { $regex: /^\[Partner Application\]/i };
+    const contacts = await Contact.find(filter).sort({ createdAt: -1 }).limit(200).lean();
+    res.json(contacts);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // GET /api/admin/castings
 router.get("/castings", async (req, res) => {
   try {
     const { status } = req.query;
     const filter = {};
     if (status && status !== "all") filter.approvalStatus = status;
-    const castings = await Casting.find(filter).populate("creatorId", "email fullName").sort({ createdAt: -1 }).limit(100).lean();
+    const castings = await Casting.find(filter).populate("creatorId", "email fullName profilePhoto").sort({ createdAt: -1 }).limit(100).lean();
     res.json(castings);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// PATCH /api/admin/castings/:id — approve or reject casting
+router.patch("/castings/:id", async (req, res) => {
+  try {
+    const { approvalStatus, rejectionReason } = req.body;
+    const update = {};
+    if (approvalStatus) update.approvalStatus = approvalStatus;
+    if (rejectionReason !== undefined) update.rejectionReason = rejectionReason || "";
+    const casting = await Casting.findByIdAndUpdate(req.params.id, update, { new: true }).lean();
+    if (!casting) return res.status(404).json({ error: "Casting not found" });
+    res.json(casting);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

@@ -4,6 +4,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import Chatbot from "@/components/Chatbot";
 import FloatingSocialButtons from "@/components/FloatingSocialButtons";
 import NewFeaturePopup from "@/components/NewFeaturePopup";
+import ScreenshotProtection from "@/components/ScreenshotProtection";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -27,13 +28,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <a
-          href="#main-content"
-          className="sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:outline-none focus:w-auto focus:h-auto focus:m-0 focus:overflow-visible focus:[clip:auto] font-body text-sm"
-        >
-          Skip to main content
-        </a>
         <Providers>
+          <ScreenshotProtection />
           <ScrollToTop />
           <div id="main-content">{children}</div>
           <Chatbot />

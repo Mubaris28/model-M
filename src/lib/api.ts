@@ -196,7 +196,21 @@ export const adminApi = {
     const q = new URLSearchParams(params as Record<string, string>).toString();
     return api<Casting[]>("/api/admin/castings" + (q ? `?${q}` : ""));
   },
+  updateCasting: (id: string, body: { approvalStatus?: string; rejectionReason?: string }) =>
+    api<Casting>("/api/admin/castings/" + id, { method: "PATCH", body }),
+  contacts: (type?: "booking" | "application" | "partner" | "all") => {
+    const q = type && type !== "all" ? `?type=${type}` : "";
+    return api<ContactMessage[]>("/api/admin/contacts" + q);
+  },
 };
+
+export interface ContactMessage {
+  _id: string;
+  name: string;
+  email: string;
+  message: string;
+  createdAt?: string;
+}
 
 export interface User {
   _id: string;

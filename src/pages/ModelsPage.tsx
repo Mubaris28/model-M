@@ -1,21 +1,15 @@
+"use client";
+
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
-import { allModels } from "@/components/FeaturedModels";
 import { categories } from "@/components/MagazineGrid";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { publicApi, type PublicModel } from "@/lib/api";
-import { Heart, Filter, Grid, LayoutList, X } from "lucide-react";
+import { Heart, Grid, LayoutList, X, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useMemo, useEffect } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const INITIAL_SHOW = 12;
 
@@ -44,8 +38,24 @@ function toCard(m: PublicModel): ModelCard {
   };
 }
 
-const HEIGHT_FILTER_OPTIONS: string[] = ["all", "Under 5'5\" (under 165 cm)", "5'5\"–5'7\" (165–170 cm)", "5'8\"–5'10\" (173–178 cm)", "5'11\"–6'1\" (180–185 cm)", "6'2\" and over (188+ cm)"];
-const SIZE_FILTER_OPTIONS: string[] = ["all", "XS", "S", "M", "L", "XL", "XXL"];
+const HEIGHT_OPTIONS = [
+  { label: "All Heights", value: "all" },
+  { label: "Under 5'5\" (165cm)", value: "Under 5'5\" (under 165 cm)" },
+  { label: "5'5\"–5'7\" (165–170cm)", value: "5'5\"–5'7\" (165–170 cm)" },
+  { label: "5'8\"–5'10\" (173–178cm)", value: "5'8\"–5'10\" (173–178 cm)" },
+  { label: "5'11\"–6'1\" (180–185cm)", value: "5'11\"–6'1\" (180–185 cm)" },
+  { label: "6'2\"+ (188cm+)", value: "6'2\" and over (188+ cm)" },
+];
+
+const SIZE_OPTIONS = [
+  { label: "All Sizes", value: "all" },
+  { label: "XS", value: "XS" },
+  { label: "S", value: "S" },
+  { label: "M", value: "M" },
+  { label: "L", value: "L" },
+  { label: "XL", value: "XL" },
+  { label: "XXL", value: "XXL" },
+];
 
 const ModelsPage = () => {
   const [view, setView] = useState<"grid" | "list">("grid");
@@ -53,27 +63,19 @@ const ModelsPage = () => {
   const [locationFilter, setLocationFilter] = useState<string>("all");
   const [heightFilter, setHeightFilter] = useState<string>("all");
   const [sizeFilter, setSizeFilter] = useState<string>("all");
-  const [showFilters, setShowFilters] = useState(false);
   const [showCount, setShowCount] = useState(INITIAL_SHOW);
-  const [models, setModels] = useState<ModelCard[]>(() =>
-    [...allModels, ...allModels, ...allModels].map((m) => ({
-      id: m.id,
-      name: m.name,
-      image: m.image,
-      category: m.category,
-      location: m.location,
-      height: m.height,
-      likes: m.likes,
-    }))
-  );
+  const [models, setModels] = useState<ModelCard[]>([]);
+  const [modelsLoading, setModelsLoading] = useState(true);
 
   useEffect(() => {
+    setModelsLoading(true);
     publicApi
       .models()
       .then((list) => {
         if (list?.length) setModels(list.map(toCard));
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setModelsLoading(false));
   }, []);
 
   const locations = useMemo(() => Array.from(new Set(models.map((m) => m.location))).sort(), [models]);
@@ -99,12 +101,11 @@ const ModelsPage = () => {
     setShowCount(INITIAL_SHOW);
   };
 
-  const hasActiveFilters = categoryFilter !== "all" || locationFilter !== "all" || heightFilter !== "all" || sizeFilter !== "all";
+  const hasActiveFilters =
+    categoryFilter !== "all" || locationFilter !== "all" || heightFilter !== "all" || sizeFilter !== "all";
 
   useEffect(() => {
     document.title = "Professional Models Directory | Model Management Mauritius";
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) metaDesc.setAttribute("content", "Browse 200+ verified professional models in Mauritius. Find fashion models, commercial models, runway models, and more. Connect directly with talented models for your projects.");
     return () => {
       document.title = "Model Management Mauritius - Professional Modeling Platform";
     };
@@ -115,140 +116,210 @@ const ModelsPage = () => {
       <Navbar />
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6">
+
+          {/* Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Discover</p>
               <h1 className="font-display text-6xl md:text-8xl line-accent">Models</h1>
               <p className="text-muted-foreground font-body text-sm mt-4 max-w-xl">
-                Browse verified professional models. Find fashion, commercial, runway models and more. Connect directly with talent for your projects.
+                Browse verified professional models. Connect directly with talent for your projects.
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-4 py-2 text-xs font-body tracking-wider uppercase border transition-colors ${showFilters || hasActiveFilters ? "border-primary text-primary bg-primary/5" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                onClick={() => setView("grid")}
+                className={`p-2.5 border transition-colors ${view === "grid" ? "border-primary text-primary" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                aria-label="Grid view"
               >
-                <Filter className="w-3 h-3" /> Filter
-                {hasActiveFilters && <span className="bg-primary text-primary-foreground text-[10px] w-4 h-4 rounded-full flex items-center justify-center">!</span>}
-              </button>
-              <button onClick={() => setView("grid")} className={`p-2 border ${view === "grid" ? "border-primary text-primary" : "border-border text-muted-foreground"}`}>
                 <Grid className="w-4 h-4" />
               </button>
-              <button onClick={() => setView("list")} className={`p-2 border ${view === "list" ? "border-primary text-primary" : "border-border text-muted-foreground"}`}>
+              <button
+                onClick={() => setView("list")}
+                className={`p-2.5 border transition-colors ${view === "list" ? "border-primary text-primary" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                aria-label="List view"
+              >
                 <LayoutList className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-8 p-4 md:p-6 bg-card magazine-border flex flex-wrap items-end gap-4"
-            >
-              <div className="w-full sm:w-auto min-w-[160px]">
-                <label className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-2">Category</label>
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger className="w-full bg-background">
-                    <SelectValue placeholder="All categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All categories</SelectItem>
-                    {categories.map((c) => (
-                      <SelectItem key={c.slug} value={c.name}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+          {/* Filter Bar — always visible, no animation, no height jump */}
+          <div className="mb-8 bg-card magazine-border p-4">
+            <div className="flex flex-wrap gap-3 items-end">
+              {/* Category */}
+              <div className="flex flex-col gap-1 min-w-[140px]">
+                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Category</span>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => setCategoryFilter("all")}
+                    className={`px-3 py-1.5 text-[11px] font-body tracking-wider uppercase border transition-colors ${
+                      categoryFilter === "all" ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary/50"
+                    }`}
+                  >
+                    All
+                  </button>
+                  {categories.map((c) => (
+                    <button
+                      key={c.slug}
+                      onClick={() => setCategoryFilter(c.name)}
+                      className={`px-3 py-1.5 text-[11px] font-body tracking-wider uppercase border transition-colors ${
+                        categoryFilter === c.name ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary/50"
+                      }`}
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="w-full sm:w-auto min-w-[160px]">
-                <label className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-2">Location</label>
-                <Select value={locationFilter} onValueChange={setLocationFilter}>
-                  <SelectTrigger className="w-full bg-background">
-                    <SelectValue placeholder="All locations" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All locations</SelectItem>
-                    {locations.map((loc) => (
-                      <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            </div>
+
+            <div className="flex flex-wrap gap-3 mt-3 items-end">
+              {/* Location */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Location</span>
+                <select
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                  className="form-input py-1.5 text-xs min-w-[140px]"
+                >
+                  <option value="all">All locations</option>
+                  {locations.map((loc) => (
+                    <option key={loc} value={loc}>{loc}</option>
+                  ))}
+                </select>
               </div>
-              <div className="w-full sm:w-auto min-w-[160px]">
-                <label className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-2">Height</label>
-                <Select value={heightFilter} onValueChange={setHeightFilter}>
-                  <SelectTrigger className="w-full bg-background">
-                    <SelectValue placeholder="All heights" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {HEIGHT_FILTER_OPTIONS.map((h) => (
-                      <SelectItem key={h} value={h}>{h === "all" ? "All heights" : h}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+
+              {/* Height */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Height</span>
+                <select
+                  value={heightFilter}
+                  onChange={(e) => setHeightFilter(e.target.value)}
+                  className="form-input py-1.5 text-xs min-w-[160px]"
+                >
+                  {HEIGHT_OPTIONS.map((h) => (
+                    <option key={h.value} value={h.value}>{h.label}</option>
+                  ))}
+                </select>
               </div>
-              <div className="w-full sm:w-auto min-w-[160px]">
-                <label className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-2">Size</label>
-                <Select value={sizeFilter} onValueChange={setSizeFilter}>
-                  <SelectTrigger className="w-full bg-background">
-                    <SelectValue placeholder="All sizes" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SIZE_FILTER_OPTIONS.map((sz) => (
-                      <SelectItem key={sz} value={sz}>{sz === "all" ? "All sizes" : sz}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+
+              {/* Dress Size */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Size</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {SIZE_OPTIONS.map((sz) => (
+                    <button
+                      key={sz.value}
+                      onClick={() => setSizeFilter(sz.value)}
+                      className={`px-3 py-1.5 text-[11px] font-body tracking-wider uppercase border transition-colors ${
+                        sizeFilter === sz.value ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary/50"
+                      }`}
+                    >
+                      {sz.label}
+                    </button>
+                  ))}
+                </div>
               </div>
+
               {hasActiveFilters && (
-                <button onClick={clearFilters} className="flex items-center gap-1.5 text-primary text-xs font-body tracking-wider uppercase hover:underline">
-                  <X className="w-3 h-3" /> Clear filters
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-1.5 text-primary text-[11px] font-body tracking-wider uppercase hover:underline ml-auto self-end pb-0.5"
+                >
+                  <X className="w-3 h-3" /> Clear all
                 </button>
               )}
-            </motion.div>
-          )}
+            </div>
 
-          <div
-            className={view === "grid" ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 md:gap-6" : "flex flex-col gap-4"}
-          >
-            {displayedModels.map((model, i) => (
-              <motion.div
-                key={`${model.id}-${i}`}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.03 }}
-              >
-                {view === "grid" ? (
-                  <Link to={`/model/${model.id}`} className="group block">
-                    <div className="relative aspect-[3/4] min-h-[240px] md:min-h-[280px] overflow-hidden magazine-border mb-3">
-                      <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105" />
-                      <div className="absolute top-3 left-3">
-                        <span className="bg-primary text-primary-foreground text-[9px] font-body tracking-[0.2em] uppercase px-2 py-0.5">{model.category}</span>
-                      </div>
-                    </div>
-                    <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors">{model.name}</h3>
-                    <p className="text-muted-foreground text-[10px] font-body tracking-wider mt-1">{model.location} • {model.height}</p>
-                  </Link>
-                ) : (
-                  <Link to={`/model/${model.id}`} className="group flex items-center gap-6 bg-card magazine-border p-4 hover:border-primary/30 transition-all">
-                    <div className="w-20 h-20 flex-shrink-0 overflow-hidden">
-                      <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-display text-xl text-foreground group-hover:text-primary transition-colors">{model.name}</h3>
-                      <p className="text-muted-foreground text-xs font-body mt-1">{model.category} • {model.location} • {model.height}</p>
-                    </div>
-                    <div className="flex items-center gap-1 text-primary text-xs font-body">
-                      <Heart className="w-3 h-3" /> {model.likes.toLocaleString()}
-                    </div>
-                  </Link>
-                )}
-              </motion.div>
-            ))}
+            {hasActiveFilters && (
+              <p className="text-muted-foreground text-[11px] font-body mt-3">
+                Showing <span className="text-foreground font-medium">{filteredModels.length}</span> result{filteredModels.length !== 1 ? "s" : ""}
+              </p>
+            )}
           </div>
 
-          {hasMore && (
+          {/* Loading */}
+          {modelsLoading && (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              <span className="ml-3 text-muted-foreground font-body text-sm">Loading models...</span>
+            </div>
+          )}
+
+          {/* Grid / List */}
+          {!modelsLoading && filteredModels.length > 0 && (
+            <div className={view === "grid" ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5" : "flex flex-col gap-4"}>
+              {displayedModels.map((model, i) => (
+                <motion.div
+                  key={`${model.id}-${i}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: Math.min(i * 0.03, 0.3) }}
+                >
+                  {view === "grid" ? (
+                    <Link to={`/model/${model.id}`} className="group block">
+                      <div className="relative aspect-[3/4] overflow-hidden magazine-border mb-3">
+                        <img
+                          src={imgSrc(model.image)}
+                          alt={model.name}
+                          className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute top-2 left-2">
+                          <span className="bg-primary text-primary-foreground text-[9px] font-body tracking-[0.2em] uppercase px-2 py-0.5">
+                            {model.category}
+                          </span>
+                        </div>
+                      </div>
+                      <h3 className="font-display text-base md:text-lg text-foreground group-hover:text-primary transition-colors leading-tight">
+                        {model.name}
+                      </h3>
+                      <p className="text-muted-foreground text-[10px] font-body tracking-wider mt-1">
+                        {model.location} · {model.height}
+                      </p>
+                    </Link>
+                  ) : (
+                    <Link
+                      to={`/model/${model.id}`}
+                      className="group flex items-center gap-5 bg-card magazine-border p-4 hover:border-primary/30 transition-all"
+                    >
+                      <div className="w-16 h-16 flex-shrink-0 overflow-hidden">
+                        <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-display text-xl text-foreground group-hover:text-primary transition-colors">
+                          {model.name}
+                        </h3>
+                        <p className="text-muted-foreground text-xs font-body mt-0.5">
+                          {model.category} · {model.location} · {model.height}
+                        </p>
+                      </div>
+                      {model.likes > 0 && (
+                        <div className="flex items-center gap-1 text-muted-foreground text-xs font-body flex-shrink-0">
+                          <Heart className="w-3 h-3" /> {model.likes.toLocaleString()}
+                        </div>
+                      )}
+                    </Link>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          )}
+
+          {!modelsLoading && filteredModels.length === 0 && (
+            <div className="text-center py-16">
+              <p className="text-muted-foreground font-body text-sm">
+                {hasActiveFilters ? "No models match your filters." : "No models found. Check back soon."}
+              </p>
+              {hasActiveFilters && (
+                <button onClick={clearFilters} className="text-primary font-body text-xs mt-3 hover:underline">
+                  Clear filters
+                </button>
+              )}
+            </div>
+          )}
+
+          {!modelsLoading && hasMore && (
             <div className="mt-12 text-center">
               <button
                 onClick={() => setShowCount((n) => n + INITIAL_SHOW)}

@@ -36,8 +36,8 @@ const Footer = () => {
           </div>
 
           {[
-            { title: "Company", links: [{ label: "About Us", path: "/footer/about-us" }, { label: "Careers", path: "/footer/careers" }, { label: "Blog", path: "/footer/blog" }] },
-            { title: "Help", links: [{ label: "How It Works", path: "/footer/how-it-works" }, { label: "Modelling Advice", path: "/footer/modelling-advice" }, { label: "Safety & Trust", path: "/footer/safety-and-trust" }, { label: "Contact", path: "/contact" }, { label: "Report Issue", path: "/report" }] },
+            { title: "Company", links: [{ label: "About Us", path: "/footer/about-us" }, { label: "Careers", path: "/footer/careers" }, { label: "Blog", path: "/footer/blog" }, { label: "Press", path: "/footer/press" }] },
+            { title: "Help", links: [{ label: "How It Works", path: "/footer/how-it-works" }, { label: "Modelling Advice", path: "/footer/modelling-advice" }, { label: "Safety & Trust", path: "/footer/safety-and-trust" }, { label: "Support", path: "/footer/support" }, { label: "Contact", path: "/contact" }, { label: "Report Issue", path: "/report" }] },
             { title: "Legal", links: [{ label: "Privacy Policy", path: "/footer/privacy-policy" }, { label: "Terms of Service", path: "/footer/terms-of-service" }, { label: "Company Details", path: "/company-details" }] },
           ].map((col) => (
             <div key={col.title}>

@@ -251,10 +251,63 @@
     overflow: hidden;
   }
 
+  /* Screenshot & print protection */
+  @media print {
+    * {
+      display: none !important;
+    }
+    body::after {
+      content: "" !important;
+      display: block !important;
+      position: fixed !important;
+      inset: 0 !important;
+      background: #000 !important;
+    }
+  }
+
   /* Categories inner pages: at lg use 3 columns instead of 4 */
   @media (min-width: 1024px) {
     .categories-inner .lg\:grid-cols-4 {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Mobile horizontal slider for grid sections */
+  .mobile-slider {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+  }
+  .mobile-slider::-webkit-scrollbar { display: none; }
+  .mobile-slider > * {
+    flex: 0 0 72vw;
+    max-width: 280px;
+    scroll-snap-align: start;
+  }
+  @media (min-width: 640px) {
+    .mobile-slider {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      overflow-x: unset;
+    }
+    .mobile-slider > * {
+      flex: unset;
+      max-width: unset;
+    }
+  }
+  @media (min-width: 768px) {
+    .mobile-slider {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .mobile-slider {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 }
