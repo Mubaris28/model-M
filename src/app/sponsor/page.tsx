@@ -2,6 +2,7 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BackButton from "@/components/BackButton";
 import { useState } from "react";
 import { Send, Loader2, CheckCircle, AlertCircle, Target, TrendingUp, Users, Handshake } from "lucide-react";
 import { contactApi } from "@/lib/api";
@@ -64,28 +65,19 @@ export default function SponsorPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero */}
-      <div className="relative h-[55vh] min-h-[360px] overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1400&q=80"
-          alt="Partner with Us"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 cinematic-overlay" />
-        <div className="absolute inset-0 cinematic-overlay-left" />
-        <div className="relative z-10 container mx-auto px-4 md:px-6 h-full flex flex-col justify-end pb-14">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-3">Partnerships</p>
-            <h1 className="font-display text-7xl md:text-9xl text-white leading-none mb-3">Partner<br />With Us</h1>
-            <p className="font-body text-lg text-white/75 max-w-lg">
-              Join our exclusive brand network and unlock new opportunities in the modeling industry.
-            </p>
-          </motion.div>
+      <div className="pt-24 pb-8">
+        <div className="container mx-auto px-4 md:px-6">
+          <BackButton className="mb-6" />
+          <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Partnerships</p>
+          <h1 className="font-display text-6xl md:text-8xl line-accent">Partner With Us</h1>
+          <p className="text-muted-foreground font-body text-sm mt-4 max-w-lg">
+            Join our exclusive brand network and unlock new opportunities in the modeling industry.
+          </p>
         </div>
       </div>
 
       {/* Benefits */}
-      <div className="py-16 md:py-20">
+      <div className="pb-16 md:pb-20">
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-12">
             <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-3">Why Partner</p>

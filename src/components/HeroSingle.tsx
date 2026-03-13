@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Link } from "@/lib/router-next";
 import { ArrowRight, Play } from "lucide-react";
-import { imgSrc } from "@/lib/utils";
-import heroImg from "@/assets/hero-model.jpg";
 import { motion, AnimatePresence } from "framer-motion";
+
+const HERO_IMG = "/images/hero/hero-model.jpg";
 
 export default function HeroSingle() {
   const [showVideo, setShowVideo] = useState(false);
@@ -13,7 +13,7 @@ export default function HeroSingle() {
   return (
     <section className="relative min-h-[55vh] max-h-[85dvh] md:min-h-[70vh] md:h-screen md:max-h-[100dvh] overflow-hidden">
       <img
-        src={imgSrc(heroImg)}
+        src={HERO_IMG}
         alt="One Platform for all models"
         className="absolute inset-0 w-full h-full object-cover object-[70%_center] md:object-[65%_center] lg:object-center"
       />
@@ -104,7 +104,7 @@ export default function HeroSingle() {
               controls
               autoPlay
               playsInline
-              poster={imgSrc(heroImg)}
+              poster={HERO_IMG}
               src="/images/hero-video/main-vid.mp4"
             >
               <source src="/images/hero-video/main-vid.mp4" type="video/mp4" />

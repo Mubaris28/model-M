@@ -1,7 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackButton from "@/components/BackButton";
-const heroImg = "/images/about/dramatic-dark-red-backgrounds.webp";
 import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
 import { Globe, Users, Zap, Shield, Award, Heart } from "lucide-react";
@@ -18,28 +17,15 @@ const AboutPage = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero */}
-      <div className="relative h-[65vh] min-h-[440px] overflow-hidden">
-        <img
-              src={heroImg}
-          alt="About Model Management Mauritius"
-          className="w-full h-full object-cover object-top"
-        />
-        <div className="absolute inset-0 cinematic-overlay" />
-        <div className="absolute inset-0 cinematic-overlay-left" />
-        <div className="relative z-10 container mx-auto px-4 md:px-6 h-full flex flex-col justify-end pb-16 md:pb-20">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-3">Our Story</p>
-            <h1 className="font-display text-7xl md:text-9xl text-white leading-none mb-4">About Us</h1>
-            <p className="font-body text-lg text-white/80 max-w-xl">
-              Transforming how models and talent connect with the world
-            </p>
-          </motion.div>
+      <div className="pt-24 pb-8">
+        <div className="container mx-auto px-4 md:px-6">
+          <BackButton className="mb-6" />
+          <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Our Story</p>
+          <h1 className="font-display text-6xl md:text-8xl line-accent">About Us</h1>
+          <p className="font-body text-sm text-muted-foreground mt-4 max-w-xl">
+            Transforming how models and talent connect with the world
+          </p>
         </div>
-      </div>
-
-      <div className="container mx-auto px-4 md:px-6 pt-6 pb-2">
-        <BackButton />
       </div>
 
       {/* Mission */}

@@ -38,8 +38,12 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-red items-center justify-center p-12 relative overflow-hidden">
-        <div className="relative z-10 text-center">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-foreground">
+        <img src="/images/hero/hero-model.jpg" alt="" className="absolute inset-0 w-full h-full object-cover object-center" />
+        <div className="absolute inset-0 cinematic-overlay" />
+        <div className="absolute inset-0 bg-primary/40" />
+        <div className="relative z-10 flex items-center justify-center p-12 text-center w-full">
+          <div>
           <Link to="/" className="inline-block mb-6">
             <img
               src="/images/hero-logo/modelmanagement-logo.png"
@@ -49,9 +53,10 @@ const LoginPage = () => {
             />
           </Link>
           <h1 className="font-display text-6xl text-white mb-4">WELCOME BACK</h1>
-          <p className="text-white/70 font-body text-sm max-w-sm mx-auto">
+          <p className="text-white/90 font-body text-sm max-w-sm mx-auto">
             Log in to access your dashboard, manage your portfolio, and discover new opportunities.
           </p>
+          </div>
         </div>
       </div>
 
