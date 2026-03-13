@@ -123,6 +123,17 @@
     box-shadow: 0 30px 60px -15px hsla(0, 85%, 50%, 0.15);
   }
 
+  /* Chatbot typing indicator */
+  @keyframes chat-dot {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+  .chat-typing-dot {
+    animation: chat-dot 1.2s ease-in-out infinite;
+  }
+  .chat-typing-dot:nth-child(2) { animation-delay: 0.15s; }
+  .chat-typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
   .magazine-border {
     border: 1px solid hsla(0, 0%, 0%, 0.08);
   }
