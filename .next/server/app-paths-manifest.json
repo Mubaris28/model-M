@@ -1,14 +1,7 @@
 {
   "/page": "app/page.js",
-  "/categories/page": "app/categories/page.js",
   "/models/page": "app/models/page.js",
-  "/new-faces/page": "app/new-faces/page.js",
-  "/casting/page": "app/casting/page.js",
   "/about/page": "app/about/page.js",
-  "/footer/how-it-works/page": "app/footer/how-it-works/page.js",
-  "/footer/how-it-works/models/page": "app/footer/how-it-works/models/page.js",
-  "/footer/safety-and-trust/page": "app/footer/safety-and-trust/page.js",
   "/footer/safety-and-trust/[slug]/page": "app/footer/safety-and-trust/[slug]/page.js",
-  "/footer/blog/page": "app/footer/blog/page.js",
-  "/footer/blog/[id]/page": "app/footer/blog/[id]/page.js"
+  "/login/page": "app/login/page.js"
 }

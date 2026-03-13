@@ -45,12 +45,15 @@ const SignupPage = () => {
     <div className="min-h-screen bg-background flex">
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-red items-center justify-center p-12 relative overflow-hidden">
         <div className="relative z-10 text-center">
-          <Link to="/" className="inline-block mb-8">
-            <div className="w-16 h-16 bg-background flex items-center justify-center mx-auto mb-4">
-              <span className="font-display text-primary text-4xl leading-none">É</span>
-            </div>
+          <Link to="/" className="inline-block mb-6">
+            <img
+              src="/images/hero-logo/modelmanagement-logo.png"
+              alt="Model Management"
+              className="object-contain mx-auto"
+              style={{ width: "240px", height: "75px" }}
+            />
           </Link>
-          <h1 className="font-display text-6xl text-white mb-4">JOIN ÉLITE</h1>
+          <h1 className="font-display text-6xl text-white mb-4">JOIN US</h1>
           <p className="text-white/70 font-body text-sm max-w-sm mx-auto">
             Start your journey in the modeling industry. Connect with top agencies, photographers, and brands.
           </p>
@@ -65,11 +68,13 @@ const SignupPage = () => {
           className="w-full max-w-md"
         >
           <div className="lg:hidden mb-8">
-            <Link to="/" className="inline-flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-red flex items-center justify-center">
-                <span className="font-display text-primary-foreground text-lg leading-none">É</span>
-              </div>
-              <span className="font-display text-xl tracking-[0.15em] text-foreground">ÉLITE</span>
+            <Link to="/" className="inline-block">
+              <img
+                src="/images/hero-logo/modelmanagement-logo.png"
+                alt="Model Management"
+                className="object-contain"
+                style={{ width: "200px", height: "62px" }}
+              />
             </Link>
           </div>
 

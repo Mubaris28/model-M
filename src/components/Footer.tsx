@@ -14,11 +14,13 @@ const Footer = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-red flex items-center justify-center">
-                <span className="font-display text-primary-foreground text-lg leading-none">M</span>
-              </div>
-              <span className="font-display text-xl tracking-[0.15em] text-white">Model Management</span>
+            <Link to="/" className="inline-flex items-center mb-4" aria-label="Model Management - Home">
+              <img
+                src="/images/hero-logo/modelmanagement-logo.png"
+                alt="Model Management"
+                className="object-contain"
+                style={{ width: "200px", height: "64px" }}
+              />
             </Link>
             <p className="text-white/40 text-xs font-body leading-relaxed max-w-xs">
               The world&apos;s premier platform for model management, casting, and talent discovery in Mauritius.

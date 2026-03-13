@@ -20,17 +20,23 @@ export default function HeroSingle() {
       <div className="absolute inset-0 cinematic-overlay" />
       <div className="absolute inset-0 cinematic-overlay-left" />
 
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 h-full flex flex-col lg:flex-row items-start lg:items-center justify-end lg:justify-between gap-6 lg:gap-6 xl:gap-8 pt-24 sm:pt-28 md:pt-32 lg:pt-20 lg:pb-16 xl:pt-24 xl:pb-20 2xl:items-end 2xl:pt-0 2xl:pb-32 pb-16 sm:pb-20">
-        <div className="max-w-3xl w-full">
-          <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2 sm:mb-3 md:mb-4">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 h-full flex flex-col lg:flex-row items-start lg:items-center justify-end lg:justify-between gap-6 lg:gap-8 xl:gap-10 pt-28 sm:pt-32 md:pt-36 lg:pt-32 xl:pt-36 pb-10 sm:pb-12 lg:pb-8 xl:pb-10">
+        <div className="max-w-3xl w-full shrink-0">
+          <img
+            src="/images/hero-logo/modelmanagement-logo.png"
+            alt="Model Management"
+            className="block w-fit object-contain mb-3 sm:mb-4"
+            style={{ width: "240px", height: "100px", marginLeft: "-50px" }}
+          />
+          <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2 sm:mb-3">
             Model Management
           </p>
-          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-7xl 2xl:text-[100px] leading-[0.9] mb-3 sm:mb-4 md:mb-6 text-white uppercase">
+          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl 2xl:text-[80px] leading-[0.9] mb-3 sm:mb-4 text-white uppercase">
             <span className="block">One Platform</span>
             <span className="block">for all</span>
             <span className="block">models</span>
           </h1>
-          <p className="text-white/90 font-body text-sm sm:text-base md:text-lg tracking-wide mb-4 sm:mb-6 md:mb-8">
+          <p className="text-white/90 font-body text-sm sm:text-base md:text-lg tracking-wide mb-4 sm:mb-5 md:mb-6">
             Single account for your modeling journey
           </p>
           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
