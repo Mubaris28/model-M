@@ -75,7 +75,14 @@ const ContactPage = () => {
                   },
                   {
                     icon: Phone,
-                    label: "Call Us",
+                    label: "WhatsApp",
+                    value: "+230 5256 6333",
+                    sub: "Chat with us",
+                    href: "https://wa.me/23052566333",
+                  },
+                  {
+                    icon: Phone,
+                    label: "Office",
                     value: "+230 468 6969",
                     sub: "Mon–Fri, 8am – 6pm",
                     href: "tel:+2304686969",
@@ -95,7 +102,11 @@ const ContactPage = () => {
                     <div>
                       <p className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase mb-0.5">{item.label}</p>
                       {item.href ? (
-                        <a href={item.href} className="text-foreground text-sm font-body hover:text-primary transition-colors">
+                        <a
+                          href={item.href}
+                          className="text-foreground text-sm font-body hover:text-primary transition-colors"
+                          {...(item.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                        >
                           {item.value}
                         </a>
                       ) : (

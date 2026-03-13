@@ -64,8 +64,20 @@ const INTENTS: Array<{
     }),
   },
   {
+    name: "contact_details",
+    keywords: [
+      "email", "call", "contact", "number", "address", "phone", "whatsapp",
+      "reach us", "get in touch", "where are you", "location", "office", "visit",
+      "email us", "call us", "visit us", "info@", "phone number",
+    ],
+    reply: (): ChatReply => ({
+      text: "Email Us\ninfo@modelmanagement.mu\nWe respond within 24 hours\n\nCall Us (Office)\n+230 468 6969\nMon–Fri, 8am – 6pm\n\nWhatsApp\n+230 5256 6333\nChat with us\n\nVisit Us\n2nd Floor, Unity House\nRue Du Savoir, Cybercity, Ebene, Mauritius 72201",
+      link: { href: "/contact", label: "Open contact form" },
+    }),
+  },
+  {
     name: "contact",
-    keywords: ["contact", "email", "support", "help", "get in touch", "reach"],
+    keywords: ["support", "help"],
     reply: (): ChatReply => ({
       text: "You can reach us through our contact form. We'll get back to you as soon as possible.",
       link: { href: "/contact", label: "Open contact form" },
@@ -231,6 +243,19 @@ const INTENTS: Array<{
       };
     },
   },
+];
+
+export const QUICK_OPTIONS = [
+  "Apply as model",
+  "View models",
+  "Casting calls",
+  "Dashboard",
+  "Contact",
+  "How it works",
+  "Safety & Trust",
+  "Report issue",
+  "Marketplace",
+  "About us",
 ];
 
 const FALLBACK_REPLY: ChatReply = {
