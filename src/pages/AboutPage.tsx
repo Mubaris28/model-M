@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BackButton from "@/components/BackButton";
 const heroImg = "/images/about/dramatic-dark-red-backgrounds.webp";
 import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
@@ -35,6 +36,10 @@ const AboutPage = () => {
             </p>
           </motion.div>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 md:px-6 pt-6 pb-2">
+        <BackButton />
       </div>
 
       {/* Mission */}

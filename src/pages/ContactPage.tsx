@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BackButton from "@/components/BackButton";
 import { Mail, Phone, MapPin, Send, Loader2, Instagram, Facebook, Linkedin } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -37,24 +38,17 @@ const ContactPage = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero */}
-      <div className="relative h-[45vh] min-h-[280px] overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1400&q=80"
-          alt="Contact"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 cinematic-overlay" />
-        <div className="absolute inset-0 cinematic-overlay-left" />
-        <div className="relative z-10 container mx-auto px-4 md:px-6 h-full flex flex-col justify-end pb-12">
+      <div className="pt-24 pb-8">
+        <div className="container mx-auto px-4 md:px-6">
+          <BackButton className="mb-6" />
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-3">Get in Touch</p>
-            <h1 className="font-display text-7xl md:text-9xl text-white leading-none">Contact</h1>
+            <h1 className="font-display text-7xl md:text-9xl leading-none">Contact</h1>
           </motion.div>
         </div>
       </div>
 
-      <div className="py-16 md:py-20">
+      <div className="pb-16 md:pb-20">
         <div className="container mx-auto px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

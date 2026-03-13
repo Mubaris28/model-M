@@ -3,7 +3,7 @@
 import { Link, useLocation } from "@/lib/router-next";
 import {
   LayoutDashboard, User, Heart, Briefcase, Star, CreditCard, Bell, ArrowRight,
-  Megaphone, Calendar, MessageSquare, Store, ImagePlus, Crown, List, Plus,
+  Megaphone, Calendar, Store, ImagePlus, Crown, List, Plus,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
@@ -20,6 +20,7 @@ const MODEL_MENU = [
   { icon: Briefcase, label: "Casting Applications", path: "/dashboard/castingapp" },
   { icon: Calendar, label: "Bookings", path: "/dashboard/bookings" },
   { icon: Star, label: "Reviews", path: "/dashboard/reviews" },
+  { icon: Bell, label: "Notifications", path: "/dashboard/notifications" },
   { icon: CreditCard, label: "Payouts", path: "/dashboard/payouts" },
   { icon: Store, label: "My Marketplace", path: "/dashboard/mymarketplace" },
   { icon: ImagePlus, label: "Update Portfolio", path: "/dashboard/update-portfolio" },
@@ -35,6 +36,7 @@ const PROFESSIONAL_MENU = [
   { icon: Plus, label: "Post a Casting", path: "/dashboard/post-casting" },
   { icon: Calendar, label: "Bookings", path: "/dashboard/bookings" },
   { icon: Star, label: "Reviews", path: "/dashboard/reviews" },
+  { icon: Bell, label: "Notifications", path: "/dashboard/notifications" },
   { icon: Store, label: "Marketplace", path: "/dashboard/mymarketplace" },
   { icon: CreditCard, label: "Subscription", path: "/dashboard/subscription" },
 ];

@@ -295,6 +295,37 @@ export const publicApi = {
   castings: () => api<PublicCasting[]>("/api/public/castings"),
 };
 
+export interface MyCasting {
+  _id: string;
+  title: string;
+  description?: string;
+  castingType?: string;
+  location?: string;
+  date?: string;
+  slots?: number;
+  brand?: string;
+  approvalStatus?: "pending" | "approved" | "rejected";
+  createdAt?: string;
+}
+
+export interface CastingBody {
+  title: string;
+  description?: string;
+  castingType?: string;
+  location?: string;
+  date?: string;
+  slots?: number;
+  brand?: string;
+}
+
+export const castingApi = {
+  create: (body: CastingBody) => api<MyCasting>("/api/castings", { method: "POST", body }),
+  mine: () => api<MyCasting[]>("/api/castings/mine"),
+  update: (id: string, body: Partial<CastingBody>) =>
+    api<MyCasting>("/api/castings/" + id, { method: "PATCH", body }),
+  remove: (id: string) => api<{ message: string }>("/api/castings/" + id, { method: "DELETE" }),
+};
+
 export interface PublicCasting {
   _id: string;
   title: string;

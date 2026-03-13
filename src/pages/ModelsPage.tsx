@@ -2,6 +2,7 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BackButton from "@/components/BackButton";
 import AdBanner from "@/components/AdBanner";
 import { categories } from "@/components/MagazineGrid";
 import { Link } from "@/lib/router-next";
@@ -116,6 +117,8 @@ const ModelsPage = () => {
       <Navbar />
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6">
+
+          <BackButton className="mb-6" />
 
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">

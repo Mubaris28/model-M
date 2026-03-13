@@ -2,6 +2,7 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BackButton from "@/components/BackButton";
 import AdBanner from "@/components/AdBanner";
 import { castings as fallbackCastings } from "@/components/CastingCalls";
 import { Link } from "@/lib/router-next";
@@ -97,6 +98,8 @@ const CastingPage = () => {
       <Navbar />
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6">
+
+          <BackButton className="mb-6" />
 
           {/* Header */}
           <div className="mb-8">

@@ -51,12 +51,13 @@ export const metadata: Metadata = {
     siteName: "Model Management Mauritius",
     title: "Model Management Mauritius | Models, Casting & Talent Agency",
     description: "Mauritius' leading modeling platform. Find models, post castings, and grow your career.",
-    images: [{ url: "/images/og-hero.jpg", width: 1200, height: 630, alt: "Model Management Mauritius" }],
+    images: [{ url: "/images/preview/prevlink.png", width: 1200, height: 630, alt: "Model Management Mauritius" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Model Management Mauritius | Models, Casting & Talent",
     description: "Mauritius' leading modeling platform. Models, castings, and talent in the Indian Ocean.",
+    images: ["/images/preview/prevlink.png"],
   },
   robots: {
     index: true,

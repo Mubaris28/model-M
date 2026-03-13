@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BackButton from "@/components/BackButton";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
@@ -26,6 +27,7 @@ const MarketplacePage = () => {
       {/* Hero — dark band */}
       <div className="dark-section py-20 mb-0">
         <div className="container mx-auto px-4 md:px-6 text-center">
+          <div className="flex justify-start mb-4"><BackButton className="text-white/60 hover:text-white" /></div>
           <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-3">Curated Offers</p>
           <h1 className="font-display text-6xl md:text-8xl text-white mb-4">Marketplace</h1>
           <p className="text-white/50 font-body text-sm max-w-md mx-auto">
