@@ -147,16 +147,15 @@ const ModelsPage = () => {
             </div>
           </div>
 
-          {/* Filter Bar — always visible, no animation, no height jump */}
+          {/* Filter Bar — always visible; category pills scroll on mobile */}
           <div className="mb-8 bg-card magazine-border p-4">
-            <div className="flex flex-wrap gap-3 items-end">
-              {/* Category */}
-              <div className="flex flex-col gap-1 min-w-[140px]">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Category</span>
-                <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-col gap-3">
+              <div>
+                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-1.5">Category</span>
+                <div className="tabs-slider gap-1.5 -mx-1 px-1 md:mx-0 md:px-0 md:flex-wrap">
                   <button
                     onClick={() => setCategoryFilter("all")}
-                    className={`px-3 py-1.5 text-[11px] font-body tracking-wider uppercase border transition-colors ${
+                    className={`px-3 py-1.5 text-[11px] font-body tracking-wider uppercase border transition-colors shrink-0 ${
                       categoryFilter === "all" ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary/50"
                     }`}
                   >
@@ -166,7 +165,7 @@ const ModelsPage = () => {
                     <button
                       key={c.slug}
                       onClick={() => setCategoryFilter(c.name)}
-                      className={`px-3 py-1.5 text-[11px] font-body tracking-wider uppercase border transition-colors ${
+                      className={`px-3 py-1.5 text-[11px] font-body tracking-wider uppercase border transition-colors shrink-0 ${
                         categoryFilter === c.name ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary/50"
                       }`}
                     >
@@ -252,7 +251,7 @@ const ModelsPage = () => {
 
           {/* Grid / List */}
           {!modelsLoading && filteredModels.length > 0 && (
-            <div className={view === "grid" ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5" : "flex flex-col gap-4"}>
+            <div className={view === "grid" ? "mobile-slider gap-4 md:gap-5" : "flex flex-col gap-4"}>
               {displayedModels.map((model, i) => (
                 <motion.div
                   key={`${model.id}-${i}`}

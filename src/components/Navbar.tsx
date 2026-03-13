@@ -21,6 +21,7 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
+    { label: "Home", path: "/" },
     { label: "Models", path: "/models" },
     { label: "Categories", path: "/categories" },
     { label: "Casting", path: "/casting" },

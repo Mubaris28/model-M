@@ -110,18 +110,17 @@ const CastingPage = () => {
             </p>
           </div>
 
-          {/* Filter Bar */}
+          {/* Filter Bar — category pills scroll on mobile */}
           <div className="mb-8 bg-card magazine-border p-4">
-            <div className="flex flex-wrap gap-3 items-end">
-              {/* Category pills */}
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Category</span>
-                <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-col gap-3">
+              <div>
+                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-1.5">Category</span>
+                <div className="tabs-slider gap-1.5 -mx-1 px-1 md:mx-0 md:px-0 md:flex-wrap">
                   {CASTING_CATEGORIES.map((cat) => (
                     <button
                       key={cat}
                       onClick={() => setCategoryFilter(cat)}
-                      className={`px-3 py-1.5 text-[11px] font-body tracking-wider uppercase border transition-colors ${
+                      className={`px-3 py-1.5 text-[11px] font-body tracking-wider uppercase border transition-colors shrink-0 ${
                         categoryFilter === cat
                           ? "border-primary bg-primary text-primary-foreground"
                           : "border-border text-muted-foreground hover:border-primary/50"
@@ -182,8 +181,8 @@ const CastingPage = () => {
             )}
           </div>
 
-          {/* List */}
-          <div className="grid grid-cols-1 gap-4">
+          {/* List — horizontal slider on mobile, single column from sm */}
+          <div className="mobile-slider-single gap-4">
             {filtered.map((casting, i) => (
               <motion.div
                 key={casting.id}

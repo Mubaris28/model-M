@@ -1,21 +1,17 @@
-import catBold from "@/assets/cat-bold.jpg";
-import catBikini from "@/assets/cat-bikini.jpg";
-import catArtistic from "@/assets/cat-artistic.jpg";
-import catGlamour from "@/assets/cat-glamour.jpg";
-import catCommercial from "@/assets/cat-commercial.jpg";
-import catFitness from "@/assets/cat-fitness.jpg";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { motion } from "framer-motion";
 
+const CATEGORIES_IMG = "/images/Categories";
+
 export const categories = [
-  { name: "Bold", slug: "bold", image: catBold, count: 248, description: "Fearless & striking editorial" },
-  { name: "Bikini", slug: "bikini", image: catBikini, count: 186, description: "Beach & swimwear looks" },
-  { name: "Artistic Nude", slug: "artistic-nude", image: catArtistic, count: 124, description: "Fine art silhouettes" },
-  { name: "Glamour", slug: "glamour", image: catGlamour, count: 312, description: "Red carpet elegance" },
-  { name: "Commercial", slug: "commercial", image: catCommercial, count: 428, description: "Brand campaigns" },
-  { name: "Fitness", slug: "fitness", image: catFitness, count: 156, description: "Athletic & powerful" },
+  { name: "Bold", slug: "bold", image: `${CATEGORIES_IMG}/cat-bold.jpg`, count: 248, description: "Fearless & striking editorial" },
+  { name: "Bikini", slug: "bikini", image: `${CATEGORIES_IMG}/cat-bikini.jpg`, count: 186, description: "Beach & swimwear looks" },
+  { name: "Artistic Nude", slug: "artistic-nude", image: `${CATEGORIES_IMG}/cat-artistic.jpg`, count: 124, description: "Fine art silhouettes" },
+  { name: "Glamour", slug: "glamour", image: `${CATEGORIES_IMG}/cat-glamour.jpg`, count: 312, description: "Red carpet elegance" },
+  { name: "Commercial", slug: "commercial", image: `${CATEGORIES_IMG}/cat-commercial.jpg`, count: 428, description: "Brand campaigns" },
+  { name: "Fitness", slug: "fitness", image: `${CATEGORIES_IMG}/cat-fitness.jpg`, count: 156, description: "Athletic & powerful" },
 ];
 
 const MagazineGrid = () => {

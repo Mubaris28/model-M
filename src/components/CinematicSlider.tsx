@@ -4,8 +4,6 @@ import { ArrowRight, ChevronLeft, ChevronRight, Play, X } from "lucide-react";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import heroImg from "@/assets/hero-model.jpg";
-import catBold from "@/assets/cat-bold.jpg";
-import catGlamour from "@/assets/cat-glamour.jpg";
 
 const slides = [
   {
@@ -16,14 +14,14 @@ const slides = [
     link: "/models",
   },
   {
-    image: catBold,
+    image: "/images/Categories/cat-bold.jpg",
     subtitle: "Bold & Fearless",
     title: "REDEFINE\nBEAUTY\nSTANDARDS",
     cta: "Explore Bold",
     link: "/category/bold",
   },
   {
-    image: catGlamour,
+    image: "/images/Categories/cat-glamour.jpg",
     subtitle: "Red Carpet Ready",
     title: "GLAMOUR\nTHAT\nCAPTIVATES",
     cta: "View Glamour",

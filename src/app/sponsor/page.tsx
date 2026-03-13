@@ -91,7 +91,7 @@ export default function SponsorPage() {
             <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-3">Why Partner</p>
             <h2 className="font-display text-5xl md:text-6xl line-accent">What You Get</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
+          <div className="mobile-slider gap-5 mb-16">
             {benefits.map((b, i) => (
               <motion.div
                 key={b.title}

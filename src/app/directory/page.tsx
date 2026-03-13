@@ -93,7 +93,7 @@ export default function PremiumPage() {
                 View All Models →
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+            <div className="mobile-slider gap-4 md:gap-6">
               {models.length === 0 ? (
                 <p className="col-span-full text-muted-foreground font-body text-sm">No premium models to show yet. Check back soon.</p>
               ) : (
@@ -135,7 +135,7 @@ export default function PremiumPage() {
                 View All Castings →
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="mobile-slider-3 gap-6">
               {castings.length === 0 ? (
                 <p className="col-span-full text-muted-foreground font-body text-sm">No castings at the moment. Check back later.</p>
               ) : (

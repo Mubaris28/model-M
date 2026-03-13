@@ -6,9 +6,14 @@ const AdBanner = ({ variant = "horizontal" }: { variant?: "horizontal" | "cosmet
     return (
       <section className="w-full overflow-hidden">
         <img
+          src="/images/ad/Bodyography-Mobile-ADS.png"
+          alt="Bodyography Professional Cosmetics - 30% OFF for Model Management members"
+          className="w-full h-auto object-contain block md:hidden"
+        />
+        <img
           src="/images/ad/Bodyography-Web-ADS.png"
           alt="Bodyography Professional Cosmetics - 30% OFF for Model Management members"
-          className="w-full h-auto object-contain block"
+          className="w-full h-auto object-contain hidden md:block"
         />
       </section>
     );
