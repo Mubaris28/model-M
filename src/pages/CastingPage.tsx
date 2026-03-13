@@ -4,7 +4,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackButton from "@/components/BackButton";
 import AdBanner from "@/components/AdBanner";
-import { castings as fallbackCastings } from "@/components/CastingCalls";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { Calendar, MapPin, Users, ArrowRight, X } from "lucide-react";
@@ -44,20 +43,7 @@ function toCastingRow(c: PublicCasting): CastingRow {
 const CASTING_CATEGORIES = ["All", "Bikini", "Commercial", "Editorial", "Bold", "Artistic Nude", "Glamour", "Fitness"];
 
 const CastingPage = () => {
-  const [castings, setCastings] = useState<CastingRow[]>(() =>
-    fallbackCastings.map((c) => ({
-      id: c.id,
-      title: c.title,
-      brand: c.brand,
-      date: c.date,
-      location: c.location,
-      slots: c.slots,
-      description: c.description,
-      urgent: c.urgent,
-      image: c.image,
-      categories: c.categories,
-    }))
-  );
+  const [castings, setCastings] = useState<CastingRow[]>([]);
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [locationFilter, setLocationFilter] = useState("all");
   const [urgentOnly, setUrgentOnly] = useState(false);

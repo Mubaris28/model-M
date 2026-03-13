@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { allModels } from "@/components/FeaturedModels";
 import { useParams, Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
@@ -29,24 +28,7 @@ const ObjectIdRegex = /^[a-f0-9]{24}$/i;
 const ModelProfile = () => {
   const { id } = useParams();
   const { user } = useAuth();
-  const [model, setModel] = useState<DisplayModel | null>(() => {
-    const staticModel = allModels.find((m) => m.id === id);
-    if (staticModel)
-      return {
-        id: staticModel.id,
-        name: staticModel.name,
-        image: staticModel.image,
-        category: staticModel.category,
-        location: staticModel.location,
-        height: staticModel.height,
-        age: staticModel.age,
-        likes: staticModel.likes,
-        bio: "",
-        instagram: "",
-        portfolio: Array(6).fill(staticModel.image),
-      };
-    return null;
-  });
+  const [model, setModel] = useState<DisplayModel | null>(null);
   const [loading, setLoading] = useState(!!id && ObjectIdRegex.test(id));
   const [showBookModal, setShowBookModal] = useState(false);
   const [bookForm, setBookForm] = useState({ name: "", email: "", message: "" });

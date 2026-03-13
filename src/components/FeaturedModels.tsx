@@ -1,22 +1,9 @@
-import model1 from "@/assets/model-1.jpg";
-import model2 from "@/assets/model-2.jpg";
-import model3 from "@/assets/model-3.jpg";
-import model4 from "@/assets/model-4.jpg";
 import { Heart } from "lucide-react";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { publicApi, type PublicModel } from "@/lib/api";
-
-export const allModels = [
-  { name: "Sophia Laurent", image: model1, category: "Editorial", age: 24, location: "Paris", height: "5'10\"", likes: 1240, id: "sophia-laurent" },
-  { name: "Marco Rossi", image: model2, category: "Commercial", age: 27, location: "Milan", height: "6'1\"", likes: 890, id: "marco-rossi" },
-  { name: "Zara Williams", image: model3, category: "Glamour", age: 22, location: "London", height: "5'9\"", likes: 2100, id: "zara-williams" },
-  { name: "Mei Lin", image: model4, category: "Haute Couture", age: 25, location: "Tokyo", height: "5'8\"", likes: 1560, id: "mei-lin" },
-  { name: "Sophia Laurent", image: model1, category: "Bold", age: 24, location: "Paris", height: "5'10\"", likes: 980, id: "sophia-laurent-2" },
-  { name: "Marco Rossi", image: model2, category: "Fitness", age: 27, location: "Milan", height: "6'1\"", likes: 760, id: "marco-rossi-2" },
-];
 
 type ModelCard = { id: string; name: string; image: string | { src: string }; category: string; location: string; height: string; likes: number };
 
@@ -59,6 +46,9 @@ const FeaturedModels = () => {
         </div>
 
         <div className="mobile-slider gap-5 md:gap-6" style={{ gridTemplateColumns: "repeat(3,minmax(0,1fr))" }}>
+          {models.length === 0 && (
+            <p className="col-span-full text-muted-foreground font-body text-sm py-8">No models to show yet. Check back soon.</p>
+          )}
           {models.slice(0, 6).map((model, i) => (
             <motion.div
               key={model.id}
