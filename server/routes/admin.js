@@ -1,9 +1,20 @@
 import express from "express";
 import crypto from "node:crypto";
+import mongoose from "mongoose";
 import { auth, adminOnly } from "../middleware/auth.js";
 import User from "../models/User.js";
 import Casting from "../models/Casting.js";
 import Contact from "../models/Contact.js";
+import HomepageConfig from "../models/HomepageConfig.js";
+import {
+  resolveNewFacesDefault,
+  resolveTrendingDefault,
+  resolveCategoryDefault,
+  MODEL_FIELDS,
+  MODEL_BASE,
+  CATEGORY_USERNAMES,
+} from "../lib/homepageSectionResolve.js";
+
 const router = express.Router();
 
 // Public: check if email is admin (no auth required)
@@ -186,6 +197,181 @@ async function resolveName(name) {
   const user = await User.findOne({ role: "model", $or: [{ username: regex }, { fullName: regex }] }).select("_id").lean();
   return user ? user._id.toString() : null;
 }
+
+// GET /api/admin/homepage-sections — config + current New Faces & Trending models + approved models for picker.
+// When config has no saved IDs, uses same default resolution as public site so admin sees "current" homepage lineup.
+router.get("/homepage-sections", async (req, res) => {
+  try {
+    let config = await HomepageConfig.findOne().lean();
+    if (!config) {
+      await HomepageConfig.create({});
+      config = await HomepageConfig.findOne().lean();
+    }
+    let newFacesIds = (config?.newFacesIds || []).map((id) => id.toString());
+    let trendingIds = (config?.trendingIds || []).map((id) => id.toString());
+
+    let newFaces = [];
+    let trending = [];
+    const approvedModels = await User.find(MODEL_BASE).select(MODEL_FIELDS).sort({ fullName: 1, username: 1 }).limit(500).lean();
+
+    if (newFacesIds.length > 0) {
+      const newFacesUsers = await User.find({ _id: { $in: newFacesIds }, ...MODEL_BASE }).select(MODEL_FIELDS).lean();
+      const byId = Object.fromEntries(newFacesUsers.map((u) => [u._id.toString(), u]));
+      newFaces = newFacesIds.map((id) => byId[id]).filter(Boolean);
+    } else {
+      newFaces = await resolveNewFacesDefault();
+      newFacesIds = newFaces.map((u) => u._id.toString());
+    }
+
+    if (trendingIds.length > 0) {
+      const trendingUsers = await User.find({ _id: { $in: trendingIds }, ...MODEL_BASE }).select(MODEL_FIELDS).lean();
+      const byId = Object.fromEntries(trendingUsers.map((u) => [u._id.toString(), u]));
+      trending = trendingIds.map((id) => byId[id]).filter(Boolean);
+    } else {
+      trending = await resolveTrendingDefault();
+      trendingIds = trending.map((u) => u._id.toString());
+    }
+
+    // Trending Castings: saved IDs or default (all approved, newest first)
+    let trendingCastingIds = (config?.trendingCastingIds || []).map((id) => id.toString());
+    let trendingCastings = [];
+    const approvedCastings = await Casting.find({ approvalStatus: "approved" }).sort({ createdAt: -1 }).limit(100).lean();
+    if (trendingCastingIds.length > 0) {
+      const list = await Casting.find({ _id: { $in: trendingCastingIds }, approvalStatus: "approved" }).lean();
+      const byId = Object.fromEntries(list.map((c) => [c._id.toString(), c]));
+      trendingCastings = trendingCastingIds.map((id) => byId[id]).filter(Boolean);
+    } else {
+      trendingCastings = approvedCastings.slice(0, 50);
+      trendingCastingIds = trendingCastings.map((c) => c._id.toString());
+    }
+
+    res.json({
+      config: { newFacesIds, trendingIds, trendingCastingIds },
+      newFaces,
+      trending,
+      approvedModels,
+      trendingCastings,
+      approvedCastings,
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// PUT /api/admin/homepage-sections — update New Faces, Trending models, and Trending Castings IDs
+router.put("/homepage-sections", async (req, res) => {
+  try {
+    const { newFacesIds = [], trendingIds = [], trendingCastingIds = [] } = req.body;
+    const sanitize = (arr) => {
+      if (!Array.isArray(arr)) return [];
+      return arr
+        .map((id) => (typeof id === "string" ? id.trim() : String(id)))
+        .filter((id) => id && mongoose.Types.ObjectId.isValid(id))
+        .map((id) => new mongoose.Types.ObjectId(id));
+    };
+    let config = await HomepageConfig.findOne();
+    if (!config) config = new HomepageConfig({});
+    config.newFacesIds = sanitize(newFacesIds);
+    config.trendingIds = sanitize(trendingIds);
+    config.trendingCastingIds = sanitize(trendingCastingIds);
+    await config.save();
+    res.json({
+      config: {
+        newFacesIds: config.newFacesIds.map((id) => id.toString()),
+        trendingIds: config.trendingIds.map((id) => id.toString()),
+        trendingCastingIds: config.trendingCastingIds.map((id) => id.toString()),
+      },
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/admin/homepage-categories — per-category model lists + approved models for picker
+router.get("/homepage-categories", async (req, res) => {
+  try {
+    const config = await HomepageConfig.findOne().lean();
+    const approvedModels = await User.find(MODEL_BASE).select(MODEL_FIELDS).sort({ fullName: 1, username: 1 }).limit(500).lean();
+    const categorySlots = {};
+    for (const slug of Object.keys(CATEGORY_USERNAMES)) {
+      const catMap = config?.categoryIds;
+      const savedIds = catMap && catMap.get ? catMap.get(slug) : (catMap?.[slug] || null);
+      const ids = savedIds?.length ? savedIds.map((id) => id.toString()) : [];
+      if (ids.length > 0) {
+        const users = await User.find({ _id: { $in: ids }, ...MODEL_BASE }).select(MODEL_FIELDS).lean();
+        const byId = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
+        categorySlots[slug] = { ids, models: ids.map((id) => byId[id]).filter(Boolean) };
+      } else {
+        const defaultModels = await resolveCategoryDefault(slug);
+        categorySlots[slug] = { ids: defaultModels.map((u) => u._id.toString()), models: defaultModels };
+      }
+    }
+    res.json({ categorySlots, approvedModels });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// PUT /api/admin/homepage-categories/:slug — update model IDs for a category
+router.put("/homepage-categories/:slug", async (req, res) => {
+  try {
+    const slug = (req.params.slug || "").toLowerCase().trim();
+    const { ids = [] } = req.body;
+    const sanitized = ids
+      .map((id) => (typeof id === "string" ? id.trim() : String(id)))
+      .filter((id) => id && mongoose.Types.ObjectId.isValid(id))
+      .map((id) => new mongoose.Types.ObjectId(id));
+    let config = await HomepageConfig.findOne();
+    if (!config) config = new HomepageConfig({});
+    if (!config.categoryIds) config.categoryIds = {};
+    config.categoryIds.set ? config.categoryIds.set(slug, sanitized) : (config.categoryIds[slug] = sanitized);
+    config.markModified("categoryIds");
+    await config.save();
+    res.json({ ok: true, slug, ids: sanitized.map((id) => id.toString()) });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/admin/homepage-latest — latest models config + approved models
+router.get("/homepage-latest", async (req, res) => {
+  try {
+    const config = await HomepageConfig.findOne().lean();
+    const savedIds = (config?.latestIds || []).map((id) => id.toString());
+    const latestCount = config?.latestCount || 16;
+    const approvedModels = await User.find(MODEL_BASE).select(MODEL_FIELDS).sort({ fullName: 1, username: 1 }).limit(500).lean();
+    let latestModels = [];
+    if (savedIds.length > 0) {
+      const users = await User.find({ _id: { $in: savedIds }, ...MODEL_BASE }).select(MODEL_FIELDS).lean();
+      const byId = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
+      latestModels = savedIds.map((id) => byId[id]).filter(Boolean);
+    } else {
+      latestModels = await User.find(MODEL_BASE).select(MODEL_FIELDS).sort({ updatedAt: -1 }).limit(latestCount).lean();
+    }
+    res.json({ ids: savedIds, count: latestCount, latestModels, approvedModels });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// PUT /api/admin/homepage-latest — update latest models IDs and/or count
+router.put("/homepage-latest", async (req, res) => {
+  try {
+    const { ids = [], count } = req.body;
+    const sanitized = ids
+      .map((id) => (typeof id === "string" ? id.trim() : String(id)))
+      .filter((id) => id && mongoose.Types.ObjectId.isValid(id))
+      .map((id) => new mongoose.Types.ObjectId(id));
+    let config = await HomepageConfig.findOne();
+    if (!config) config = new HomepageConfig({});
+    config.latestIds = sanitized;
+    if (typeof count === "number" && count > 0) config.latestCount = count;
+    await config.save();
+    res.json({ ok: true, ids: sanitized.map((id) => id.toString()), count: config.latestCount });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // POST /api/admin/seed-categories — assign categories to fixed model names (Bold→LEA, Bikini→GWEN SUN, etc.)
 router.post("/seed-categories", async (req, res) => {

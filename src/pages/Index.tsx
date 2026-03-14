@@ -24,11 +24,11 @@ const Index = () => {
       <MagazineGrid />
       <NewFaces homePreview />
 
+      <FeaturedModels />
+
       <div className="container mx-auto px-4 md:px-6 py-8">
         <AdBanner />
       </div>
-
-      <FeaturedModels />
 
       <QuickActions />
 

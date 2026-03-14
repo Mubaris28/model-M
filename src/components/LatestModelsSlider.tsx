@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { publicApi, type PublicModel } from "@/lib/api";
-import { LATEST_MODELS_COUNT } from "@/lib/homepage-models";
 
 type SliderCard = {
   id: string;
@@ -32,7 +31,7 @@ export default function LatestModelsSlider() {
 
     const load = () => {
       publicApi
-        .models()
+        .sectionsLatest()
         .then((list) => {
           if (cancelled) return;
           if (!list?.length) {
@@ -40,7 +39,7 @@ export default function LatestModelsSlider() {
             setLoading(false);
             return;
           }
-          setCards(list.map(toCard).slice(0, LATEST_MODELS_COUNT));
+          setCards(list.map(toCard));
           setLoading(false);
         })
         .catch(() => {

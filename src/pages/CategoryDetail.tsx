@@ -6,12 +6,11 @@ import { categories } from "@/components/MagazineGrid";
 import { useParams, Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
-import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { publicApi, type PublicModel } from "@/lib/api";
 
-type ModelCard = { id: string; name: string; image: string | { src: string }; location: string; likes: number };
+type ModelCard = { id: string; name: string; image: string | { src: string }; location: string };
 
 function toCard(m: PublicModel): ModelCard {
   const photo = m.profilePhoto || m.portfolio?.[0] || "";
@@ -20,7 +19,6 @@ function toCard(m: PublicModel): ModelCard {
     name: m.username || m.fullName || "Model",
     image: photo,
     location: [m.city, m.country].filter(Boolean).join(", ") || "—",
-    likes: 0,
   };
 }
 
@@ -88,11 +86,7 @@ const CategoryDetail = () => {
                   <div className="absolute inset-0 bg-background/0 group-hover:bg-background/20 transition-colors" />
                 </div>
                 <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors">{model.name}</h3>
-                <div className="flex items-center gap-2 text-muted-foreground text-[10px] font-body tracking-wider mt-1">
-                  <span>{model.location}</span>
-                  <span className="w-1 h-1 rounded-full bg-primary" />
-                  <span className="flex items-center gap-1"><Heart className="w-2.5 h-2.5" /> {model.likes}</span>
-                </div>
+                <p className="text-muted-foreground text-[10px] font-body tracking-wider mt-1">{model.location}</p>
               </Link>
             </motion.div>
           ))}

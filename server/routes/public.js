@@ -1,132 +1,121 @@
 import express from "express";
+import mongoose from "mongoose";
 import User from "../models/User.js";
 import Casting from "../models/Casting.js";
+import HomepageConfig from "../models/HomepageConfig.js";
+import {
+  resolveNewFacesDefault,
+  resolveTrendingDefault,
+  resolveCategoryDefault,
+  MODEL_FIELDS,
+  MODEL_BASE,
+} from "../lib/homepageSectionResolve.js";
 
 const router = express.Router();
 
-// Public: list approved models (no auth). Used for /models and /new-faces cards.
-const MODEL_FIELDS =
-  "_id fullName username profilePhoto portfolio categories country city height weight dressSize shoeSize gender dateOfBirth bio instagram role createdAt";
-
-const MODEL_BASE = { status: "approved", profileComplete: true, role: "model" };
-
-// Resolve ordered names to approved models — tries exact match first, then partial word match.
-async function resolveUsernamesToModels(usernames) {
-  const result = [];
-  for (const name of usernames) {
-    const q = String(name).trim();
-    if (!q) continue;
-    // 1. Exact match (case-insensitive) on username or fullName
-    const exactRegex = new RegExp("^" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i");
-    let user = await User.findOne({
-      ...MODEL_BASE,
-      $or: [{ username: exactRegex }, { fullName: exactRegex }],
-    })
-      .select(MODEL_FIELDS)
-      .lean();
-    // 2. If not found, try matching on each individual word (3+ chars)
-    if (!user) {
-      const words = q.split(/\s+/).filter((w) => w.length >= 3);
-      for (const word of words) {
-        const wordRegex = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-        user = await User.findOne({
-          ...MODEL_BASE,
-          $or: [{ username: wordRegex }, { fullName: wordRegex }],
-        })
-          .select(MODEL_FIELDS)
-          .lean();
-        if (user) break;
-      }
-    }
-    if (user) result.push(user);
-  }
-  return result;
-}
-
-// New Faces: fixed names (order = display order)
-const NEW_FACES_USERNAMES = [
-  "Ophélie Philogène",
-  "Moutoucomarapoule Ladli",
-  "Emmy Kelianne Durhône",
-  "HOAREAU Léanne",
-  "Miles Williams",
-  "Mary Grace Tracy John",
-];
 router.get("/sections/new-faces", async (_req, res) => {
   try {
-    const users = await resolveUsernamesToModels(NEW_FACES_USERNAMES);
+    const config = await HomepageConfig.findOne().lean();
+    const ids = config?.newFacesIds?.length ? config.newFacesIds.map((id) => id.toString()) : [];
+    if (ids.length > 0) {
+      const users = await User.find({ _id: { $in: ids }, ...MODEL_BASE }).select(MODEL_FIELDS).lean();
+      const byId = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
+      const ordered = ids.map((id) => byId[id]).filter(Boolean);
+      ordered.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+      return res.json(ordered);
+    }
+    const users = await resolveNewFacesDefault();
+    users.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
     res.json(users);
   } catch (e) {
+    if (mongoose.connection.readyState !== 1) return res.json([]);
     res.status(500).json({ error: e.message });
   }
 });
 
-// Trending: fixed names
-const TRENDING_USERNAMES = [
-  "Ritisha Khedoo",
-  "Gulbul Mary-keth Taylor Alicia Goder",
-  "Kiara Delnard",
-  "Samanta Luchoo",
-  "Lea Ferhat-Huckel",
-  "Victoria Ruth Claire Walys Philippe",
-];
 router.get("/sections/trending", async (_req, res) => {
   try {
-    const users = await resolveUsernamesToModels(TRENDING_USERNAMES);
-    res.json(users);
+    const config = await HomepageConfig.findOne().lean();
+    const ids = config?.trendingIds?.length ? config.trendingIds.map((id) => id.toString()) : [];
+    if (ids.length > 0) {
+      const users = await User.find({ _id: { $in: ids }, ...MODEL_BASE }).select(MODEL_FIELDS).lean();
+      const byId = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
+      return res.json(ids.map((id) => byId[id]).filter(Boolean));
+    }
+    res.json(await resolveTrendingDefault());
   } catch (e) {
+    if (mongoose.connection.readyState !== 1) return res.json([]);
     res.status(500).json({ error: e.message });
   }
 });
 
-// Category slug → model names (display order for category sub-pages)
-const CATEGORY_USERNAMES = {
-  bold: ["Lea Ferhat-Huckel"],
-  bikini: ["Gwendoline"],
-  mature: ["Chaland Geneviève"],
-  glamour: ["Megha Luchmun"],
-  commercial: ["Victoria Ruth Claire Walys Philippe"],
-  fitness: ["Johanna Boyer"],
-};
+// GET /api/public/sections/latest — latest models (uses latestIds override or newest by createdAt)
+router.get("/sections/latest", async (_req, res) => {
+  try {
+    const config = await HomepageConfig.findOne().lean();
+    const ids = config?.latestIds?.length ? config.latestIds.map((id) => id.toString()) : [];
+    if (ids.length > 0) {
+      const users = await User.find({ _id: { $in: ids }, ...MODEL_BASE }).select(MODEL_FIELDS).lean();
+      const byId = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
+      return res.json(ids.map((id) => byId[id]).filter(Boolean));
+    }
+    const count = config?.latestCount > 0 ? config.latestCount : 16;
+    const users = await User.find({ ...MODEL_BASE }).select(MODEL_FIELDS).sort({ updatedAt: -1 }).limit(count).lean();
+    res.json(users);
+  } catch (e) {
+    if (mongoose.connection.readyState !== 1) return res.json([]);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/public/categories/:slug/models
 router.get("/categories/:slug/models", async (req, res) => {
   try {
     const slug = (req.params.slug || "").toLowerCase().trim();
-    const usernames = CATEGORY_USERNAMES[slug];
-    if (!usernames || !usernames.length) return res.json([]);
-    const users = await resolveUsernamesToModels(usernames);
-    res.json(users);
+    const config = await HomepageConfig.findOne().lean();
+    const catMap = config?.categoryIds;
+    const savedIds = catMap && catMap.get ? catMap.get(slug) : (catMap?.[slug] || null);
+    const ids = savedIds?.length ? savedIds.map((id) => id.toString()) : [];
+    if (ids.length > 0) {
+      const users = await User.find({ _id: { $in: ids }, ...MODEL_BASE }).select(MODEL_FIELDS).lean();
+      const byId = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
+      return res.json(ids.map((id) => byId[id]).filter(Boolean));
+    }
+    res.json(await resolveCategoryDefault(slug));
   } catch (e) {
+    if (mongoose.connection.readyState !== 1) return res.json([]);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.get("/models-count", async (_req, res) => {
+  try {
+    const count = await User.countDocuments({ status: "approved", profileComplete: true, role: "model" });
+    res.json({ count });
+  } catch (e) {
+    if (mongoose.connection.readyState !== 1) return res.json({ count: 0 });
     res.status(500).json({ error: e.message });
   }
 });
 
 router.get("/models", async (_req, res) => {
   try {
-    const users = await User.find({
-      status: "approved",
-      profileComplete: true,
-      role: "model",
-    })
+    const users = await User.find({ status: "approved", profileComplete: true, role: "model" })
       .select(MODEL_FIELDS)
       .sort({ createdAt: -1 })
       .limit(100)
       .lean();
     res.json(users);
   } catch (e) {
+    if (mongoose.connection.readyState !== 1) return res.json([]);
     res.status(500).json({ error: e.message });
   }
 });
 
-// Public: single approved model profile by id (for /model/[id]).
 router.get("/models/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findOne({
-      _id: id,
-      status: "approved",
-      profileComplete: true,
-      role: "model",
-    })
+    const user = await User.findOne({ _id: id, status: "approved", profileComplete: true, role: "model" })
       .select(MODEL_FIELDS)
       .lean();
     if (!user) return res.status(404).json({ error: "Model not found" });
@@ -136,15 +125,30 @@ router.get("/models/:id", async (req, res) => {
   }
 });
 
-// Public: list approved castings for casting page cards.
-router.get("/castings", async (_req, res) => {
+// GET /api/public/sections/trending-castings — for homepage Trending Castings section (ordered by config or default)
+router.get("/sections/trending-castings", async (_req, res) => {
   try {
-    const castings = await Casting.find({ approvalStatus: "approved" })
-      .sort({ createdAt: -1 })
-      .limit(50)
-      .lean();
+    const config = await HomepageConfig.findOne().lean();
+    const ids = config?.trendingCastingIds?.length ? config.trendingCastingIds.map((id) => id.toString()) : [];
+    if (ids.length > 0) {
+      const castings = await Casting.find({ _id: { $in: ids }, approvalStatus: "approved" }).lean();
+      const byId = Object.fromEntries(castings.map((c) => [c._id.toString(), c]));
+      return res.json(ids.map((id) => byId[id]).filter(Boolean));
+    }
+    const castings = await Casting.find({ approvalStatus: "approved" }).sort({ createdAt: -1 }).limit(50).lean();
     res.json(castings);
   } catch (e) {
+    if (mongoose.connection.readyState !== 1) return res.json([]);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.get("/castings", async (_req, res) => {
+  try {
+    const castings = await Casting.find({ approvalStatus: "approved" }).sort({ createdAt: -1 }).limit(50).lean();
+    res.json(castings);
+  } catch (e) {
+    if (mongoose.connection.readyState !== 1) return res.json([]);
     res.status(500).json({ error: e.message });
   }
 });

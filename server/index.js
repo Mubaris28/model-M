@@ -63,14 +63,15 @@ app.get("/api/health", async (_req, res) => {
 
 app.use(errorHandler);
 
-try {
-  await mongoose.connect(MONGODB_URI);
-  console.log("MongoDB connected");
-} catch (err) {
-  console.error("MongoDB connection error:", err.message);
-  process.exit(1);
-}
-
+// Start HTTP server first so the app is reachable even if DB is slow or temporarily down
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+});
+
+// Connect to MongoDB in the background (do not exit if it fails — server stays up for health checks)
+mongoose.connect(MONGODB_URI).then(() => {
+  console.log("MongoDB connected");
+}).catch((err) => {
+  console.error("MongoDB connection error:", err.message);
+  console.error("→ If using Atlas: add your IP to the cluster IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/");
 });

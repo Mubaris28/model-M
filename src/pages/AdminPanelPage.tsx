@@ -17,14 +17,17 @@ import {
   Plus,
   X,
   Search,
+  LayoutGrid,
+  Tag,
+  ImageIcon,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { adminApi, publicApi, User, AdminStats, ContactMessage, Casting } from "@/lib/api";
+import { adminApi, publicApi, User, AdminStats, ContactMessage, Casting, type PublicModel, type PublicCasting } from "@/lib/api";
 import { imgSrc } from "@/lib/utils";
 
 const USERS_PAGE_SIZE = 20;
 
-type TabId = "dashboard" | "users" | "castings" | "marketplace" | "bookings";
+type TabId = "dashboard" | "users" | "castings" | "marketplace" | "bookings" | "homepage" | "categories" | "latest";
 
 const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -32,6 +35,9 @@ const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
   { id: "castings", label: "Casting Management", icon: Briefcase },
   { id: "marketplace", label: "Marketplace Offers", icon: ShoppingBag },
   { id: "bookings", label: "Bookings & Applications", icon: CreditCard },
+  { id: "homepage", label: "New Faces & Trending", icon: LayoutGrid },
+  { id: "categories", label: "Category Pages", icon: Tag },
+  { id: "latest", label: "Latest Models", icon: ImageIcon },
 ];
 
 const AdminPanelPage = () => {
@@ -132,6 +138,47 @@ const AdminPanelPage = () => {
   const [viewUser, setViewUser] = useState<User | null>(null);
   const [viewUserLoading, setViewUserLoading] = useState(false);
 
+  const [homepageSectionsLoading, setHomepageSectionsLoading] = useState(false);
+  const [homepageSectionsSaving, setHomepageSectionsSaving] = useState(false);
+  const [homepageData, setHomepageData] = useState<{
+    config: { newFacesIds: string[]; trendingIds: string[]; trendingCastingIds: string[] };
+    newFaces: PublicModel[];
+    trending: PublicModel[];
+    approvedModels: PublicModel[];
+    trendingCastings: PublicCasting[];
+    approvedCastings: PublicCasting[];
+  } | null>(null);
+  const [newFacesIdsLocal, setNewFacesIdsLocal] = useState<string[]>([]);
+  const [trendingIdsLocal, setTrendingIdsLocal] = useState<string[]>([]);
+  const [trendingCastingIdsLocal, setTrendingCastingIdsLocal] = useState<string[]>([]);
+  const [addModelModal, setAddModelModal] = useState<"newFaces" | "trending" | null>(null);
+  const [addModelSearch, setAddModelSearch] = useState("");
+  const [addCastingModal, setAddCastingModal] = useState(false);
+  const [addCastingSearch, setAddCastingSearch] = useState("");
+
+  // Categories section state
+  const [categoriesData, setCategoriesData] = useState<{
+    categorySlots: Record<string, { ids: string[]; models: PublicModel[] }>;
+    approvedModels: PublicModel[];
+  } | null>(null);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoriesSaving, setCategoriesSaving] = useState<string | null>(null);
+  const [categoryIdsLocal, setCategoryIdsLocal] = useState<Record<string, string[]>>({});
+  const [addCategoryModal, setAddCategoryModal] = useState<string | null>(null);
+  const [addCategorySearch, setAddCategorySearch] = useState("");
+
+  // Latest Models section state
+  const [latestData, setLatestData] = useState<{
+    ids: string[]; count: number; latestModels: PublicModel[]; approvedModels: PublicModel[];
+  } | null>(null);
+  const [latestLoading, setLatestLoading] = useState(false);
+  const [latestSaving, setLatestSaving] = useState(false);
+  const [latestIdsLocal, setLatestIdsLocal] = useState<string[]>([]);
+  const [latestCountLocal, setLatestCountLocal] = useState(16);
+  const [addLatestModal, setAddLatestModal] = useState(false);
+  const [addLatestSearch, setAddLatestSearch] = useState("");
+  const [latestMode, setLatestMode] = useState<"auto" | "manual">("auto");
+
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -153,11 +200,76 @@ const AdminPanelPage = () => {
     }
   };
 
+  const loadHomepageSections = async () => {
+    setHomepageSectionsLoading(true);
+    try {
+      const data = await adminApi.homepageSections();
+      setHomepageData(data);
+      setNewFacesIdsLocal(data.config.newFacesIds);
+      setTrendingIdsLocal(data.config.trendingIds);
+      setTrendingCastingIdsLocal(data.config.trendingCastingIds || []);
+    } catch {
+      setAuthError("Failed to load homepage sections.");
+    } finally {
+      setHomepageSectionsLoading(false);
+    }
+  };
+
+  const loadCategoriesData = async () => {
+    setCategoriesLoading(true);
+    try {
+      const data = await adminApi.homepageCategories();
+      setCategoriesData(data);
+      const localMap: Record<string, string[]> = {};
+      for (const slug of Object.keys(data.categorySlots)) {
+        localMap[slug] = data.categorySlots[slug].ids;
+      }
+      setCategoryIdsLocal(localMap);
+    } catch { setAuthError("Failed to load categories."); }
+    finally { setCategoriesLoading(false); }
+  };
+
+  const saveCategorySection = async (slug: string) => {
+    setCategoriesSaving(slug);
+    try {
+      await adminApi.updateHomepageCategory(slug, categoryIdsLocal[slug] || []);
+      await loadCategoriesData();
+    } catch { setAuthError("Failed to save category."); }
+    finally { setCategoriesSaving(null); }
+  };
+
+  const loadLatestData = async () => {
+    setLatestLoading(true);
+    try {
+      const data = await adminApi.homepageLatest();
+      setLatestData(data);
+      setLatestIdsLocal(data.ids);
+      setLatestCountLocal(data.count);
+      setLatestMode(data.ids.length > 0 ? "manual" : "auto");
+    } catch { setAuthError("Failed to load latest models."); }
+    finally { setLatestLoading(false); }
+  };
+
+  const saveLatestSection = async () => {
+    setLatestSaving(true);
+    try {
+      await adminApi.updateHomepageLatest({
+        ids: latestMode === "manual" ? latestIdsLocal : [],
+        count: latestCountLocal,
+      });
+      await loadLatestData();
+    } catch { setAuthError("Failed to save latest models."); }
+    finally { setLatestSaving(false); }
+  };
+
   useEffect(() => {
     if (user?.isAdmin) {
       loadStats();
       if (activeTab === "castings") loadCastings(castingStatusFilter);
       if (activeTab === "bookings") loadContacts(contactTypeFilter === "all" ? "all" : contactTypeFilter);
+      if (activeTab === "homepage") loadHomepageSections();
+      if (activeTab === "categories") loadCategoriesData();
+      if (activeTab === "latest") loadLatestData();
     }
   }, [user?.isAdmin, activeTab]);
 
@@ -166,6 +278,38 @@ const AdminPanelPage = () => {
     if (activeTab === "users") loadUsers();
     if (activeTab === "castings") loadCastings(castingStatusFilter);
     if (activeTab === "bookings") loadContacts(contactTypeFilter === "all" ? "all" : contactTypeFilter);
+    if (activeTab === "homepage") loadHomepageSections();
+    if (activeTab === "categories") loadCategoriesData();
+    if (activeTab === "latest") loadLatestData();
+  };
+
+  const saveHomepageSections = async () => {
+    setHomepageSectionsSaving(true);
+    try {
+      await adminApi.updateHomepageSections({ newFacesIds: newFacesIdsLocal, trendingIds: trendingIdsLocal, trendingCastingIds: trendingCastingIdsLocal });
+      await loadHomepageSections();
+    } catch {
+      setAuthError("Failed to save homepage sections.");
+    } finally {
+      setHomepageSectionsSaving(false);
+    }
+  };
+
+  const addModelToSection = (section: "newFaces" | "trending", modelId: string) => {
+    if (section === "newFaces" && !newFacesIdsLocal.includes(modelId)) setNewFacesIdsLocal((prev) => [...prev, modelId]);
+    if (section === "trending" && !trendingIdsLocal.includes(modelId)) setTrendingIdsLocal((prev) => [...prev, modelId]);
+  };
+
+  const removeModelFromSection = (section: "newFaces" | "trending", modelId: string) => {
+    if (section === "newFaces") setNewFacesIdsLocal((prev) => prev.filter((id) => id !== modelId));
+    if (section === "trending") setTrendingIdsLocal((prev) => prev.filter((id) => id !== modelId));
+  };
+
+  const addCastingToTrending = (castingId: string) => {
+    if (!trendingCastingIdsLocal.includes(castingId)) setTrendingCastingIdsLocal((prev) => [...prev, castingId]);
+  };
+  const removeCastingFromTrending = (castingId: string) => {
+    setTrendingCastingIdsLocal((prev) => prev.filter((id) => id !== castingId));
   };
 
   const handleApprove = async (u: User) => {
@@ -700,6 +844,339 @@ const AdminPanelPage = () => {
               )}
             </>
           )}
+
+          {activeTab === "homepage" && (
+            <>
+              <h2 className="font-display text-xl text-foreground mb-2">Homepage Sections</h2>
+              <p className="text-muted-foreground text-sm font-body mb-6">
+                Choose which models appear in <strong>New Faces</strong> and <strong>Trending</strong> on the homepage. Add or remove cards below, then click Save.
+              </p>
+              {homepageSectionsLoading ? (
+                <p className="text-muted-foreground font-body">Loading...</p>
+              ) : homepageData ? (
+                <>
+                  <div className="grid md:grid-cols-2 gap-8 mb-8">
+                    <div className="border border-border bg-card p-5">
+                      <h3 className="font-display text-lg text-primary mb-3 flex items-center justify-between">
+                        New Faces
+                        <button
+                          type="button"
+                          onClick={() => { setAddModelModal("newFaces"); setAddModelSearch(""); }}
+                          className="flex items-center gap-1.5 text-xs font-body uppercase tracking-wider text-primary hover:underline"
+                        >
+                          <Plus className="w-3.5 h-3.5" /> Add model
+                        </button>
+                      </h3>
+                      <div className="flex flex-wrap gap-3">
+                        {newFacesIdsLocal.map((id) => {
+                          const m = homepageData.approvedModels.find((x) => x._id === id);
+                          if (!m) return null;
+                          const photo = m.profilePhoto || m.portfolio?.[0];
+                          return (
+                            <div key={m._id} className="flex items-center gap-2 border border-border p-2 bg-background w-[180px]">
+                              {photo ? (
+                                <img src={imgSrc(photo)} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0" />
+                              ) : (
+                                <div className="w-12 h-12 rounded bg-secondary flex items-center justify-center flex-shrink-0">
+                                  <Camera className="w-5 h-5 text-muted-foreground" />
+                                </div>
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-body truncate text-foreground">{m.fullName || m.username || "Model"}</p>
+                                <button
+                                  type="button"
+                                  onClick={() => removeModelFromSection("newFaces", m._id)}
+                                  className="text-xs text-destructive hover:underline font-body"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {newFacesIdsLocal.length === 0 && (
+                          <p className="text-muted-foreground text-sm font-body">No models added. Click &quot;Add model&quot; to choose.</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="border border-border bg-card p-5">
+                      <h3 className="font-display text-lg text-primary mb-3 flex items-center justify-between">
+                        Trending
+                        <button
+                          type="button"
+                          onClick={() => { setAddModelModal("trending"); setAddModelSearch(""); }}
+                          className="flex items-center gap-1.5 text-xs font-body uppercase tracking-wider text-primary hover:underline"
+                        >
+                          <Plus className="w-3.5 h-3.5" /> Add model
+                        </button>
+                      </h3>
+                      <div className="flex flex-wrap gap-3">
+                        {trendingIdsLocal.map((id) => {
+                          const m = homepageData.approvedModels.find((x) => x._id === id);
+                          if (!m) return null;
+                          const photo = m.profilePhoto || m.portfolio?.[0];
+                          return (
+                            <div key={m._id} className="flex items-center gap-2 border border-border p-2 bg-background w-[180px]">
+                              {photo ? (
+                                <img src={imgSrc(photo)} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0" />
+                              ) : (
+                                <div className="w-12 h-12 rounded bg-secondary flex items-center justify-center flex-shrink-0">
+                                  <Camera className="w-5 h-5 text-muted-foreground" />
+                                </div>
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-body truncate text-foreground">{m.fullName || m.username || "Model"}</p>
+                                <button
+                                  type="button"
+                                  onClick={() => removeModelFromSection("trending", m._id)}
+                                  className="text-xs text-destructive hover:underline font-body"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {trendingIdsLocal.length === 0 && (
+                          <p className="text-muted-foreground text-sm font-body">No models added. Click &quot;Add model&quot; to choose.</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border border-border bg-card p-5 mb-8">
+                    <h3 className="font-display text-lg text-primary mb-3 flex items-center justify-between">
+                      Trending Castings
+                      <button
+                        type="button"
+                        onClick={() => { setAddCastingModal(true); setAddCastingSearch(""); }}
+                        className="flex items-center gap-1.5 text-xs font-body uppercase tracking-wider text-primary hover:underline"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Add casting
+                      </button>
+                    </h3>
+                    <div className="flex flex-wrap gap-3">
+                      {trendingCastingIdsLocal.map((cid) => {
+                        const c = homepageData.approvedCastings?.find((x) => x._id === cid);
+                        if (!c) return null;
+                        return (
+                          <div key={c._id} className="flex items-center gap-2 border border-border p-2 bg-background w-[220px]">
+                            {c.imageUrl ? (
+                              <img src={imgSrc(c.imageUrl)} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0" />
+                            ) : (
+                              <div className="w-12 h-12 rounded bg-secondary flex items-center justify-center flex-shrink-0">
+                                <Briefcase className="w-5 h-5 text-muted-foreground" />
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-body truncate text-foreground">{c.title}</p>
+                              <p className="text-xs text-muted-foreground truncate">{c.brand || "—"}</p>
+                              <button
+                                type="button"
+                                onClick={() => removeCastingFromTrending(c._id)}
+                                className="text-xs text-destructive hover:underline font-body"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {trendingCastingIdsLocal.length === 0 && (
+                        <p className="text-muted-foreground text-sm font-body">No castings added. Click &quot;Add casting&quot; or leave empty to show latest approved castings.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={saveHomepageSections}
+                      disabled={homepageSectionsSaving}
+                      className="px-5 py-2.5 bg-primary text-primary-foreground font-body text-sm uppercase tracking-wider disabled:opacity-50"
+                    >
+                      {homepageSectionsSaving ? "Saving..." : "Save changes"}
+                    </button>
+                    <p className="text-muted-foreground text-xs font-body">
+                      Changes will appear on the homepage after you save.
+                    </p>
+                  </div>
+                </>
+              ) : null}
+            </>
+          )}
+
+          {/* ── CATEGORIES TAB ── */}
+          {activeTab === "categories" && (
+            <>
+              <h2 className="font-display text-xl text-foreground mb-2">Category Pages</h2>
+              <p className="text-muted-foreground text-sm font-body mb-6">
+                Control which models appear on each category sub-page. Save each category individually.
+              </p>
+              {categoriesLoading ? (
+                <p className="text-muted-foreground font-body">Loading...</p>
+              ) : categoriesData ? (
+                <div className="space-y-8">
+                  {Object.entries(categoryIdsLocal).map(([slug, ids]) => {
+                    const label = slug.charAt(0).toUpperCase() + slug.slice(1);
+                    return (
+                      <div key={slug} className="border border-border bg-card p-5">
+                        <h3 className="font-display text-lg text-primary mb-3 flex items-center justify-between">
+                          {label}
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => { setAddCategoryModal(slug); setAddCategorySearch(""); }}
+                              className="flex items-center gap-1.5 text-xs font-body uppercase tracking-wider text-primary hover:underline"
+                            >
+                              <Plus className="w-3.5 h-3.5" /> Add model
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => saveCategorySection(slug)}
+                              disabled={categoriesSaving === slug}
+                              className="px-3 py-1.5 bg-primary text-primary-foreground font-body text-xs uppercase tracking-wider disabled:opacity-50"
+                            >
+                              {categoriesSaving === slug ? "Saving…" : "Save"}
+                            </button>
+                          </div>
+                        </h3>
+                        <div className="flex flex-wrap gap-3">
+                          {ids.map((id) => {
+                            const m = categoriesData.approvedModels.find((x) => x._id === id);
+                            if (!m) return null;
+                            const photo = m.profilePhoto || m.portfolio?.[0];
+                            return (
+                              <div key={m._id} className="flex items-center gap-2 border border-border p-2 bg-background w-[180px]">
+                                {photo ? (
+                                  <img src={imgSrc(photo)} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0" />
+                                ) : (
+                                  <div className="w-12 h-12 rounded bg-secondary flex items-center justify-center flex-shrink-0">
+                                    <Camera className="w-5 h-5 text-muted-foreground" />
+                                  </div>
+                                )}
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-sm font-body truncate text-foreground">{m.fullName || m.username || "Model"}</p>
+                                  <button
+                                    type="button"
+                                    onClick={() => setCategoryIdsLocal((prev) => ({ ...prev, [slug]: prev[slug].filter((x) => x !== m._id) }))}
+                                    className="text-xs text-destructive hover:underline font-body"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          {ids.length === 0 && <p className="text-muted-foreground text-sm font-body">No models. Click &quot;Add model&quot; to choose.</p>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </>
+          )}
+
+          {/* ── LATEST MODELS TAB ── */}
+          {activeTab === "latest" && (
+            <>
+              <h2 className="font-display text-xl text-foreground mb-2">Latest Models</h2>
+              <p className="text-muted-foreground text-sm font-body mb-6">
+                Control the scrolling &quot;Latest Models&quot; strip on the homepage. Auto mode shows the newest N models; manual lets you pick exact models.
+              </p>
+              {latestLoading ? (
+                <p className="text-muted-foreground font-body">Loading...</p>
+              ) : latestData ? (
+                <>
+                  <div className="flex gap-4 mb-6">
+                    {(["auto", "manual"] as const).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setLatestMode(m)}
+                        className={`px-4 py-2 text-xs font-body uppercase tracking-wider border transition-colors ${
+                          latestMode === m ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary/50"
+                        }`}
+                      >
+                        {m === "auto" ? "Auto (newest N)" : "Manual (pick models)"}
+                      </button>
+                    ))}
+                  </div>
+
+                  {latestMode === "auto" && (
+                    <div className="border border-border bg-card p-5 mb-6 max-w-xs">
+                      <label className="block text-xs font-body text-muted-foreground uppercase tracking-wider mb-2">Number of models to show</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={50}
+                        value={latestCountLocal}
+                        onChange={(e) => setLatestCountLocal(Math.max(1, Math.min(50, parseInt(e.target.value) || 16)))}
+                        className="w-full border border-border bg-background px-3 py-2 text-sm font-body focus:outline-none focus:border-primary"
+                      />
+                    </div>
+                  )}
+
+                  {latestMode === "manual" && (
+                    <div className="border border-border bg-card p-5 mb-6">
+                      <h3 className="font-display text-base text-primary mb-3 flex items-center justify-between">
+                        Selected models ({latestIdsLocal.length})
+                        <button
+                          type="button"
+                          onClick={() => { setAddLatestModal(true); setAddLatestSearch(""); }}
+                          className="flex items-center gap-1.5 text-xs font-body uppercase tracking-wider text-primary hover:underline"
+                        >
+                          <Plus className="w-3.5 h-3.5" /> Add model
+                        </button>
+                      </h3>
+                      <div className="flex flex-wrap gap-3">
+                        {latestIdsLocal.map((id) => {
+                          const m = latestData.approvedModels.find((x) => x._id === id);
+                          if (!m) return null;
+                          const photo = m.profilePhoto || m.portfolio?.[0];
+                          return (
+                            <div key={m._id} className="flex items-center gap-2 border border-border p-2 bg-background w-[180px]">
+                              {photo ? (
+                                <img src={imgSrc(photo)} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0" />
+                              ) : (
+                                <div className="w-12 h-12 rounded bg-secondary flex items-center justify-center flex-shrink-0">
+                                  <Camera className="w-5 h-5 text-muted-foreground" />
+                                </div>
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-body truncate text-foreground">{m.fullName || m.username || "Model"}</p>
+                                <button
+                                  type="button"
+                                  onClick={() => setLatestIdsLocal((prev) => prev.filter((x) => x !== m._id))}
+                                  className="text-xs text-destructive hover:underline font-body"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {latestIdsLocal.length === 0 && <p className="text-muted-foreground text-sm font-body">No models added yet.</p>}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={saveLatestSection}
+                      disabled={latestSaving}
+                      className="px-5 py-2.5 bg-primary text-primary-foreground font-body text-sm uppercase tracking-wider disabled:opacity-50"
+                    >
+                      {latestSaving ? "Saving..." : "Save changes"}
+                    </button>
+                    <p className="text-muted-foreground text-xs font-body">Changes take effect on the homepage immediately after saving.</p>
+                  </div>
+                </>
+              ) : null}
+            </>
+          )}
         </div>
       </main>
 
@@ -726,6 +1203,209 @@ const AdminPanelPage = () => {
               <button onClick={() => setActionModal(null)} disabled={actionLoading} className="flex-1 border border-border py-2 font-body text-sm uppercase hover:border-primary">
                 Cancel
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add model to Category modal */}
+      {addCategoryModal && categoriesData && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setAddCategoryModal(null)}>
+          <div className="bg-background border border-border w-full max-w-md flex flex-col rounded-sm shadow-xl h-[85vh] max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b border-border flex items-center justify-between flex-shrink-0">
+              <h3 className="font-display text-lg text-primary">Add model to {addCategoryModal.charAt(0).toUpperCase() + addCategoryModal.slice(1)}</h3>
+              <button type="button" onClick={() => setAddCategoryModal(null)} className="text-muted-foreground hover:text-foreground p-1"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-4 border-b border-border flex-shrink-0">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <input type="text" value={addCategorySearch} onChange={(e) => setAddCategorySearch(e.target.value)} placeholder="Search by name…" className="w-full border border-border bg-background pl-9 py-2 text-sm font-body focus:outline-none focus:border-primary" />
+              </div>
+            </div>
+            <div className="p-4 overflow-y-auto overflow-x-hidden flex-1 min-h-0 overscroll-contain" style={{ WebkitOverflowScrolling: "touch" }}>
+              <ul className="space-y-1">
+                {categoriesData.approvedModels.filter((m) => {
+                  if ((categoryIdsLocal[addCategoryModal] || []).includes(m._id)) return false;
+                  const q = addCategorySearch.trim().toLowerCase();
+                  return !q || (m.fullName || m.username || "").toLowerCase().includes(q);
+                }).map((m) => {
+                  const photo = m.profilePhoto || m.portfolio?.[0];
+                  return (
+                    <li key={m._id}>
+                      <button type="button" onClick={() => { setCategoryIdsLocal((prev) => ({ ...prev, [addCategoryModal!]: [...(prev[addCategoryModal!] || []), m._id] })); setAddCategoryModal(null); }} className="w-full flex items-center gap-3 p-2 border border-border hover:border-primary hover:bg-primary/5 text-left">
+                        {photo ? <img src={imgSrc(photo)} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0" /> : <div className="w-10 h-10 rounded bg-secondary flex items-center justify-center flex-shrink-0"><Camera className="w-4 h-4 text-muted-foreground" /></div>}
+                        <span className="text-sm font-body text-foreground">{m.fullName || m.username || "Model"}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add model to Latest section modal */}
+      {addLatestModal && latestData && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setAddLatestModal(false)}>
+          <div className="bg-background border border-border w-full max-w-md flex flex-col rounded-sm shadow-xl h-[85vh] max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b border-border flex items-center justify-between flex-shrink-0">
+              <h3 className="font-display text-lg text-primary">Add model to Latest</h3>
+              <button type="button" onClick={() => setAddLatestModal(false)} className="text-muted-foreground hover:text-foreground p-1"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-4 border-b border-border flex-shrink-0">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <input type="text" value={addLatestSearch} onChange={(e) => setAddLatestSearch(e.target.value)} placeholder="Search by name…" className="w-full border border-border bg-background pl-9 py-2 text-sm font-body focus:outline-none focus:border-primary" />
+              </div>
+            </div>
+            <div className="p-4 overflow-y-auto overflow-x-hidden flex-1 min-h-0 overscroll-contain" style={{ WebkitOverflowScrolling: "touch" }}>
+              <ul className="space-y-1">
+                {latestData.approvedModels.filter((m) => {
+                  if (latestIdsLocal.includes(m._id)) return false;
+                  const q = addLatestSearch.trim().toLowerCase();
+                  return !q || (m.fullName || m.username || "").toLowerCase().includes(q);
+                }).map((m) => {
+                  const photo = m.profilePhoto || m.portfolio?.[0];
+                  return (
+                    <li key={m._id}>
+                      <button type="button" onClick={() => { setLatestIdsLocal((prev) => [...prev, m._id]); setAddLatestModal(false); }} className="w-full flex items-center gap-3 p-2 border border-border hover:border-primary hover:bg-primary/5 text-left">
+                        {photo ? <img src={imgSrc(photo)} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0" /> : <div className="w-10 h-10 rounded bg-secondary flex items-center justify-center flex-shrink-0"><Camera className="w-4 h-4 text-muted-foreground" /></div>}
+                        <span className="text-sm font-body text-foreground">{m.fullName || m.username || "Model"}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add casting to Trending Castings modal */}
+      {addCastingModal && homepageData && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setAddCastingModal(false)}>
+          <div className="bg-background border border-border w-full max-w-md flex flex-col rounded-sm shadow-xl h-[85vh] max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b border-border flex items-center justify-between flex-shrink-0">
+              <h3 className="font-display text-lg text-primary">Add casting to Trending Castings</h3>
+              <button type="button" onClick={() => setAddCastingModal(false)} className="text-muted-foreground hover:text-foreground p-1"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-4 border-b border-border flex-shrink-0">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  value={addCastingSearch}
+                  onChange={(e) => setAddCastingSearch(e.target.value)}
+                  placeholder="Search by title or brand…"
+                  className="w-full border border-border bg-background pl-9 py-2 text-sm font-body focus:outline-none focus:border-primary"
+                />
+              </div>
+            </div>
+            <div className="p-4 overflow-y-auto overflow-x-hidden flex-1 min-h-0 overscroll-contain" style={{ WebkitOverflowScrolling: "touch" }}>
+              <ul className="space-y-1">
+                {(homepageData.approvedCastings || [])
+                  .filter((c) => {
+                    if (trendingCastingIdsLocal.includes(c._id)) return false;
+                    const q = addCastingSearch.trim().toLowerCase();
+                    return !q || (c.title || "").toLowerCase().includes(q) || (c.brand || "").toLowerCase().includes(q);
+                  })
+                  .map((c) => (
+                    <li key={c._id}>
+                      <button
+                        type="button"
+                        onClick={() => { addCastingToTrending(c._id); setAddCastingModal(false); }}
+                        className="w-full flex items-center gap-3 p-2 border border-border hover:border-primary hover:bg-primary/5 text-left"
+                      >
+                        {c.imageUrl ? (
+                          <img src={imgSrc(c.imageUrl)} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0" />
+                        ) : (
+                          <div className="w-10 h-10 rounded bg-secondary flex items-center justify-center flex-shrink-0">
+                            <Briefcase className="w-4 h-4 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <span className="text-sm font-body text-foreground block truncate">{c.title}</span>
+                          <span className="text-xs text-muted-foreground block truncate">{c.brand || "—"}</span>
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+              </ul>
+              {(homepageData.approvedCastings || []).filter((c) => !trendingCastingIdsLocal.includes(c._id)).length === 0 && (
+                <p className="text-muted-foreground text-sm font-body py-4">No castings to add, or all are already in the list.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add model to New Faces / Trending modal */}
+      {addModelModal && homepageData && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setAddModelModal(null)}>
+          <div className="bg-background border border-border w-full max-w-md flex flex-col rounded-sm shadow-xl h-[85vh] max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b border-border flex items-center justify-between flex-shrink-0">
+              <h3 className="font-display text-lg text-primary">
+                Add model to {addModelModal === "newFaces" ? "New Faces" : "Trending"}
+              </h3>
+              <button type="button" onClick={() => setAddModelModal(null)} className="text-muted-foreground hover:text-foreground p-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 border-b border-border flex-shrink-0">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  value={addModelSearch}
+                  onChange={(e) => setAddModelSearch(e.target.value)}
+                  placeholder="Search by name or username..."
+                  className="w-full border border-border bg-background pl-9 py-2 text-sm font-body focus:outline-none focus:border-primary"
+                />
+              </div>
+            </div>
+            <div className="p-4 overflow-y-auto overflow-x-hidden flex-1 min-h-0 overscroll-contain" style={{ WebkitOverflowScrolling: "touch" }}>
+              {(() => {
+                const currentIds = addModelModal === "newFaces" ? newFacesIdsLocal : trendingIdsLocal;
+                const q = addModelSearch.trim().toLowerCase();
+                const filtered = homepageData.approvedModels.filter((m) => {
+                  if (currentIds.includes(m._id)) return false;
+                  const name = (m.fullName || m.username || "").toLowerCase();
+                  return !q || name.includes(q);
+                });
+                return (
+                  <ul className="space-y-1">
+                    {filtered.map((m) => {
+                      const photo = m.profilePhoto || m.portfolio?.[0];
+                      return (
+                        <li key={m._id}>
+                          <button
+                            type="button"
+                            onClick={() => { addModelToSection(addModelModal, m._id); setAddModelModal(null); }}
+                            className="w-full flex items-center gap-3 p-2 border border-border hover:border-primary hover:bg-primary/5 text-left"
+                          >
+                            {photo ? (
+                              <img src={imgSrc(photo)} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0" />
+                            ) : (
+                              <div className="w-10 h-10 rounded bg-secondary flex items-center justify-center flex-shrink-0">
+                                <Camera className="w-4 h-4 text-muted-foreground" />
+                              </div>
+                            )}
+                            <span className="text-sm font-body text-foreground">{m.fullName || m.username || "Model"}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                    {filtered.length === 0 && (
+                      <p className="text-muted-foreground text-sm font-body py-4">
+                        {currentIds.length >= homepageData.approvedModels.length
+                          ? "All approved models are already in this section."
+                          : "No matching models."}
+                      </p>
+                    )}
+                  </ul>
+                );
+              })()}
             </div>
           </div>
         </div>

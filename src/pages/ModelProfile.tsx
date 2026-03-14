@@ -6,7 +6,7 @@ import { useParams, Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
 import { publicApi, type PublicModel, contactApi } from "@/lib/api";
-import { Heart, MapPin, Ruler, Calendar, Share2, Instagram, CheckCircle, Loader2, Lock } from "lucide-react";
+import { MapPin, Ruler, Calendar, Instagram, CheckCircle, Loader2, Lock, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -18,7 +18,6 @@ type DisplayModel = {
   location: string;
   height: string;
   age: number;
-  likes: number;
   bio: string;
   instagram: string;
   portfolio: (string | { src: string })[];
@@ -35,6 +34,7 @@ const ModelProfile = () => {
   const [bookForm, setBookForm] = useState({ name: "", email: "", message: "" });
   const [bookStatus, setBookStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [bookError, setBookError] = useState("");
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -74,7 +74,6 @@ const ModelProfile = () => {
           location: [m.city, m.country].filter(Boolean).join(", ") || "—",
           height: m.height || "—",
           age: age || 0,
-          likes: 0,
           bio: m.bio || "",
           instagram: m.instagram || "",
           portfolio: m.portfolio?.length ? m.portfolio : [photo],
@@ -83,6 +82,20 @@ const ModelProfile = () => {
       .catch(() => setModel(null))
       .finally(() => setLoading(false));
   }, [id]);
+
+  // Keyboard nav for lightbox
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handler = (e: KeyboardEvent) => {
+      if (!model) return;
+      const imgs = model.portfolio.length ? model.portfolio : [model.image];
+      if (e.key === "ArrowRight") setLightboxIndex((i) => i !== null ? (i + 1) % imgs.length : null);
+      if (e.key === "ArrowLeft") setLightboxIndex((i) => i !== null ? (i - 1 + imgs.length) % imgs.length : null);
+      if (e.key === "Escape") setLightboxIndex(null);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightboxIndex, model]);
 
   if (loading) return <PageLoader label="Loading profile..." />;
 
@@ -114,8 +127,11 @@ const ModelProfile = () => {
               animate={{ opacity: 1 }}
               className="lg:col-span-5"
             >
-              <div className="aspect-[3/4] overflow-hidden magazine-border sticky top-24">
-                <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover" />
+              <div
+                className="aspect-[3/4] overflow-hidden magazine-border sticky top-24 cursor-pointer"
+                onClick={() => setLightboxIndex(0)}
+              >
+                <img src={imgSrc(model.image)} alt={model.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
               </div>
             </motion.div>
 
@@ -135,7 +151,6 @@ const ModelProfile = () => {
                 <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-primary" /> {model.location}</span>
                 <span className="flex items-center gap-1.5"><Ruler className="w-4 h-4 text-primary" /> {model.height}</span>
                 {model.age > 0 && <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-primary" /> Age {model.age}</span>}
-                {model.likes > 0 && <span className="flex items-center gap-1.5"><Heart className="w-4 h-4 text-primary" /> {model.likes.toLocaleString()} likes</span>}
               </div>
 
               <div className="flex gap-3 mb-10">
@@ -144,12 +159,6 @@ const ModelProfile = () => {
                   className="bg-gradient-red text-primary-foreground px-8 py-3 font-body font-medium tracking-[0.15em] uppercase text-sm hover:opacity-90 transition-opacity"
                 >
                   Book Now
-                </button>
-                <button className="border border-border text-foreground px-6 py-3 font-body tracking-[0.15em] uppercase text-sm hover:border-primary transition-colors flex items-center gap-2">
-                  <Heart className="w-4 h-4" /> Save
-                </button>
-                <button className="border border-border text-foreground p-3 hover:border-primary transition-colors">
-                  <Share2 className="w-4 h-4" />
                 </button>
               </div>
 
@@ -190,14 +199,19 @@ const ModelProfile = () => {
                 </div>
               )}
 
-              {/* Gallery */}
+              {/* Gallery — click to open fullscreen */}
               <div className="mt-12">
                 <h3 className="font-display text-2xl text-foreground mb-4">Portfolio</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {galleryImages.map((img, i) => (
-                    <div key={i} className="aspect-square overflow-hidden magazine-border">
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setLightboxIndex(i)}
+                      className="aspect-square overflow-hidden magazine-border cursor-pointer block w-full"
+                    >
                       <img src={imgSrc(img)} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -207,6 +221,59 @@ const ModelProfile = () => {
       </div>
       <div className="mt-16" />
       <Footer />
+
+      {/* Fullscreen Lightbox */}
+      <AnimatePresence>
+        {lightboxIndex !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] bg-black/95 flex items-center justify-center"
+            onClick={() => setLightboxIndex(null)}
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxIndex(null)}
+              className="absolute top-4 right-4 text-white/70 hover:text-white p-2 z-10"
+            >
+              <X className="w-7 h-7" />
+            </button>
+            {galleryImages.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => i !== null ? (i - 1 + galleryImages.length) % galleryImages.length : 0); }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white p-2 z-10 bg-black/40 border border-white/10"
+                >
+                  <ChevronLeft className="w-7 h-7" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => i !== null ? (i + 1) % galleryImages.length : 0); }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white p-2 z-10 bg-black/40 border border-white/10"
+                >
+                  <ChevronRight className="w-7 h-7" />
+                </button>
+              </>
+            )}
+            <motion.img
+              key={lightboxIndex}
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              src={imgSrc(galleryImages[lightboxIndex])}
+              alt=""
+              className="max-w-[90vw] max-h-[90vh] object-contain select-none"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/50 text-xs font-body tracking-wider">
+              {lightboxIndex + 1} / {galleryImages.length}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Book Now Modal */}
       <AnimatePresence>

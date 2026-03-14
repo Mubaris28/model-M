@@ -228,7 +228,31 @@ export const adminApi = {
   },
   seedCategories: () =>
     api<{ message: string; categoryAssigned: string[] }>("/api/admin/seed-categories", { method: "POST" }),
+  homepageSections: () =>
+    api<HomepageSectionsResponse>("/api/admin/homepage-sections"),
+  updateHomepageSections: (body: { newFacesIds: string[]; trendingIds: string[]; trendingCastingIds?: string[] }) =>
+    api<{ config: { newFacesIds: string[]; trendingIds: string[]; trendingCastingIds: string[] } }>("/api/admin/homepage-sections", {
+      method: "PUT",
+      body,
+    }),
+  homepageCategories: () =>
+    api<{ categorySlots: Record<string, { ids: string[]; models: PublicModel[] }>; approvedModels: PublicModel[] }>("/api/admin/homepage-categories"),
+  updateHomepageCategory: (slug: string, ids: string[]) =>
+    api<{ ok: boolean }>(`/api/admin/homepage-categories/${encodeURIComponent(slug)}`, { method: "PUT", body: { ids } }),
+  homepageLatest: () =>
+    api<{ ids: string[]; count: number; latestModels: PublicModel[]; approvedModels: PublicModel[] }>("/api/admin/homepage-latest"),
+  updateHomepageLatest: (body: { ids: string[]; count?: number }) =>
+    api<{ ok: boolean; ids: string[]; count: number }>("/api/admin/homepage-latest", { method: "PUT", body }),
 };
+
+export interface HomepageSectionsResponse {
+  config: { newFacesIds: string[]; trendingIds: string[]; trendingCastingIds: string[] };
+  newFaces: PublicModel[];
+  trending: PublicModel[];
+  approvedModels: PublicModel[];
+  trendingCastings: PublicCasting[];
+  approvedCastings: PublicCasting[];
+}
 
 export interface ContactMessage {
   _id: string;
@@ -340,13 +364,12 @@ export interface HomepageConfig {
 export const publicApi = {
   models: () => api<PublicModel[]>("/api/public/models"),
   model: (id: string) => api<PublicModel>(`/api/public/models/${id}`),
-  /** New Faces section: models by usernames OPHELIE, LADLI, EMMY DRH, ROSEDELEANNE, MEGHA, MILES (from real data). */
   sectionsNewFaces: () => api<PublicModel[]>("/api/public/sections/new-faces"),
-  /** Trending section: models by usernames RITISA, MARY KETH, LAKSHANA, IVAN 09, SAMANTA, KIARA (from real data). */
   sectionsTrending: () => api<PublicModel[]>("/api/public/sections/trending"),
-  /** Category sub-page models by slug (bold→LEA, bikini→GWEN SUN, etc. from real data). */
+  sectionsLatest: () => api<PublicModel[]>("/api/public/sections/latest"),
   categoryModels: (slug: string) => api<PublicModel[]>(`/api/public/categories/${encodeURIComponent(slug)}/models`),
   castings: () => api<PublicCasting[]>("/api/public/castings"),
+  sectionsTrendingCastings: () => api<PublicCasting[]>("/api/public/sections/trending-castings"),
   marketplace: () => api<PublicMarketplaceItem[]>("/api/public/marketplace"),
   marketplaceItem: (id: string) => api<PublicMarketplaceItem>(`/api/public/marketplace/${id}`),
 };

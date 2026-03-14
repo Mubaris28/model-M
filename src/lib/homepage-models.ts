@@ -1,11 +1,11 @@
-/** Fixed model names for homepage sections (order = display order). Matching is partial — any word in the model's username or fullName matching any word in the target name. */
-export const NEW_FACES_NAMES = [
+/** Fixed model names for homepage sections (order = display order). Each entry can be a string or array of variants so DB spellings still match. */
+export const NEW_FACES_NAMES: (string | string[])[] = [
   "Ophélie Philogène",
   "Moutoucomarapoule Ladli",
   "Emmy Kelianne Durhône",
-  "HOAREAU Léanne",
+  ["HOAREAU Léanne", "Léanne HOAREAU", "Leanne Hoareau", "Rosedeleanne", "Rose de Leanne"],
   "Miles Williams",
-  "Mary Grace Tracy John",
+  ["Mary Grace Tracy John", "Mary Grace", "Tracy John", "Mary Grace Tracy"],
 ];
 export const TRENDING_NAMES = [
   "Ritisha Khedoo",
@@ -25,42 +25,65 @@ function normalize(s: string): string {
     .trim();
 }
 
-/** True if any word of `modelName` appears in `target` words (case/accent-insensitive). */
-function partialMatch(modelName: string, target: string): boolean {
+/** Words (length > 2) from target that appear in model name (or vice versa). */
+function matchingWordCount(modelName: string, target: string): number {
   const modelWords = normalize(modelName).split(/\s+/).filter(Boolean);
-  const targetWords = normalize(target).split(/\s+/).filter(Boolean);
-  // Match if modelName contains any word from target, or target contains any word from modelName
+  const targetWords = normalize(target).split(/\s+/).filter((w) => w.length > 2);
+  let count = 0;
+  for (const tw of targetWords) {
+    const inModel = modelWords.some((mw) => mw.includes(tw) || tw.includes(mw));
+    if (inModel) count++;
+  }
+  return count;
+}
+
+/** True if model name matches target: exact normalized match, or enough word overlap (≥2 words for 2+ word targets to avoid wrong matches). */
+function partialMatch(modelName: string, target: string): boolean {
+  const n = normalize(modelName);
+  const t = normalize(target);
+  if (n === t) return true;
+  const targetWords = t.split(/\s+/).filter((w) => w.length > 2);
+  const minRequired = targetWords.length >= 2 ? 2 : 1;
+  return matchingWordCount(modelName, target) >= minRequired;
+}
+
+function nameMatchesModel(
+  m: { username?: string; fullName?: string },
+  name: string
+): boolean {
   return (
-    modelWords.some((mw) => targetWords.some((tw) => tw.length > 2 && (mw.includes(tw) || tw.includes(mw)))) ||
-    targetWords.some((tw) => modelWords.some((mw) => mw.length > 2 && (tw.includes(mw) || mw.includes(tw))))
+    partialMatch(m.username || "", name) ||
+    partialMatch(m.fullName || "", name) ||
+    normalize(m.username || "") === normalize(name) ||
+    normalize(m.fullName || "") === normalize(name)
   );
 }
 
+type OrderByNamesOptions = { onlyMatched?: boolean };
+
 /**
- * Order models so that those whose username or fullName partially matches any name in `orderNames`
- * appear first (in the order they appear in `orderNames`), then the rest follow.
+ * Order models so that those matching `orderNames` appear first in that order.
+ * Each entry in orderNames can be a string or string[] of variants.
+ * If onlyMatched is true, returns only those that matched (no fill-in from rest).
  */
 export function orderByNames<T extends { _id: string; username?: string; fullName?: string }>(
   list: T[],
-  orderNames: string[]
+  orderNames: (string | string[])[],
+  options?: OrderByNamesOptions
 ): T[] {
   const ordered: T[] = [];
   const used = new Set<string>();
-  for (const name of orderNames) {
+  for (const nameOrVariants of orderNames) {
+    const variants = Array.isArray(nameOrVariants) ? nameOrVariants : [nameOrVariants];
     const found = list.find(
-      (m) =>
-        !used.has(m._id) &&
-        (partialMatch(m.username || "", name) ||
-          partialMatch(m.fullName || "", name) ||
-          // Also try exact lowercase match as a fallback
-          normalize(m.username || "") === normalize(name) ||
-          normalize(m.fullName || "") === normalize(name))
+      (m) => !used.has(m._id) && variants.some((name) => nameMatchesModel(m, name))
     );
     if (found) {
       ordered.push(found);
       used.add(found._id);
     }
   }
+  if (options?.onlyMatched) return ordered;
   const rest = list.filter((m) => !used.has(m._id));
   return [...ordered, ...rest];
 }

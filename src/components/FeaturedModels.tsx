@@ -1,12 +1,11 @@
-import { Heart } from "lucide-react";
+// no Heart import needed
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { publicApi, type PublicModel } from "@/lib/api";
-import { TRENDING_NAMES, orderByNames } from "@/lib/homepage-models";
 
-type ModelCard = { id: string; name: string; image: string | { src: string }; category: string; location: string; height: string; likes: number };
+type ModelCard = { id: string; name: string; image: string | { src: string }; category: string; location: string; height: string };
 
 function toCard(m: PublicModel): ModelCard {
   const photo = m.profilePhoto || m.portfolio?.[0] || "";
@@ -17,7 +16,6 @@ function toCard(m: PublicModel): ModelCard {
     category: m.categories?.[0] || "Model",
     location: [m.city, m.country].filter(Boolean).join(", ") || "—",
     height: m.height || "—",
-    likes: 0,
   };
 }
 
@@ -31,15 +29,14 @@ const FeaturedModels = () => {
 
     const load = () => {
       publicApi
-        .models()
+        .sectionsTrending()
         .then((list) => {
           if (cancelled) return;
           if (!list?.length) {
             if (retries < MAX_RETRIES) { retries++; setTimeout(load, 1500 * retries); }
             return;
           }
-          const ordered = orderByNames(list, TRENDING_NAMES);
-          setModels(ordered.slice(0, 6).map(toCard));
+          setModels((list || []).map(toCard));
         })
         .catch(() => {
           if (cancelled) return;
@@ -87,8 +84,6 @@ const FeaturedModels = () => {
                     <span>{model.location}</span>
                     <span className="w-1 h-1 rounded-full bg-primary" />
                     <span>{model.height}</span>
-                    <span className="w-1 h-1 rounded-full bg-primary" />
-                    <span className="flex items-center gap-1"><Heart className="w-3 h-3 text-primary" /> {model.likes.toLocaleString()}</span>
                   </div>
                 </div>
               </Link>

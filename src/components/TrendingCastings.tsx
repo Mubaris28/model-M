@@ -3,8 +3,13 @@ import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { publicApi, type PublicCasting } from "@/lib/api";
+import { imgSrc } from "@/lib/utils";
 
-type CastingCard = { id: string; title: string; brand: string; date: string; location: string; slots: number; categories: string[]; urgent?: boolean };
+// Card image display: 300px (mobile) or 340px (md+) wide, aspect 16:9. Recommended upload size: 680×383 px (or 1280×720 for high-DPI).
+const CASTING_CARD_IMAGE_WIDTH = 680;
+const CASTING_CARD_IMAGE_HEIGHT = 383; // 16:9
+
+type CastingCard = { id: string; title: string; brand: string; date: string; location: string; slots: number; categories: string[]; imageUrl: string; urgent?: boolean };
 
 function toCastingCard(c: PublicCasting): CastingCard {
   const dateStr = c.date ? new Date(c.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
@@ -16,6 +21,7 @@ function toCastingCard(c: PublicCasting): CastingCard {
     location: c.location || "—",
     slots: c.slots ?? 0,
     categories: c.castingType ? [c.castingType] : [],
+    imageUrl: c.imageUrl || "",
   };
 }
 
@@ -25,7 +31,7 @@ const TrendingCastings = () => {
 
   useEffect(() => {
     publicApi
-      .castings()
+      .sectionsTrendingCastings()
       .then((list) => {
         if (list?.length) setCastings(list.map(toCastingCard));
       })
@@ -70,35 +76,51 @@ const TrendingCastings = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="flex-shrink-0 w-[320px] md:w-[380px] snap-start"
+              className="flex-shrink-0 w-[300px] md:w-[340px] snap-start"
             >
-              <Link to={`/casting/${casting.id}`} className="group block bg-background magazine-border p-6 hover:border-primary/30 transition-all duration-300 h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    {casting.urgent && (
-                      <span className="bg-primary/10 text-primary text-[10px] font-body font-medium px-2.5 py-1 tracking-[0.2em] uppercase mb-3 inline-block">
-                        Urgent
-                      </span>
-                    )}
-                    <h3 className="font-display text-xl text-foreground group-hover:text-primary transition-colors">
-                      {casting.title}
-                    </h3>
-                    <p className="text-primary text-xs font-body mt-1 tracking-wider">{casting.brand}</p>
-                  </div>
-                  <div className="w-8 h-8 border border-border flex items-center justify-center group-hover:bg-primary group-hover:border-primary transition-all flex-shrink-0 ml-4">
-                    <ArrowRight className="w-3 h-3 text-muted-foreground group-hover:text-primary-foreground transition-colors" />
+              <Link to={`/casting/${casting.id}`} className="group block bg-background magazine-border overflow-hidden hover:border-primary/30 transition-all duration-300 h-full">
+                {/* Casting image or gradient placeholder */}
+                <div className="relative w-full aspect-video overflow-hidden">
+                  {casting.imageUrl ? (
+                    <img
+                      src={imgSrc(casting.imageUrl)}
+                      alt={casting.title}
+                      width={CASTING_CARD_IMAGE_WIDTH}
+                      height={CASTING_CARD_IMAGE_HEIGHT}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                      <span className="font-display text-4xl text-primary/30 uppercase truncate px-4">{casting.brand !== "—" ? casting.brand : casting.title.charAt(0)}</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  {casting.urgent && (
+                    <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-body font-medium px-2.5 py-1 tracking-[0.2em] uppercase">
+                      Urgent
+                    </span>
+                  )}
+                  <div className="absolute top-3 right-3 w-8 h-8 border border-white/20 flex items-center justify-center bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ArrowRight className="w-3 h-3 text-white" />
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-3 text-muted-foreground text-xs font-body mb-4">
-                  <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {casting.date}</span>
-                  <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {casting.location}</span>
-                </div>
+                <div className="p-5">
+                  <p className="text-primary text-xs font-body tracking-wider uppercase mb-1">{casting.brand}</p>
+                  <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors leading-tight mb-3">
+                    {casting.title}
+                  </h3>
 
-                <div className="flex flex-wrap gap-2">
-                  {casting.categories.map((cat) => (
-                    <span key={cat} className="bg-secondary text-secondary-foreground text-[10px] font-body px-3 py-1 tracking-[0.15em] uppercase">{cat}</span>
-                  ))}
+                  <div className="flex flex-wrap gap-3 text-muted-foreground text-xs font-body mb-3">
+                    <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {casting.date}</span>
+                    <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {casting.location}</span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {casting.categories.map((cat) => (
+                      <span key={cat} className="bg-secondary text-secondary-foreground text-[10px] font-body px-2.5 py-0.5 tracking-[0.15em] uppercase">{cat}</span>
+                    ))}
+                  </div>
                 </div>
               </Link>
             </motion.div>

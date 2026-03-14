@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently \"npm run server\" \"next dev\"",
     "server": "cd server && npm run dev",
-    "dev:all": "concurrently \"npm run server\" \"npm run dev\"",
+    "dev:all": "npm run dev",
     "install:all": "npm install && cd server && npm install",
     "build": "next build",
     "start": "next start",
