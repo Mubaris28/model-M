@@ -23,21 +23,22 @@ function toCard(m: PublicModel): SliderCard {
 
 export default function LatestModelsSlider() {
   const [cards, setCards] = useState<SliderCard[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     publicApi
       .models()
       .then((list) => {
-        if (!list?.length) return;
+        if (!list?.length) { setLoading(false); return; }
         const allCards = list.map(toCard);
         setCards(allCards.slice(0, LATEST_MODELS_COUNT));
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  if (cards.length === 0) return null;
-
-  const duplicated = [...cards, ...cards];
+  // Always show the section heading; show skeleton cards while loading
+  const duplicated = cards.length > 0 ? [...cards, ...cards] : [];
 
   return (
     <section className="bg-foreground text-background py-8 md:py-10 overflow-hidden" aria-label="Latest models">
@@ -47,6 +48,16 @@ export default function LatestModelsSlider() {
         <span className="block w-12 h-0.5 bg-primary mx-auto mt-2" aria-hidden="true" />
       </div>
       <div className="relative w-full -mx-4 md:-mx-6">
+        {loading && (
+          <div className="flex gap-3 md:gap-4 pl-4 md:pl-6 overflow-hidden">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-[250px] sm:w-[300px]">
+                <div className="aspect-[3/4] rounded-lg bg-white/5 animate-pulse" />
+              </div>
+            ))}
+          </div>
+        )}
+        {!loading && duplicated.length > 0 && (
         <div className="latest-models-track flex gap-3 md:gap-4 w-max pl-4 md:pl-6">
           {duplicated.map((model, i) => (
             <Link
@@ -69,6 +80,7 @@ export default function LatestModelsSlider() {
             </Link>
           ))}
         </div>
+        )}
       </div>
       <style>{`
         .latest-models-track {

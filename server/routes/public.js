@@ -10,26 +10,48 @@ const MODEL_FIELDS =
 
 const MODEL_BASE = { status: "approved", profileComplete: true, role: "model" };
 
-// Resolve ordered usernames to approved models (match username or fullName, case-insensitive). Returns array in same order.
+// Resolve ordered names to approved models — tries exact match first, then partial word match.
 async function resolveUsernamesToModels(usernames) {
   const result = [];
   for (const name of usernames) {
     const q = String(name).trim();
     if (!q) continue;
-    const regex = new RegExp("^" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i");
-    const user = await User.findOne({
+    // 1. Exact match (case-insensitive) on username or fullName
+    const exactRegex = new RegExp("^" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i");
+    let user = await User.findOne({
       ...MODEL_BASE,
-      $or: [{ username: regex }, { fullName: regex }],
+      $or: [{ username: exactRegex }, { fullName: exactRegex }],
     })
       .select(MODEL_FIELDS)
       .lean();
+    // 2. If not found, try matching on each individual word (3+ chars)
+    if (!user) {
+      const words = q.split(/\s+/).filter((w) => w.length >= 3);
+      for (const word of words) {
+        const wordRegex = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+        user = await User.findOne({
+          ...MODEL_BASE,
+          $or: [{ username: wordRegex }, { fullName: wordRegex }],
+        })
+          .select(MODEL_FIELDS)
+          .lean();
+        if (user) break;
+      }
+    }
     if (user) result.push(user);
   }
   return result;
 }
 
-// New Faces: fixed usernames (order = display order)
-const NEW_FACES_USERNAMES = ["OPHELIE", "LADLI", "EMMY DRH", "ROSEDELEANNE", "MEGHA", "MILES"];
+// New Faces: fixed names (order = display order)
+const NEW_FACES_USERNAMES = [
+  "Ophélie Philogène",
+  "Moutoucomarapoule Ladli",
+  "Emmy Kelianne Durhône",
+  "HOAREAU Léanne",
+  "Miles Williams",
+  "Mary Grace Tracy John",
+];
 router.get("/sections/new-faces", async (_req, res) => {
   try {
     const users = await resolveUsernamesToModels(NEW_FACES_USERNAMES);
@@ -39,8 +61,15 @@ router.get("/sections/new-faces", async (_req, res) => {
   }
 });
 
-// Trending: fixed usernames
-const TRENDING_USERNAMES = ["RITISA", "MARY KETH", "LAKSHANA", "IVAN 09", "SAMANTA", "KIARA"];
+// Trending: fixed names
+const TRENDING_USERNAMES = [
+  "Ritisha Khedoo",
+  "Gulbul Mary-keth Taylor Alicia Goder",
+  "Kiara Delnard",
+  "Samanta Luchoo",
+  "Lea Ferhat-Huckel",
+  "Victoria Ruth Claire Walys Philippe",
+];
 router.get("/sections/trending", async (_req, res) => {
   try {
     const users = await resolveUsernamesToModels(TRENDING_USERNAMES);
@@ -50,14 +79,14 @@ router.get("/sections/trending", async (_req, res) => {
   }
 });
 
-// Category slug → usernames (real data: one model per category as specified)
+// Category slug → model names (display order for category sub-pages)
 const CATEGORY_USERNAMES = {
-  bold: ["LEA"],
-  bikini: ["GWEN SUN"],
-  mature: ["GENEVIEVECHALAND"],
-  glamour: ["MEGHA"],
-  commercial: ["VICTORIA"],
-  fitness: ["BYRJOHA"],
+  bold: ["Lea Ferhat-Huckel"],
+  bikini: ["Gwendoline"],
+  mature: ["Chaland Geneviève"],
+  glamour: ["Megha Luchmun"],
+  commercial: ["Victoria Ruth Claire Walys Philippe"],
+  fitness: ["Johanna Boyer"],
 };
 router.get("/categories/:slug/models", async (req, res) => {
   try {
