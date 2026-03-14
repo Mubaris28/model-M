@@ -204,7 +204,7 @@ export const adminApi = {
     return api<ContactMessage[]>("/api/admin/contacts" + q);
   },
   homepageConfig: () => api<HomepageConfig>("/api/admin/homepage-config"),
-  updateHomepageConfig: (body: { newFacesIds?: string[]; trendingIds?: string[] }) =>
+  updateHomepageConfig: (body: { newFacesIds?: string[]; trendingIds?: string[]; latestIds?: string[] }) =>
     api<HomepageConfig>("/api/admin/homepage-config", { method: "PATCH", body }),
 };
 
@@ -311,6 +311,7 @@ export interface PublicMarketplaceItem {
 export interface HomepageConfig {
   newFacesIds: string[];
   trendingIds: string[];
+  latestIds: string[];
 }
 
 export const publicApi = {

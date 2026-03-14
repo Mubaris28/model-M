@@ -24,10 +24,18 @@ export default function LatestModelsSlider() {
   const [cards, setCards] = useState<SliderCard[]>([]);
 
   useEffect(() => {
-    publicApi
-      .models()
-      .then((list) => {
-        if (list?.length) setCards(list.slice(0, 15).map(toCard));
+    Promise.all([publicApi.homepageConfig(), publicApi.models()])
+      .then(([config, list]) => {
+        if (!list?.length) return;
+        const allCards = list.map(toCard);
+        if (config.latestIds?.length > 0) {
+          const ordered = config.latestIds
+            .map((id) => allCards.find((c) => c.id === id))
+            .filter(Boolean) as SliderCard[];
+          setCards(ordered.slice(0, 15));
+        } else {
+          setCards(allCards.slice(0, 15));
+        }
       })
       .catch(() => {});
   }, []);

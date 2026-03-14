@@ -149,22 +149,23 @@ router.patch("/castings/:id", async (req, res) => {
   }
 });
 
-// GET /api/admin/homepage-config — New Faces & Trending model ID lists (for manual curation)
+// GET /api/admin/homepage-config — New Faces, Trending & Latest model ID lists
 router.get("/homepage-config", async (req, res) => {
   try {
     const doc = await HomepageConfig.findOne().lean();
     const newFacesIds = (doc?.newFacesIds || []).map((id) => id.toString());
     const trendingIds = (doc?.trendingIds || []).map((id) => id.toString());
-    res.json({ newFacesIds, trendingIds });
+    const latestIds   = (doc?.latestIds   || []).map((id) => id.toString());
+    res.json({ newFacesIds, trendingIds, latestIds });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-// PATCH /api/admin/homepage-config — set New Faces & Trending model IDs (manual curation)
+// PATCH /api/admin/homepage-config — set New Faces, Trending & Latest model IDs
 router.patch("/homepage-config", async (req, res) => {
   try {
-    const { newFacesIds, trendingIds } = req.body;
+    const { newFacesIds, trendingIds, latestIds } = req.body;
     const toObjectIds = (arr) =>
       (Array.isArray(arr) ? arr : [])
         .filter((id) => id && typeof id === "string")
@@ -179,11 +180,13 @@ router.patch("/homepage-config", async (req, res) => {
     const update = {
       newFacesIds: toObjectIds(newFacesIds),
       trendingIds: toObjectIds(trendingIds),
+      latestIds:   toObjectIds(latestIds),
     };
     const doc = await HomepageConfig.findOneAndUpdate({}, update, { new: true, upsert: true }).lean();
     res.json({
       newFacesIds: (doc?.newFacesIds || []).map((id) => id.toString()),
       trendingIds: (doc?.trendingIds || []).map((id) => id.toString()),
+      latestIds:   (doc?.latestIds   || []).map((id) => id.toString()),
     });
   } catch (e) {
     res.status(500).json({ error: e.message });

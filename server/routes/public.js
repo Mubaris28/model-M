@@ -58,13 +58,14 @@ router.get("/castings", async (_req, res) => {
   }
 });
 
-// Public: homepage curation (New Faces & Trending model IDs). Empty = use default order (newest first).
+// Public: homepage curation (New Faces, Trending & Latest model IDs). Empty = use default order.
 router.get("/homepage-config", async (_req, res) => {
   try {
     const doc = await HomepageConfig.findOne().lean();
     const newFacesIds = (doc?.newFacesIds || []).map((id) => id.toString());
     const trendingIds = (doc?.trendingIds || []).map((id) => id.toString());
-    res.json({ newFacesIds, trendingIds });
+    const latestIds   = (doc?.latestIds   || []).map((id) => id.toString());
+    res.json({ newFacesIds, trendingIds, latestIds });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
