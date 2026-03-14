@@ -1,17 +1,52 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
+import PageLoader from "@/components/PageLoader";
 import { categories } from "@/components/MagazineGrid";
-import { allModels } from "@/components/FeaturedModels";
 import { useParams, Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
 import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { publicApi, type PublicModel } from "@/lib/api";
+
+type ModelCard = { id: string; name: string; image: string | { src: string }; location: string; likes: number };
+
+function toCard(m: PublicModel): ModelCard {
+  const photo = m.profilePhoto || m.portfolio?.[0] || "";
+  return {
+    id: m._id,
+    name: m.fullName || "Model",
+    image: photo,
+    location: [m.city, m.country].filter(Boolean).join(", ") || "—",
+    likes: 0,
+  };
+}
 
 const CategoryDetail = () => {
   const { slug } = useParams();
   const category = categories.find((c) => c.slug === slug);
+  const [models, setModels] = useState<ModelCard[]>([]);
+  const [pageLoading, setPageLoading] = useState(true);
+
+  useEffect(() => {
+    if (!category) { setPageLoading(false); return; }
+    setPageLoading(true);
+    publicApi
+      .models()
+      .then((list) => {
+        if (!list?.length) return setModels([]);
+        const filtered = list.filter(
+          (m) => m.categories?.some((cat) => cat?.toLowerCase() === category.name.toLowerCase())
+        );
+        setModels(filtered.map(toCard));
+      })
+      .catch(() => setModels([]))
+      .finally(() => setPageLoading(false));
+  }, [category]);
+
+  if (pageLoading) return <PageLoader label={`Loading ${category?.name ?? ""}...`} />;
 
   if (!category) {
     return (
@@ -42,10 +77,13 @@ const CategoryDetail = () => {
 
       {/* Models Grid */}
       <div className="container mx-auto px-4 md:px-6 py-12 categories-inner">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {[...allModels, ...allModels].map((model, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+          {models.length === 0 && (
+            <p className="col-span-full text-muted-foreground font-body text-sm py-8">No models in this category yet.</p>
+          )}
+          {models.map((model, i) => (
             <motion.div
-              key={`${model.id}-${i}`}
+              key={model.id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: i * 0.05 }}

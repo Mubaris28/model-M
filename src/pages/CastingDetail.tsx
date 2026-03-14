@@ -2,12 +2,12 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { castings as fallbackCastings } from "@/components/CastingCalls";
 import { useParams, Link } from "@/lib/router-next";
 import BackButton from "@/components/BackButton";
 import { Calendar, MapPin, Users, Share2, CheckCircle, Loader2, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import PageLoader from "@/components/PageLoader";
 import { publicApi, type PublicCasting, contactApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "@/lib/router-next";
@@ -30,11 +30,8 @@ const CastingDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [casting, setCasting] = useState<CastingDetail | null>(() => {
-    const found = fallbackCastings.find((c) => c.id === id);
-    return found ? { ...found } : null;
-  });
-  const [loading, setLoading] = useState(false);
+  const [casting, setCasting] = useState<CastingDetail | null>(null);
+  const [loading, setLoading] = useState(!!id);
 
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [applyForm, setApplyForm] = useState({ name: user?.fullName || "", email: user?.email || "", message: "" });
@@ -42,28 +39,32 @@ const CastingDetailPage = () => {
   const [applyError, setApplyError] = useState("");
 
   useEffect(() => {
-    if (!id || /^[a-f0-9]{24}$/i.test(id)) {
-      setLoading(true);
-      publicApi
-        .castings()
-        .then((list) => {
-          const found = list?.find((c: PublicCasting) => c._id === id);
-          if (found) {
-            setCasting({
-              id: found._id,
-              title: found.title,
-              brand: found.brand || "—",
-              date: found.date ? new Date(found.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "—",
-              location: found.location || "—",
-              slots: found.slots ?? 0,
-              description: found.description || "",
-              categories: found.castingType ? [found.castingType] : [],
-            });
-          }
-        })
-        .catch(() => {})
-        .finally(() => setLoading(false));
+    if (!id) {
+      setLoading(false);
+      return;
     }
+    setLoading(true);
+    publicApi
+      .castings()
+      .then((list) => {
+        const found = list?.find((c: PublicCasting) => c._id === id);
+        if (found) {
+          setCasting({
+            id: found._id,
+            title: found.title,
+            brand: found.brand || "—",
+            date: found.date ? new Date(found.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "—",
+            location: found.location || "—",
+            slots: found.slots ?? 0,
+            description: found.description || "",
+            categories: found.castingType ? [found.castingType] : [],
+          });
+        } else {
+          setCasting(null);
+        }
+      })
+      .catch(() => setCasting(null))
+      .finally(() => setLoading(false));
   }, [id]);
 
   useEffect(() => {
@@ -97,14 +98,7 @@ const CastingDetailPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Navbar />
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
-    );
-  }
+  if (loading) return <PageLoader label="Loading casting..." />;
 
   if (!casting) {
     return (

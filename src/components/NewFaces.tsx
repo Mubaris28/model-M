@@ -1,26 +1,9 @@
-import model1 from "@/assets/model-1.jpg";
-import model2 from "@/assets/model-2.jpg";
-import model3 from "@/assets/model-3.jpg";
-import model4 from "@/assets/model-4.jpg";
 import { motion } from "framer-motion";
-import { Link } from "@/lib/router-next";
+import { Link, useNavigate } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
-import { ArrowRight } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
 import { publicApi, type PublicModel } from "@/lib/api";
-
-const fallbackFaces = [
-  { name: "Sophia Laurent", image: model1, age: 19, location: "Paris", country: "France", id: "sophia-laurent" },
-  { name: "Marco Rossi", image: model2, age: 21, location: "Milan", country: "Italy", id: "marco-rossi" },
-  { name: "Zara Williams", image: model3, age: 20, location: "London", country: "UK", id: "zara-williams" },
-  { name: "Mei Lin", image: model4, age: 18, location: "Tokyo", country: "Japan", id: "mei-lin" },
-  { name: "Amara Diallo", image: model1, age: 22, location: "Dakar", country: "Senegal", id: "amara-diallo" },
-  { name: "Luca Fernandez", image: model2, age: 20, location: "Madrid", country: "Spain", id: "luca-fernandez" },
-  { name: "Aisha Khan", image: model3, age: 19, location: "Dubai", country: "UAE", id: "aisha-khan" },
-  { name: "Emma Davis", image: model4, age: 21, location: "New York", country: "USA", id: "emma-davis" },
-];
-
-const countries = ["All", "France", "Italy", "UK", "Japan", "Senegal", "Spain", "UAE", "USA"];
 
 type FaceCard = {
   id: string;
@@ -51,7 +34,8 @@ type NewFacesProps = {
 
 const NewFaces = ({ homePreview }: NewFacesProps) => {
   const [activeCountry, setActiveCountry] = useState("All");
-  const [faces, setFaces] = useState<FaceCard[]>(fallbackFaces.map((f) => ({ ...f, image: f.image as { src: string } })));
+  const [faces, setFaces] = useState<FaceCard[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     publicApi
@@ -62,6 +46,10 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
       .catch(() => {});
   }, []);
 
+  const countries = useMemo(
+    () => ["All", ...Array.from(new Set(faces.map((f) => f.country).filter((c) => c && c !== "—"))).sort()],
+    [faces]
+  );
   const filtered = activeCountry === "All" ? faces : faces.filter((m) => m.country === activeCountry);
   const displayList = homePreview ? filtered.slice(0, 6) : filtered;
 
@@ -70,6 +58,16 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
+            {!homePreview && (
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-xs font-body tracking-wider uppercase mb-3"
+                aria-label="Go back"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                Back
+              </button>
+            )}
             <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Fresh Talent</p>
             <h2 className="font-display text-5xl md:text-6xl line-accent text-primary">New Faces</h2>
           </div>
@@ -78,9 +76,9 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
           </Link>
         </div>
 
-        {/* Country tabs — horizontal scroll on mobile */}
+        {/* Country tabs — horizontal scroll on mobile (derived from API data) */}
         <div className="tabs-slider -mx-4 px-4 md:mx-0 md:px-0 gap-2 mb-8">
-          {countries.map((country) => (
+          {countries.length > 0 && countries.map((country) => (
             <button
               key={country}
               onClick={() => setActiveCountry(country)}

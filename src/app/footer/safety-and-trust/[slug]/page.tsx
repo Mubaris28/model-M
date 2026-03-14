@@ -183,11 +183,12 @@ const pageContent: Record<string, { title: string; component: React.FC }> = {
 };
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-export default function SafetySubPage({ params }: Props) {
-  const slug = params?.slug ?? "";
+export default async function SafetySubPage({ params }: Props) {
+  const resolved = await params;
+  const slug = resolved?.slug ?? "";
   const page = pageContent[slug];
 
   if (!page) {

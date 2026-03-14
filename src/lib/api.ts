@@ -289,10 +289,25 @@ export interface PublicModel {
   createdAt?: string;
 }
 
+export interface PublicMarketplaceItem {
+  _id: string;
+  title: string;
+  category?: string;
+  price?: number;
+  currency?: string;
+  location?: string;
+  image?: string;
+  description?: string;
+  available?: boolean;
+  createdAt?: string;
+}
+
 export const publicApi = {
   models: () => api<PublicModel[]>("/api/public/models"),
   model: (id: string) => api<PublicModel>(`/api/public/models/${id}`),
   castings: () => api<PublicCasting[]>("/api/public/castings"),
+  marketplace: () => api<PublicMarketplaceItem[]>("/api/public/marketplace"),
+  marketplaceItem: (id: string) => api<PublicMarketplaceItem>(`/api/public/marketplace/${id}`),
 };
 
 export interface MyCasting {

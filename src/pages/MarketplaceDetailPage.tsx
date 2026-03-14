@@ -1,28 +1,33 @@
+"use client";
+
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useParams, Link } from "@/lib/router-next";
-import { imgSrc } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
+import PageLoader from "@/components/PageLoader";
+import { useParams } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
+import { publicApi, type PublicMarketplaceItem } from "@/lib/api";
 import { motion } from "framer-motion";
-import model1 from "@/assets/model-1.jpg";
-import model2 from "@/assets/model-2.jpg";
-import model3 from "@/assets/model-3.jpg";
-import model4 from "@/assets/model-4.jpg";
-
-const offersMap: Record<string, { title: string; image: string | { src: string }; price: string; description: string }> = {
-  "1": { title: "Professional Headshots Package", image: model1, price: "$299", description: "A full professional headshot session with our experienced photographers. Includes 5 edited high-resolution images, perfect for your portfolio and LinkedIn. Session duration: 1–2 hours." },
-  "2": { title: "Portfolio Styling Session", image: model2, price: "$199", description: "Curated styling and direction to elevate your portfolio. Work with our stylists to create a cohesive look and receive 3 fully edited images. Ideal for new faces building their book." },
-  "3": { title: "Runway Walk Coaching", image: model3, price: "$149", description: "One-on-one runway and walk coaching with industry professionals. Learn posture, pacing, and presence. Session includes video review and tips for castings." },
-  "4": { title: "Social Media Branding", image: model4, price: "$249", description: "Build your personal brand with a dedicated social media content shoot. Includes 10 edited images and short clips optimized for Instagram and TikTok." },
-  "5": { title: "Fitness Photography", image: model1, price: "$349", description: "Athletic and fitness-focused shoot for sportswear and wellness brands. Includes 8 edited images showcasing strength and movement." },
-  "6": { title: "Editorial Makeup Artistry", image: model2, price: "$179", description: "Collaboration with professional makeup artists for editorial-style looks. Includes test shoot with 4 edited images for your book." },
-};
+import { useState, useEffect } from "react";
 
 const MarketplaceDetailPage = () => {
   const { id } = useParams();
-  const offer = id ? offersMap[id] : null;
+  const [item, setItem] = useState<PublicMarketplaceItem | null>(null);
+  const [loading, setLoading] = useState(!!id);
 
-  if (!offer) {
+  useEffect(() => {
+    if (!id) { setLoading(false); return; }
+    setLoading(true);
+    publicApi
+      .marketplaceItem(id)
+      .then((data) => setItem(data))
+      .catch(() => setItem(null))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) return <PageLoader label="Loading..." />;
+
+  if (!item) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -43,15 +48,39 @@ const MarketplaceDetailPage = () => {
           <BackButton label="Back to Marketplace" className="mb-8" />
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="aspect-[4/5] overflow-hidden magazine-border">
-              <img src={imgSrc(offer.image)} alt={offer.title} className="w-full h-full object-cover" />
+            <div className="aspect-[4/5] overflow-hidden magazine-border bg-muted">
+              {item.image ? (
+                <img src={imgSrc(item.image)} alt={item.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-muted-foreground font-body text-sm">{item.category || "Service"}</span>
+                </div>
+              )}
             </div>
             <div>
-              <span className="bg-primary text-primary-foreground text-[10px] font-body tracking-[0.2em] uppercase px-3 py-1">{offer.price}</span>
-              <h1 className="font-display text-4xl md:text-5xl text-foreground mt-4 mb-6">{offer.title}</h1>
-              <p className="text-muted-foreground font-body text-sm leading-relaxed mb-8">{offer.description}</p>
-              <button className="bg-primary text-primary-foreground px-8 py-3 font-body text-sm tracking-[0.15em] uppercase hover:opacity-90">
-                Book This Offer
+              {item.price != null && (
+                <span className="bg-primary text-primary-foreground text-[10px] font-body tracking-[0.2em] uppercase px-3 py-1">
+                  {item.currency || ""}{item.price}
+                </span>
+              )}
+              {item.category && (
+                <span className="ml-2 bg-secondary text-secondary-foreground text-[10px] font-body tracking-[0.2em] uppercase px-3 py-1">
+                  {item.category}
+                </span>
+              )}
+              <h1 className="font-display text-4xl md:text-5xl text-foreground mt-4 mb-6">{item.title}</h1>
+              {item.location && <p className="text-muted-foreground font-body text-xs tracking-wider mb-4">{item.location}</p>}
+              {item.description && (
+                <p className="text-muted-foreground font-body text-sm leading-relaxed mb-8">{item.description}</p>
+              )}
+              {item.available === false && (
+                <p className="text-destructive font-body text-xs mb-4">Currently unavailable</p>
+              )}
+              <button
+                disabled={item.available === false}
+                className="bg-primary text-primary-foreground px-8 py-3 font-body text-sm tracking-[0.15em] uppercase hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {item.available === false ? "Unavailable" : "Book This Offer"}
               </button>
             </div>
           </motion.div>

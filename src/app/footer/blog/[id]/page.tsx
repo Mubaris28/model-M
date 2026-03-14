@@ -88,11 +88,12 @@ const posts: Record<string, Post> = {
 };
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function BlogPostPage({ params }: Props) {
-  const id = params?.id ?? "";
+export default async function BlogPostPage({ params }: Props) {
+  const resolved = await params;
+  const id = resolved?.id ?? "";
   const post = id ? posts[id] : null;
 
   if (!post) {

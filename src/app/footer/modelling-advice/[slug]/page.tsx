@@ -4,11 +4,12 @@ import { Link } from "@/lib/router-next";
 import { modellingAdviceContent } from "@/data/footerModellingAdvice";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-export default function ModellingAdviceSubPage({ params }: Props) {
-  const slug = params?.slug ?? "";
+export default async function ModellingAdviceSubPage({ params }: Props) {
+  const resolved = await params;
+  const slug = resolved?.slug ?? "";
   const content = modellingAdviceContent[slug];
 
   if (!content) {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Providers } from "./Providers";
 import ScrollToTop from "@/components/ScrollToTop";
 import Chatbot from "@/components/Chatbot";
+import WhatsAppFAB from "@/components/WhatsAppFAB";
 import FloatingSocialButtons from "@/components/FloatingSocialButtons";
 import NewFeaturePopup from "@/components/NewFeaturePopup";
 import "./globals.css";
@@ -109,6 +110,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ScrollToTop />
           <div id="main-content">{children}</div>
           <Chatbot />
+          <WhatsAppFAB />
           <NewFeaturePopup />
           <FloatingSocialButtons />
         </Providers>

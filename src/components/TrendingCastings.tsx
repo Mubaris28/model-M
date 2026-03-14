@@ -2,7 +2,6 @@ import { Calendar, MapPin, ArrowRight, ChevronLeft, ChevronRight } from "lucide-
 import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import { castings as fallbackCastings } from "./CastingCalls";
 import { publicApi, type PublicCasting } from "@/lib/api";
 
 type CastingCard = { id: string; title: string; brand: string; date: string; location: string; slots: number; categories: string[]; urgent?: boolean };
@@ -22,9 +21,7 @@ function toCastingCard(c: PublicCasting): CastingCard {
 
 const TrendingCastings = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [castings, setCastings] = useState<CastingCard[]>(() =>
-    fallbackCastings.map((c) => ({ id: c.id, title: c.title, brand: c.brand, date: c.date, location: c.location, slots: c.slots, categories: c.categories, urgent: c.urgent }))
-  );
+  const [castings, setCastings] = useState<CastingCard[]>([]);
 
   useEffect(() => {
     publicApi
@@ -63,7 +60,10 @@ const TrendingCastings = () => {
         </div>
 
         <div ref={scrollRef} className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 snap-x snap-mandatory">
-          {castings.map((casting, i) => (
+          {castings.length === 0 ? (
+            <p className="text-muted-foreground font-body text-sm py-4">No castings to show yet.</p>
+          ) : (
+            castings.map((casting, i) => (
             <motion.div
               key={casting.id}
               initial={{ opacity: 0, y: 30 }}
@@ -102,7 +102,8 @@ const TrendingCastings = () => {
                 </div>
               </Link>
             </motion.div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </section>
