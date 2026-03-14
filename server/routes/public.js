@@ -1,12 +1,13 @@
 import express from "express";
 import User from "../models/User.js";
 import Casting from "../models/Casting.js";
+import HomepageConfig from "../models/HomepageConfig.js";
 
 const router = express.Router();
 
 // Public: list approved models (no auth). Used for /models and /new-faces cards.
 const MODEL_FIELDS =
-  "_id fullName profilePhoto portfolio categories country city height weight dressSize shoeSize gender dateOfBirth bio instagram role createdAt";
+  "_id fullName username profilePhoto portfolio categories country city height weight dressSize shoeSize gender dateOfBirth bio instagram role createdAt";
 
 router.get("/models", async (_req, res) => {
   try {
@@ -52,6 +53,18 @@ router.get("/castings", async (_req, res) => {
       .limit(50)
       .lean();
     res.json(castings);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Public: homepage curation (New Faces & Trending model IDs). Empty = use default order (newest first).
+router.get("/homepage-config", async (_req, res) => {
+  try {
+    const doc = await HomepageConfig.findOne().lean();
+    const newFacesIds = (doc?.newFacesIds || []).map((id) => id.toString());
+    const trendingIds = (doc?.trendingIds || []).map((id) => id.toString());
+    res.json({ newFacesIds, trendingIds });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

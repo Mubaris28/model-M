@@ -68,7 +68,7 @@ const ModelProfile = () => {
         const age = m.dateOfBirth ? new Date().getFullYear() - new Date(m.dateOfBirth).getFullYear() : 0;
         setModel({
           id: m._id,
-          name: m.fullName || "Model",
+          name: m.username || m.fullName || "Model",
           image: photo,
           category: m.categories?.[0] || "Model",
           location: [m.city, m.country].filter(Boolean).join(", ") || "—",

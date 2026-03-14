@@ -11,5 +11,6 @@
 import User from "./User.js";
 import Casting from "./Casting.js";
 import Contact from "./Contact.js";
+import HomepageConfig from "./HomepageConfig.js";
 
-export { User, Casting, Contact };
+export { User, Casting, Contact, HomepageConfig };

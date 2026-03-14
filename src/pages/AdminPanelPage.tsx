@@ -14,14 +14,18 @@ import {
   RefreshCw,
   Camera,
   Building2,
+  Home,
+  Plus,
+  X,
+  Save,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { adminApi, User, AdminStats, ContactMessage, Casting } from "@/lib/api";
+import { adminApi, publicApi, User, AdminStats, ContactMessage, Casting, HomepageConfig, PublicModel } from "@/lib/api";
 import { imgSrc } from "@/lib/utils";
 
 const USERS_PAGE_SIZE = 20;
 
-type TabId = "dashboard" | "users" | "castings" | "marketplace" | "bookings";
+type TabId = "dashboard" | "users" | "castings" | "marketplace" | "bookings" | "homepage";
 
 const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -29,6 +33,7 @@ const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
   { id: "castings", label: "Casting Management", icon: Briefcase },
   { id: "marketplace", label: "Marketplace Offers", icon: ShoppingBag },
   { id: "bookings", label: "Bookings & Applications", icon: CreditCard },
+  { id: "homepage", label: "Homepage Curation", icon: Home },
 ];
 
 const AdminPanelPage = () => {
@@ -114,6 +119,57 @@ const AdminPanelPage = () => {
   const [viewUser, setViewUser] = useState<User | null>(null);
   const [viewUserLoading, setViewUserLoading] = useState(false);
 
+  const [homepageConfig, setHomepageConfig] = useState<HomepageConfig | null>(null);
+  const [homepageModels, setHomepageModels] = useState<PublicModel[]>([]);
+  const [homepageLoading, setHomepageLoading] = useState(false);
+  const [homepageSaving, setHomepageSaving] = useState(false);
+
+  const loadHomepage = async () => {
+    setHomepageLoading(true);
+    try {
+      const [config, models] = await Promise.all([adminApi.homepageConfig(), publicApi.models()]);
+      setHomepageConfig(config);
+      setHomepageModels(models);
+    } catch {
+      setAuthError("Failed to load homepage config.");
+    } finally {
+      setHomepageLoading(false);
+    }
+  };
+
+  const saveHomepageConfig = async () => {
+    if (!homepageConfig) return;
+    setHomepageSaving(true);
+    try {
+      const updated = await adminApi.updateHomepageConfig({
+        newFacesIds: homepageConfig.newFacesIds,
+        trendingIds: homepageConfig.trendingIds,
+      });
+      setHomepageConfig(updated);
+    } catch {
+      setAuthError("Failed to save homepage config.");
+    } finally {
+      setHomepageSaving(false);
+    }
+  };
+
+  const addToNewFaces = (modelId: string) => {
+    if (!homepageConfig || homepageConfig.newFacesIds.includes(modelId)) return;
+    setHomepageConfig({ ...homepageConfig, newFacesIds: [...homepageConfig.newFacesIds, modelId] });
+  };
+  const removeFromNewFaces = (modelId: string) => {
+    if (!homepageConfig) return;
+    setHomepageConfig({ ...homepageConfig, newFacesIds: homepageConfig.newFacesIds.filter((id) => id !== modelId) });
+  };
+  const addToTrending = (modelId: string) => {
+    if (!homepageConfig || homepageConfig.trendingIds.includes(modelId)) return;
+    setHomepageConfig({ ...homepageConfig, trendingIds: [...homepageConfig.trendingIds, modelId] });
+  };
+  const removeFromTrending = (modelId: string) => {
+    if (!homepageConfig) return;
+    setHomepageConfig({ ...homepageConfig, trendingIds: homepageConfig.trendingIds.filter((id) => id !== modelId) });
+  };
+
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -140,6 +196,7 @@ const AdminPanelPage = () => {
       loadStats();
       if (activeTab === "users") loadUsers();
       if (activeTab === "castings") loadCastings(castingStatusFilter);
+      if (activeTab === "homepage") loadHomepage();
       if (activeTab === "bookings") loadContacts(contactTypeFilter === "all" ? "all" : contactTypeFilter);
     }
   }, [user?.isAdmin, activeTab]);
@@ -148,6 +205,7 @@ const AdminPanelPage = () => {
     loadStats();
     if (activeTab === "users") loadUsers();
     if (activeTab === "castings") loadCastings(castingStatusFilter);
+    if (activeTab === "homepage") loadHomepage();
     if (activeTab === "bookings") loadContacts(contactTypeFilter === "all" ? "all" : contactTypeFilter);
   };
 
@@ -577,6 +635,102 @@ const AdminPanelPage = () => {
             <>
               <h2 className="font-display text-xl text-foreground mb-4">Marketplace Offers</h2>
               <p className="text-muted-foreground font-body">Marketplace offers — approve/reject from this tab when connected.</p>
+            </>
+          )}
+
+          {activeTab === "homepage" && (
+            <>
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <h2 className="font-display text-xl text-foreground">Homepage Curation</h2>
+                <button
+                  onClick={saveHomepageConfig}
+                  disabled={homepageSaving || !homepageConfig}
+                  className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-sm font-body hover:opacity-90 disabled:opacity-50"
+                >
+                  <Save className="w-4 h-4" /> {homepageSaving ? "Saving..." : "Save changes"}
+                </button>
+              </div>
+              <p className="text-muted-foreground font-body text-sm mb-6">
+                Manually choose which models appear in <strong>New Faces</strong> and <strong>Trending Models</strong> on the home page. Order in each list is the display order. Leave a list empty to use default (newest first for New Faces; first 6 for Trending).
+              </p>
+              {homepageLoading ? (
+                <p className="text-muted-foreground font-body">Loading...</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="border border-border bg-card p-6">
+                    <h3 className="font-display text-lg text-primary mb-2">New Faces</h3>
+                    <p className="text-muted-foreground text-xs font-body mb-4">Add models in the order you want them to appear.</p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <select
+                        className="border border-border bg-background px-3 py-2 text-sm font-body flex-1 min-w-[200px]"
+                        value=""
+                        onChange={(e) => { const v = e.target.value; if (v) addToNewFaces(v); e.target.value = ""; }}
+                      >
+                        <option value="">Add model...</option>
+                        {homepageModels
+                          .filter((m) => !homepageConfig?.newFacesIds.includes(m._id))
+                          .map((m) => (
+                            <option key={m._id} value={m._id}>
+                              {m.username || m.fullName || m.email || m._id.slice(-6)}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                    <ul className="space-y-1">
+                      {(homepageConfig?.newFacesIds || []).map((id) => {
+                        const m = homepageModels.find((x) => x._id === id);
+                        return (
+                          <li key={id} className="flex items-center justify-between gap-2 py-1.5 border-b border-border last:border-0">
+                            <span className="text-sm font-body truncate">{m ? (m.username || m.fullName || "—") : id.slice(-8)}</span>
+                            <button type="button" onClick={() => removeFromNewFaces(id)} className="text-muted-foreground hover:text-destructive p-1" title="Remove">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </li>
+                        );
+                      })}
+                      {(homepageConfig?.newFacesIds?.length ?? 0) === 0 && (
+                        <li className="text-muted-foreground text-sm font-body py-2">Empty — default order (newest first) will be used.</li>
+                      )}
+                    </ul>
+                  </div>
+                  <div className="border border-border bg-card p-6">
+                    <h3 className="font-display text-lg text-primary mb-2">Trending Models</h3>
+                    <p className="text-muted-foreground text-xs font-body mb-4">Add up to 6 models; first 6 in this list are shown.</p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <select
+                        className="border border-border bg-background px-3 py-2 text-sm font-body flex-1 min-w-[200px]"
+                        value=""
+                        onChange={(e) => { const v = e.target.value; if (v) addToTrending(v); e.target.value = ""; }}
+                      >
+                        <option value="">Add model...</option>
+                        {homepageModels
+                          .filter((m) => !homepageConfig?.trendingIds.includes(m._id))
+                          .map((m) => (
+                            <option key={m._id} value={m._id}>
+                              {m.username || m.fullName || m.email || m._id.slice(-6)}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                    <ul className="space-y-1">
+                      {(homepageConfig?.trendingIds || []).map((id) => {
+                        const m = homepageModels.find((x) => x._id === id);
+                        return (
+                          <li key={id} className="flex items-center justify-between gap-2 py-1.5 border-b border-border last:border-0">
+                            <span className="text-sm font-body truncate">{m ? (m.username || m.fullName || "—") : id.slice(-8)}</span>
+                            <button type="button" onClick={() => removeFromTrending(id)} className="text-muted-foreground hover:text-destructive p-1" title="Remove">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </li>
+                        );
+                      })}
+                      {(homepageConfig?.trendingIds?.length ?? 0) === 0 && (
+                        <li className="text-muted-foreground text-sm font-body py-2">Empty — first 6 approved models will be used.</li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              )}
             </>
           )}
 

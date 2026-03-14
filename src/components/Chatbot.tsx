@@ -132,7 +132,7 @@ export default function Chatbot() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="fixed z-50 flex flex-col overflow-hidden border border-border/50 bg-card/95 backdrop-blur-xl shadow-2xl shadow-black/20"
+            className="fixed z-50 flex flex-col overflow-hidden border border-border/50 bg-card shadow-2xl shadow-black/20"
             style={{
               bottom: "max(1.5rem, env(safe-area-inset-bottom))",
               left: "max(1rem, env(safe-area-inset-left))",
