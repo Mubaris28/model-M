@@ -11,6 +11,7 @@ import PageLoader from "@/components/PageLoader";
 import { publicApi, type PublicCasting, contactApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "@/lib/router-next";
+import { imgSrc } from "@/lib/utils";
 
 
 type CastingDetail = {
@@ -57,6 +58,7 @@ const CastingDetailPage = () => {
             location: found.location || "—",
             slots: found.slots ?? 0,
             description: found.description || "",
+            image: found.imageUrl || "",
             categories: found.castingType ? [found.castingType] : [],
           });
         } else {
@@ -145,6 +147,16 @@ const CastingDetailPage = () => {
       <div className="pt-6 pb-16">
         <div className="container mx-auto px-4 md:px-6 max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+
+            {casting.image && (
+              <div className="mb-6 overflow-hidden rounded-sm border border-border bg-muted">
+                <img
+                  src={imgSrc(casting.image)}
+                  alt={casting.title}
+                  className="w-full h-auto max-h-[520px] object-cover"
+                />
+              </div>
+            )}
 
             {/* Quick stats row */}
             <div className="flex flex-wrap gap-4 mb-6 py-4 border-y border-border">

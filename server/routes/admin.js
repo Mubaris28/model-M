@@ -1,9 +1,5 @@
 import express from "express";
-<<<<<<< HEAD
-import mongoose from "mongoose";
 import crypto from "node:crypto";
-=======
->>>>>>> df50b6925452028c68557c20cf87306d00461ce5
 import { auth, adminOnly } from "../middleware/auth.js";
 import User from "../models/User.js";
 import Casting from "../models/Casting.js";

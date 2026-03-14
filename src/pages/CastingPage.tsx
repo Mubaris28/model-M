@@ -37,6 +37,7 @@ function toCastingRow(c: PublicCasting): CastingRow {
     location: c.location || "—",
     slots: c.slots ?? 0,
     description: c.description || "",
+    image: c.imageUrl || "",
     categories: c.castingType ? [c.castingType] : [],
   };
 }
@@ -172,8 +173,8 @@ const CastingPage = () => {
             )}
           </div>
 
-          {/* List — horizontal slider on mobile, single column from sm */}
-          <div className="mobile-slider-single gap-4">
+          {/* List — responsive grid (2 columns on desktop) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {filtered.map((casting, i) => (
               <motion.div
                 key={casting.id}
@@ -183,9 +184,9 @@ const CastingPage = () => {
               >
                 <Link
                   to={`/casting/${casting.id}`}
-                  className="group flex flex-col md:flex-row md:items-stretch gap-0 bg-card magazine-border overflow-hidden hover:border-primary/30 transition-all"
+                  className="group flex flex-col h-full bg-card magazine-border overflow-hidden hover:border-primary/30 transition-all"
                 >
-                  <div className="w-full md:w-[220px] h-52 md:h-auto flex-shrink-0 overflow-hidden bg-muted">
+                  <div className="w-full h-80 md:h-96 overflow-hidden bg-muted">
                     {casting.image ? (
                       <img
                         src={imgSrc(casting.image)}
@@ -226,11 +227,13 @@ const CastingPage = () => {
                     <div className="flex flex-wrap items-center gap-4 mt-4 text-muted-foreground text-xs font-body">
                       <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {casting.date}</span>
                       <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {casting.location}</span>
-                      <span className="flex items-center gap-1.5"><Users className="w-3 h-3" /> {casting.slots} slots</span>
+                      <span className="flex items-center gap-1.5"><Users className="w-3 h-3" /> {casting.slots} Models</span>
                     </div>
                   </div>
-                  <div className="hidden md:flex w-14 items-center justify-center border-l border-border/50 group-hover:bg-primary group-hover:border-primary transition-all flex-shrink-0">
-                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary-foreground transition-colors" />
+                  <div className="flex items-center justify-end px-5 md:px-6 pb-5 md:pb-6 mt-1">
+                    <span className="inline-flex items-center gap-1.5 text-primary text-xs font-body tracking-[0.15em] uppercase">
+                      View Details <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
                   </div>
                 </Link>
               </motion.div>

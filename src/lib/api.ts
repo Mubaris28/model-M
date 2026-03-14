@@ -148,7 +148,7 @@ function getUploadBaseUrl(): string {
   return (process.env?.NEXT_PUBLIC_API_URL as string) || "";
 }
 
-export async function uploadFile(file: File, folder: "profile" | "portfolio" | "id" | "selfie"): Promise<string> {
+export async function uploadFile(file: File, folder: "profile" | "portfolio" | "id" | "selfie" | "casting"): Promise<string> {
   const token = getToken();
   if (!token) throw new Error("You must be logged in to upload.");
   const base = getUploadBaseUrl();
@@ -290,6 +290,7 @@ export interface Casting {
   date?: string;
   slots?: number;
   brand?: string;
+  imageUrl?: string;
   approvalStatus?: string;
   creatorId?: User;
   createdAt?: string;
@@ -359,6 +360,7 @@ export interface MyCasting {
   date?: string;
   slots?: number;
   brand?: string;
+  imageUrl?: string;
   approvalStatus?: "pending" | "approved" | "rejected";
   createdAt?: string;
 }
@@ -371,6 +373,7 @@ export interface CastingBody {
   date?: string;
   slots?: number;
   brand?: string;
+  imageUrl?: string;
 }
 
 export const castingApi = {
@@ -390,6 +393,7 @@ export interface PublicCasting {
   date?: string;
   slots?: number;
   brand?: string;
+  imageUrl?: string;
   approvalStatus?: string;
   createdAt?: string;
 }
