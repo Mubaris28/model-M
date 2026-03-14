@@ -1,12 +1,13 @@
 import express from "express";
+<<<<<<< HEAD
 import mongoose from "mongoose";
 import crypto from "node:crypto";
+=======
+>>>>>>> df50b6925452028c68557c20cf87306d00461ce5
 import { auth, adminOnly } from "../middleware/auth.js";
 import User from "../models/User.js";
 import Casting from "../models/Casting.js";
 import Contact from "../models/Contact.js";
-import HomepageConfig from "../models/HomepageConfig.js";
-
 const router = express.Router();
 
 // Public: check if email is admin (no auth required)
@@ -74,7 +75,7 @@ router.get("/users", async (req, res) => {
         { username: new RegExp(search.trim(), "i") },
       ];
     }
-    const users = await User.find(filter).select("-password").sort({ createdAt: -1 }).limit(200).lean();
+    const users = await User.find(filter).select("-password").sort({ createdAt: -1 }).limit(5000).lean();
     res.json(users);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -181,45 +182,37 @@ router.patch("/castings/:id", async (req, res) => {
   }
 });
 
-// GET /api/admin/homepage-config — New Faces, Trending & Latest model ID lists
-router.get("/homepage-config", async (req, res) => {
-  try {
-    const doc = await HomepageConfig.findOne().lean();
-    const newFacesIds = (doc?.newFacesIds || []).map((id) => id.toString());
-    const trendingIds = (doc?.trendingIds || []).map((id) => id.toString());
-    const latestIds   = (doc?.latestIds   || []).map((id) => id.toString());
-    res.json({ newFacesIds, trendingIds, latestIds });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
+// Resolve a single name to model ID (role: model, match username or fullName)
+async function resolveName(name) {
+  const q = String(name).trim();
+  if (!q) return null;
+  const regex = new RegExp("^" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i");
+  const user = await User.findOne({ role: "model", $or: [{ username: regex }, { fullName: regex }] }).select("_id").lean();
+  return user ? user._id.toString() : null;
+}
 
-// PATCH /api/admin/homepage-config — set New Faces, Trending & Latest model IDs
-router.patch("/homepage-config", async (req, res) => {
+// POST /api/admin/seed-categories — assign categories to fixed model names (Bold→LEA, Bikini→GWEN SUN, etc.)
+router.post("/seed-categories", async (req, res) => {
   try {
-    const { newFacesIds, trendingIds, latestIds } = req.body;
-    const toObjectIds = (arr) =>
-      (Array.isArray(arr) ? arr : [])
-        .filter((id) => id && typeof id === "string")
-        .map((id) => {
-          try {
-            return new mongoose.Types.ObjectId(id);
-          } catch {
-            return null;
-          }
-        })
-        .filter(Boolean);
-    const update = {
-      newFacesIds: toObjectIds(newFacesIds),
-      trendingIds: toObjectIds(trendingIds),
-      latestIds:   toObjectIds(latestIds),
-    };
-    const doc = await HomepageConfig.findOneAndUpdate({}, update, { new: true, upsert: true }).lean();
-    res.json({
-      newFacesIds: (doc?.newFacesIds || []).map((id) => id.toString()),
-      trendingIds: (doc?.trendingIds || []).map((id) => id.toString()),
-      latestIds:   (doc?.latestIds   || []).map((id) => id.toString()),
-    });
+    const categoryAssignments = [
+      { category: "Bold", names: ["LEA"] },
+      { category: "Bikini", names: ["GWEN SUN"] },
+      { category: "Mature", names: ["GENEVIEVECHALAND"] },
+      { category: "Glamour", names: ["MEGHA"] },
+      { category: "Commercial", names: ["VICTORIA"] },
+      { category: "Fitness", names: ["BYRJOHA"] },
+    ];
+    const assigned = [];
+    for (const { category, names } of categoryAssignments) {
+      for (const name of names) {
+        const id = await resolveName(name);
+        if (id) {
+          await User.findByIdAndUpdate(id, { $addToSet: { categories: category } });
+          assigned.push(`${name} → ${category}`);
+        }
+      }
+    }
+    res.json({ message: "Categories assigned", categoryAssigned: assigned });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

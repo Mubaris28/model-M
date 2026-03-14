@@ -2,7 +2,6 @@
 
 ## Overview
 
-The **Help Chatbot** is a rule-based, in-app assistant for Model Management Mauritius. It appears as a floating action button (FAB) on the bottom-left of every page and opens a chat panel where users can type questions or use quick-option shortcuts. The bot matches intents from user text and returns predefined replies with optional links to pages.
 
 ---
 

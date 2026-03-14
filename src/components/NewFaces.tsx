@@ -4,6 +4,7 @@ import { imgSrc } from "@/lib/utils";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { publicApi, type PublicModel } from "@/lib/api";
+import { NEW_FACES_NAMES, orderByNames } from "@/lib/homepage-models";
 
 type FaceCard = {
   id: string;
@@ -38,20 +39,12 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    Promise.all([publicApi.homepageConfig(), publicApi.models()])
-      .then(([config, list]) => {
+    publicApi
+      .models()
+      .then((list) => {
         if (!list?.length) return;
-        const cards = list.map(toFaceCard);
-        if (config.newFacesIds?.length > 0) {
-          const idSet = new Set(config.newFacesIds);
-          const ordered = config.newFacesIds
-            .map((id) => cards.find((c) => c.id === id))
-            .filter(Boolean) as FaceCard[];
-          const rest = cards.filter((c) => !idSet.has(c.id));
-          setFaces([...ordered, ...rest]);
-        } else {
-          setFaces(cards);
-        }
+        const ordered = orderByNames(list, NEW_FACES_NAMES);
+        setFaces(ordered.map(toFaceCard));
       })
       .catch(() => {});
   }, []);

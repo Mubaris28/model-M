@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import Chatbot from "@/components/Chatbot";
-import WhatsAppFAB from "@/components/WhatsAppFAB";
 import FloatingSocialButtons from "@/components/FloatingSocialButtons";
 
 export default function PublicFloatingWidgets() {
@@ -12,7 +11,6 @@ export default function PublicFloatingWidgets() {
   return (
     <>
       <Chatbot />
-      <WhatsAppFAB />
       <FloatingSocialButtons />
     </>
   );

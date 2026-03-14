@@ -34,14 +34,8 @@ const CategoryDetail = () => {
     if (!category) { setPageLoading(false); return; }
     setPageLoading(true);
     publicApi
-      .models()
-      .then((list) => {
-        if (!list?.length) return setModels([]);
-        const filtered = list.filter(
-          (m) => m.categories?.some((cat) => cat?.toLowerCase() === category.name.toLowerCase())
-        );
-        setModels(filtered.map(toCard));
-      })
+      .categoryModels(category.slug)
+      .then((list) => setModels((list || []).map(toCard)))
       .catch(() => setModels([]))
       .finally(() => setPageLoading(false));
   }, [category]);
