@@ -26,15 +26,32 @@ export default function LatestModelsSlider() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    publicApi
-      .models()
-      .then((list) => {
-        if (!list?.length) { setLoading(false); return; }
-        const allCards = list.map(toCard);
-        setCards(allCards.slice(0, LATEST_MODELS_COUNT));
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    let retries = 0;
+    const MAX_RETRIES = 4;
+
+    const load = () => {
+      publicApi
+        .models()
+        .then((list) => {
+          if (cancelled) return;
+          if (!list?.length) {
+            if (retries < MAX_RETRIES) { retries++; setTimeout(load, 1500 * retries); return; }
+            setLoading(false);
+            return;
+          }
+          setCards(list.map(toCard).slice(0, LATEST_MODELS_COUNT));
+          setLoading(false);
+        })
+        .catch(() => {
+          if (cancelled) return;
+          if (retries < MAX_RETRIES) { retries++; setTimeout(load, 1500 * retries); }
+          else setLoading(false);
+        });
+    };
+
+    load();
+    return () => { cancelled = true; };
   }, []);
 
   // Always show the section heading; show skeleton cards while loading

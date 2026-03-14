@@ -25,14 +25,30 @@ const FeaturedModels = () => {
   const [models, setModels] = useState<ModelCard[]>([]);
 
   useEffect(() => {
-    publicApi
-      .models()
-      .then((list) => {
-        if (!list?.length) return;
-        const ordered = orderByNames(list, TRENDING_NAMES);
-        setModels(ordered.slice(0, 6).map(toCard));
-      })
-      .catch(() => {});
+    let cancelled = false;
+    let retries = 0;
+    const MAX_RETRIES = 4;
+
+    const load = () => {
+      publicApi
+        .models()
+        .then((list) => {
+          if (cancelled) return;
+          if (!list?.length) {
+            if (retries < MAX_RETRIES) { retries++; setTimeout(load, 1500 * retries); }
+            return;
+          }
+          const ordered = orderByNames(list, TRENDING_NAMES);
+          setModels(ordered.slice(0, 6).map(toCard));
+        })
+        .catch(() => {
+          if (cancelled) return;
+          if (retries < MAX_RETRIES) { retries++; setTimeout(load, 1500 * retries); }
+        });
+    };
+
+    load();
+    return () => { cancelled = true; };
   }, []);
 
   return (

@@ -39,14 +39,36 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    publicApi
-      .models()
-      .then((list) => {
-        if (!list?.length) return;
-        const ordered = orderByNames(list, NEW_FACES_NAMES);
-        setFaces(ordered.map(toFaceCard));
-      })
-      .catch(() => {});
+    let cancelled = false;
+    let retries = 0;
+    const MAX_RETRIES = 4;
+
+    const load = () => {
+      publicApi
+        .models()
+        .then((list) => {
+          if (cancelled) return;
+          if (!list?.length) {
+            if (retries < MAX_RETRIES) {
+              retries++;
+              setTimeout(load, 1500 * retries);
+            }
+            return;
+          }
+          const ordered = orderByNames(list, NEW_FACES_NAMES);
+          setFaces(ordered.map(toFaceCard));
+        })
+        .catch(() => {
+          if (cancelled) return;
+          if (retries < MAX_RETRIES) {
+            retries++;
+            setTimeout(load, 1500 * retries);
+          }
+        });
+    };
+
+    load();
+    return () => { cancelled = true; };
   }, []);
 
   const countries = useMemo(
