@@ -1,7 +1,6 @@
 import express from "express";
 import User from "../models/User.js";
 import Casting from "../models/Casting.js";
-import HomepageConfig from "../models/HomepageConfig.js";
 
 const router = express.Router();
 
@@ -53,19 +52,6 @@ router.get("/castings", async (_req, res) => {
       .limit(50)
       .lean();
     res.json(castings);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// Public: homepage curation (New Faces, Trending & Latest model IDs). Empty = use default order.
-router.get("/homepage-config", async (_req, res) => {
-  try {
-    const doc = await HomepageConfig.findOne().lean();
-    const newFacesIds = (doc?.newFacesIds || []).map((id) => id.toString());
-    const trendingIds = (doc?.trendingIds || []).map((id) => id.toString());
-    const latestIds   = (doc?.latestIds   || []).map((id) => id.toString());
-    res.json({ newFacesIds, trendingIds, latestIds });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

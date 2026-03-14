@@ -14,19 +14,17 @@ import {
   RefreshCw,
   Camera,
   Building2,
-  Home,
   Plus,
   X,
-  Save,
   Search,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { adminApi, publicApi, User, AdminStats, ContactMessage, Casting, HomepageConfig, PublicModel } from "@/lib/api";
+import { adminApi, publicApi, User, AdminStats, ContactMessage, Casting } from "@/lib/api";
 import { imgSrc } from "@/lib/utils";
 
 const USERS_PAGE_SIZE = 20;
 
-type TabId = "dashboard" | "users" | "castings" | "marketplace" | "bookings" | "homepage";
+type TabId = "dashboard" | "users" | "castings" | "marketplace" | "bookings";
 
 const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -34,7 +32,6 @@ const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
   { id: "castings", label: "Casting Management", icon: Briefcase },
   { id: "marketplace", label: "Marketplace Offers", icon: ShoppingBag },
   { id: "bookings", label: "Bookings & Applications", icon: CreditCard },
-  { id: "homepage", label: "Homepage Curation", icon: Home },
 ];
 
 const AdminPanelPage = () => {
@@ -135,185 +132,6 @@ const AdminPanelPage = () => {
   const [viewUser, setViewUser] = useState<User | null>(null);
   const [viewUserLoading, setViewUserLoading] = useState(false);
 
-  const [homepageConfig, setHomepageConfig] = useState<HomepageConfig | null>(null);
-  const [homepageModels, setHomepageModels] = useState<PublicModel[]>([]);
-  const [homepageLoading, setHomepageLoading] = useState(false);
-  const [homepageSaving, setHomepageSaving] = useState(false);
-  const [panelSelects, setPanelSelects] = useState({ newFaces: "", trending: "", latest: "" });
-
-  // Quick-setup: resolve names → IDs
-  const [quickSetup, setQuickSetup] = useState({
-    newFaces: "OPHELIE,LADLI,EMMY DRH,ROSEDELEANNE,MEGHA,MILES",
-    trending: "RITISA,MARY KETH,LAKSHANA,IVAN 09,SAMANTA,KIARA",
-    latest: "",
-  });
-  const [quickSetupLoading, setQuickSetupLoading] = useState(false);
-  const [quickSetupResults, setQuickSetupResults] = useState<{
-    section: string;
-    rows: { id: string | null; name: string; photo?: string }[];
-  }[]>([]);
-  const [quickSetupError, setQuickSetupError] = useState("");
-
-  const runQuickSetup = async () => {
-    setQuickSetupLoading(true);
-    setQuickSetupError("");
-    setQuickSetupResults([]);
-    try {
-      const sections = [
-        { section: "New Faces", names: quickSetup.newFaces },
-        { section: "Trending Models", names: quickSetup.trending },
-        ...(quickSetup.latest.trim() ? [{ section: "Latest Models Slider", names: quickSetup.latest }] : []),
-      ];
-      const allResults: typeof quickSetupResults = [];
-      for (const s of sections) {
-        const names = s.names.split(",").map((n) => n.trim()).filter(Boolean);
-        const { results } = await adminApi.resolveModels(names);
-        allResults.push({ section: s.section, rows: results });
-      }
-      setQuickSetupResults(allResults);
-    } catch (e) {
-      setQuickSetupError((e as Error).message || "Failed to resolve models");
-    } finally {
-      setQuickSetupLoading(false);
-    }
-  };
-
-  const applyQuickSetup = async () => {
-    if (!homepageConfig || quickSetupResults.length === 0) return;
-    setHomepageSaving(true);
-    try {
-      const section = (name: string) => quickSetupResults.find((r) => r.section === name);
-      const validIds = (rows: { id: string | null }[] | undefined) =>
-        (rows || []).map((r) => r.id).filter(Boolean) as string[];
-
-      const newFacesSection = section("New Faces");
-      const trendingSection = section("Trending Models");
-      const latestSection = section("Latest Models Slider");
-
-      const updated = await adminApi.updateHomepageConfig({
-        newFacesIds: newFacesSection ? validIds(newFacesSection.rows) : homepageConfig.newFacesIds,
-        trendingIds: trendingSection ? validIds(trendingSection.rows) : homepageConfig.trendingIds,
-        latestIds: latestSection ? validIds(latestSection.rows) : homepageConfig.latestIds,
-      });
-      setHomepageConfig(updated);
-      await loadHomepage();
-      setQuickSetupResults([]);
-    } catch (e) {
-      setAuthError("Failed to apply quick setup: " + (e as Error).message);
-    } finally {
-      setHomepageSaving(false);
-    }
-  };
-
-  // Category assignment state
-  const CATEGORY_ASSIGNMENTS = [
-    { category: "Bold", names: ["LEA"] },
-    { category: "Bikini", names: ["GWEN SUN"] },
-    { category: "Mature", names: ["GENEVIEVECHALAND"] },
-    { category: "Glamour", names: ["MEGHA"] },
-    { category: "Commercial", names: ["VICTORIA"] },
-    { category: "Fitness", names: ["BYRJOHA"] },
-  ] as const;
-  const [catAssignLoading, setCatAssignLoading] = useState(false);
-  const [catAssignResults, setCatAssignResults] = useState<string[]>([]);
-  const [seedLoading, setSeedLoading] = useState(false);
-  const [seedMessage, setSeedMessage] = useState("");
-
-  const runSeed = async () => {
-    setSeedLoading(true);
-    setSeedMessage("");
-    try {
-      const res = await adminApi.seedHomepageAndCategories();
-      setSeedMessage(
-        `Done. Categories: ${res.categoryAssigned.length}. New Faces: ${res.newFacesIds.length}. Trending: ${res.trendingIds.length}.`
-      );
-      await loadHomepage();
-    } catch (e) {
-      setSeedMessage("Error: " + (e as Error).message);
-    } finally {
-      setSeedLoading(false);
-    }
-  };
-
-  const runCategoryAssignments = async () => {
-    setCatAssignLoading(true);
-    setCatAssignResults([]);
-    const log: string[] = [];
-    try {
-      for (const { category, names } of CATEGORY_ASSIGNMENTS) {
-        const { results } = await adminApi.resolveModels([...names]);
-        for (const r of results) {
-          if (r.id) {
-            await adminApi.assignCategory(r.id, category);
-            log.push(`✓ ${r.name} → ${category}`);
-          } else {
-            log.push(`✗ "${r.name}" not found`);
-          }
-        }
-      }
-    } catch (e) {
-      log.push("Error: " + (e as Error).message);
-    } finally {
-      setCatAssignLoading(false);
-      setCatAssignResults(log);
-    }
-  };
-
-  const loadHomepage = async () => {
-    setHomepageLoading(true);
-    try {
-      const [config, models] = await Promise.all([adminApi.homepageConfig(), publicApi.models()]);
-      setHomepageConfig(config);
-      setHomepageModels(models);
-    } catch {
-      setAuthError("Failed to load homepage config.");
-    } finally {
-      setHomepageLoading(false);
-    }
-  };
-
-  const saveHomepageConfig = async () => {
-    if (!homepageConfig) return;
-    setHomepageSaving(true);
-    try {
-      const updated = await adminApi.updateHomepageConfig({
-        newFacesIds: homepageConfig.newFacesIds,
-        trendingIds: homepageConfig.trendingIds,
-        latestIds: homepageConfig.latestIds,
-      });
-      setHomepageConfig(updated);
-    } catch {
-      setAuthError("Failed to save homepage config.");
-    } finally {
-      setHomepageSaving(false);
-    }
-  };
-
-  const addToNewFaces = (modelId: string) => {
-    if (!homepageConfig || homepageConfig.newFacesIds.includes(modelId)) return;
-    setHomepageConfig({ ...homepageConfig, newFacesIds: [...homepageConfig.newFacesIds, modelId] });
-  };
-  const removeFromNewFaces = (modelId: string) => {
-    if (!homepageConfig) return;
-    setHomepageConfig({ ...homepageConfig, newFacesIds: homepageConfig.newFacesIds.filter((id) => id !== modelId) });
-  };
-  const addToTrending = (modelId: string) => {
-    if (!homepageConfig || homepageConfig.trendingIds.includes(modelId)) return;
-    setHomepageConfig({ ...homepageConfig, trendingIds: [...homepageConfig.trendingIds, modelId] });
-  };
-  const removeFromTrending = (modelId: string) => {
-    if (!homepageConfig) return;
-    setHomepageConfig({ ...homepageConfig, trendingIds: homepageConfig.trendingIds.filter((id) => id !== modelId) });
-  };
-  const addToLatest = (modelId: string) => {
-    if (!homepageConfig || homepageConfig.latestIds.includes(modelId)) return;
-    setHomepageConfig({ ...homepageConfig, latestIds: [...homepageConfig.latestIds, modelId] });
-  };
-  const removeFromLatest = (modelId: string) => {
-    if (!homepageConfig) return;
-    setHomepageConfig({ ...homepageConfig, latestIds: homepageConfig.latestIds.filter((id) => id !== modelId) });
-  };
-
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -339,7 +157,6 @@ const AdminPanelPage = () => {
     if (user?.isAdmin) {
       loadStats();
       if (activeTab === "castings") loadCastings(castingStatusFilter);
-      if (activeTab === "homepage") loadHomepage();
       if (activeTab === "bookings") loadContacts(contactTypeFilter === "all" ? "all" : contactTypeFilter);
     }
   }, [user?.isAdmin, activeTab]);
@@ -348,7 +165,6 @@ const AdminPanelPage = () => {
     loadStats();
     if (activeTab === "users") loadUsers();
     if (activeTab === "castings") loadCastings(castingStatusFilter);
-    if (activeTab === "homepage") loadHomepage();
     if (activeTab === "bookings") loadContacts(contactTypeFilter === "all" ? "all" : contactTypeFilter);
   };
 
@@ -816,211 +632,6 @@ const AdminPanelPage = () => {
             <>
               <h2 className="font-display text-xl text-foreground mb-4">Marketplace Offers</h2>
               <p className="text-muted-foreground font-body">Marketplace offers — approve/reject from this tab when connected.</p>
-            </>
-          )}
-
-          {activeTab === "homepage" && (
-            <>
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <h2 className="font-display text-xl text-foreground">Homepage Curation</h2>
-                <button
-                  onClick={saveHomepageConfig}
-                  disabled={homepageSaving || !homepageConfig}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-sm font-body hover:opacity-90 disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" /> {homepageSaving ? "Saving..." : "Save changes"}
-                </button>
-              </div>
-              <p className="text-muted-foreground font-body text-sm mb-6">
-                Manually choose which models appear in each homepage section. Order in the list = display order. Leave a list empty to use the default (newest first).
-              </p>
-
-              {/* ── One-click seed ── */}
-              <div className="border border-amber-500/40 bg-amber-500/10 p-4 mb-6">
-                <h3 className="font-display text-lg text-foreground mb-1">Apply default models (seed)</h3>
-                <p className="text-muted-foreground text-xs font-body mb-3">
-                  One click: assign categories (Bold→LEA, Bikini→GWEN SUN, etc.) and set New Faces + Trending from the default name lists. Only models that exist in the DB will be applied.
-                </p>
-                <button
-                  onClick={runSeed}
-                  disabled={seedLoading}
-                  className="px-4 py-2 bg-amber-600 text-white text-sm font-body hover:bg-amber-700 disabled:opacity-50"
-                >
-                  {seedLoading ? "Applying…" : "Seed now"}
-                </button>
-                {seedMessage && <p className="text-sm font-body mt-2 text-foreground">{seedMessage}</p>}
-              </div>
-
-              {/* ── Quick Setup ── */}
-              <div className="border border-primary/30 bg-primary/5 p-6 mb-6">
-                <h3 className="font-display text-lg text-primary mb-1">Quick Setup — Assign by Name</h3>
-                <p className="text-muted-foreground text-xs font-body mb-4">
-                  Enter comma-separated model usernames or full names. Click <strong>Resolve Names</strong> to look them up, then <strong>Apply</strong> to update the homepage sections.
-                </p>
-                <div className="space-y-3 mb-4">
-                  {([
-                    { label: "New Faces (6 names)", key: "newFaces" as const, placeholder: "OPHELIE, LADLI, EMMY DRH, ROSEDELEANNE, MEGHA, MILES" },
-                    { label: "Trending Models (6 names)", key: "trending" as const, placeholder: "RITISA, MARY KETH, LAKSHANA, IVAN 09, SAMANTA, KIARA" },
-                    { label: "Latest Models Slider (optional)", key: "latest" as const, placeholder: "Leave empty to use 16 newest" },
-                  ]).map(({ label, key, placeholder }) => (
-                    <div key={key}>
-                      <label className="text-xs font-body text-muted-foreground uppercase tracking-wider block mb-1">{label}</label>
-                      <input
-                        type="text"
-                        value={quickSetup[key]}
-                        onChange={(e) => setQuickSetup((s) => ({ ...s, [key]: e.target.value }))}
-                        placeholder={placeholder}
-                        className="w-full border border-border bg-background px-3 py-2 text-sm font-body focus:outline-none focus:border-primary"
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-2 flex-wrap">
-                  <button
-                    onClick={runQuickSetup}
-                    disabled={quickSetupLoading}
-                    className="px-4 py-2 border border-primary text-primary text-sm font-body hover:bg-primary/10 disabled:opacity-50"
-                  >
-                    {quickSetupLoading ? "Resolving…" : "Resolve Names"}
-                  </button>
-                  {quickSetupResults.length > 0 && (
-                    <button
-                      onClick={applyQuickSetup}
-                      disabled={homepageSaving}
-                      className="px-4 py-2 bg-primary text-primary-foreground text-sm font-body hover:opacity-90 disabled:opacity-50"
-                    >
-                      {homepageSaving ? "Saving…" : "Apply to Homepage"}
-                    </button>
-                  )}
-                </div>
-                {quickSetupError && <p className="text-destructive text-xs font-body mt-3">{quickSetupError}</p>}
-                {quickSetupResults.length > 0 && (
-                  <div className="mt-4 space-y-4">
-                    {quickSetupResults.map((section) => (
-                      <div key={section.section}>
-                        <p className="text-xs font-body font-semibold text-foreground uppercase tracking-wider mb-1">{section.section}</p>
-                        <ul className="space-y-0.5">
-                          {section.rows.map((r, i) => (
-                            <li key={i} className={`text-xs font-body flex items-center gap-2 ${r.id ? "text-foreground" : "text-destructive"}`}>
-                              {r.id ? "✓" : "✗"} {r.name} {!r.id && <span className="text-muted-foreground">(not found — check username/fullName)</span>}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* ── Category Assignment ── */}
-              <div className="border border-border bg-card p-6 mb-6">
-                <h3 className="font-display text-lg text-primary mb-1">Category Assignment</h3>
-                <p className="text-muted-foreground text-xs font-body mb-1">
-                  Assign models to the correct category so they appear on the category sub-pages:
-                </p>
-                <ul className="text-xs font-body text-muted-foreground mb-4 space-y-0.5 pl-3">
-                  <li>Bold → LEA</li>
-                  <li>Bikini → GWEN SUN</li>
-                  <li>Mature → GENEVIEVECHALAND</li>
-                  <li>Glamour → MEGHA</li>
-                  <li>Commercial → VICTORIA</li>
-                  <li>Fitness → BYRJOHA</li>
-                </ul>
-                <button
-                  onClick={runCategoryAssignments}
-                  disabled={catAssignLoading}
-                  className="px-4 py-2 border border-border text-sm font-body hover:border-primary hover:text-primary disabled:opacity-50"
-                >
-                  {catAssignLoading ? "Assigning…" : "Assign Categories"}
-                </button>
-                {catAssignResults.length > 0 && (
-                  <ul className="mt-3 space-y-0.5">
-                    {catAssignResults.map((line, i) => (
-                      <li key={i} className={`text-xs font-body ${line.startsWith("✓") ? "text-foreground" : "text-destructive"}`}>{line}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              {homepageLoading ? (
-                <p className="text-muted-foreground font-body">Loading...</p>
-              ) : (
-                <div className="space-y-6">
-                  {/* helper: reusable curation panel */}
-                  {(
-                    [
-                      {
-                        title: "New Faces",
-                        hint: "Shown in the New Faces section (first 6 on home page). Leave empty → newest first.",
-                        ids: homepageConfig?.newFacesIds || [],
-                        add: addToNewFaces,
-                        remove: removeFromNewFaces,
-                        emptyNote: "Empty — default order (newest first) will be used.",
-                        selectKey: "newFaces" as const,
-                      },
-                      {
-                        title: "Trending Models",
-                        hint: "Shown in the Trending Models section (first 6). Leave empty → first 6 approved.",
-                        ids: homepageConfig?.trendingIds || [],
-                        add: addToTrending,
-                        remove: removeFromTrending,
-                        emptyNote: "Empty — first 6 approved models will be used.",
-                        selectKey: "trending" as const,
-                      },
-                      {
-                        title: "Latest Models Slider",
-                        hint: "Shown in the Latest Models scrolling strip (up to 16). Leave empty → 16 newest.",
-                        ids: homepageConfig?.latestIds || [],
-                        add: addToLatest,
-                        remove: removeFromLatest,
-                        emptyNote: "Empty — 16 most recently added models will be used.",
-                        selectKey: "latest" as const,
-                      },
-                    ] as { title: string; hint: string; ids: string[]; add: (id: string) => void; remove: (id: string) => void; emptyNote: string; selectKey: keyof typeof panelSelects }[]
-                  ).map((panel) => (
-                    <div key={panel.title} className="border border-border bg-card p-6">
-                      <h3 className="font-display text-lg text-primary mb-1">{panel.title}</h3>
-                      <p className="text-muted-foreground text-xs font-body mb-4">{panel.hint}</p>
-                      <select
-                        className="border border-border bg-background px-3 py-2 text-sm font-body w-full mb-4"
-                        value={panelSelects[panel.selectKey]}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          if (v) {
-                            panel.add(v);
-                            setPanelSelects((s) => ({ ...s, [panel.selectKey]: "" }));
-                          }
-                        }}
-                      >
-                        <option value="">+ Add model...</option>
-                        {homepageModels
-                          .filter((m) => !panel.ids.includes(m._id))
-                          .map((m) => (
-                            <option key={m._id} value={m._id}>
-                              {m.username || m.fullName || m._id.slice(-6)}
-                            </option>
-                          ))}
-                      </select>
-                      <ul className="space-y-1 max-h-64 overflow-y-auto">
-                        {panel.ids.map((id, idx) => {
-                          const m = homepageModels.find((x) => x._id === id);
-                          return (
-                            <li key={id} className="flex items-center justify-between gap-2 py-1.5 border-b border-border last:border-0">
-                              <span className="text-xs text-muted-foreground w-5 shrink-0 text-right">{idx + 1}.</span>
-                              <span className="text-sm font-body flex-1 truncate">{m ? (m.username || m.fullName || "—") : id.slice(-8)}</span>
-                              <button type="button" onClick={() => panel.remove(id)} className="text-muted-foreground hover:text-destructive p-1 shrink-0" title="Remove">
-                                <X className="w-4 h-4" />
-                              </button>
-                            </li>
-                          );
-                        })}
-                        {panel.ids.length === 0 && (
-                          <li className="text-muted-foreground text-sm font-body py-2">{panel.emptyNote}</li>
-                        )}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              )}
             </>
           )}
 

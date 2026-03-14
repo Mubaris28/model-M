@@ -221,15 +221,8 @@ export const adminApi = {
     const q = type && type !== "all" ? `?type=${type}` : "";
     return api<ContactMessage[]>("/api/admin/contacts" + q);
   },
-  homepageConfig: () => api<HomepageConfig>("/api/admin/homepage-config"),
-  updateHomepageConfig: (body: { newFacesIds?: string[]; trendingIds?: string[]; latestIds?: string[] }) =>
-    api<HomepageConfig>("/api/admin/homepage-config", { method: "PATCH", body }),
-  resolveModels: (names: string[]) =>
-    api<{ results: { id: string | null; name: string; photo?: string }[] }>("/api/admin/resolve-models", { method: "POST", body: { names } }),
-  assignCategory: (modelId: string, category: string) =>
-    api<{ id: string; name: string; categories: string[] }>("/api/admin/assign-category", { method: "POST", body: { modelId, category } }),
-  seedHomepageAndCategories: () =>
-    api<{ message: string; categoryAssigned: string[]; newFacesIds: string[]; trendingIds: string[] }>("/api/admin/seed-homepage-and-categories", { method: "POST" }),
+  seedCategories: () =>
+    api<{ message: string; categoryAssigned: string[] }>("/api/admin/seed-categories", { method: "POST" }),
 };
 
 export interface ContactMessage {
@@ -344,7 +337,6 @@ export const publicApi = {
   castings: () => api<PublicCasting[]>("/api/public/castings"),
   marketplace: () => api<PublicMarketplaceItem[]>("/api/public/marketplace"),
   marketplaceItem: (id: string) => api<PublicMarketplaceItem>(`/api/public/marketplace/${id}`),
-  homepageConfig: () => api<HomepageConfig>("/api/public/homepage-config"),
 };
 
 export interface MyCasting {
