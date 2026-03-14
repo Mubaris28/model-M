@@ -1,0 +1,21 @@
+{
+  "phase": "phase1",
+  "mode": "transform-only",
+  "inputDir": "C:\\Projects\\model-M\\server\\migrations\\phase1\\2026-03-13T11-09-28-297Z",
+  "outputDir": "C:\\Projects\\model-M\\server\\migrations\\phase1-transformed\\2026-03-13T11-09-28-297Z",
+  "users": {
+    "sourceUsers": 238,
+    "sourceModels": 119,
+    "mergedUniqueUids": 238,
+    "transformed": 238
+  },
+  "castings": {
+    "source": 5,
+    "transformed": 5
+  },
+  "contacts": {
+    "source": 13,
+    "transformed": 13
+  },
+  "generatedAt": "2026-03-13T11:15:48.835Z"
+}

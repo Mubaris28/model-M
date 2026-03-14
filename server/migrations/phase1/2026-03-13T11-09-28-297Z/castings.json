@@ -1,0 +1,248 @@
+{
+  "collection": "castings",
+  "count": 5,
+  "docs": [
+    {
+      "id": "8fZlTJWf7n0cjtcgcdpJ",
+      "data": {
+        "castingType": "paid-shoot",
+        "title": "Influencer/Presenter for Product Video",
+        "description": "We are currently seeking an enthusiastic influencer or presenter to participate in a video about our product, with a focus on the pasteurization process. The goal is to explain how our products are processed and how they reach the market for sale.\n\nWhat you need to know:\n\nThe script is ready and will be provided to you.\nOur team will handle all aspects of video production, ensuring a smooth and professional shoot.\nWe’re looking for someone engaging, clear, and confident to help communicate this process to viewers.",
+        "location": "Quatre Bornes, Mauritius",
+        "isRemote": false,
+        "gender": [
+          "Any"
+        ],
+        "ethnicities": [
+          "Any"
+        ],
+        "isPaid": true,
+        "paymentCurrency": "MUR",
+        "wardrobeProvided": false,
+        "makeupProvided": false,
+        "travelRequired": true,
+        "accommodationProvided": false,
+        "mealProvided": false,
+        "portfolioRequired": true,
+        "nudityLevel": "none",
+        "numberOfModels": "1",
+        "createdBy": "jldg5OpdC6SYDG6TLPtD7ybSpb83",
+        "media": [
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1766129707165_561809293_122226413120144177_3205915005562562021_n.webp"
+        ],
+        "images": [
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1766129707165_561809293_122226413120144177_3205915005562562021_n.webp"
+        ],
+        "shootDate": "2026-02-19",
+        "applicationDeadline": "2026-02-01",
+        "duration": "Half day (3-4 hours)",
+        "paymentAmount": "10000",
+        "paymentType": "Project Rate (Fixed amount)",
+        "experience": "Intermediate (1-3 years)",
+        "contactEmail": "marketing@theflashgroups.com",
+        "contactPhone": "4686969",
+        "usageRights": "On our social media",
+        "ageMin": 20,
+        "applications": [],
+        "createdAt": "2025-12-19T07:35:14.371Z",
+        "approvalStatus": "approved",
+        "additionalCompensation": "Additional Perks included",
+        "closedBy": null,
+        "closedAt": null,
+        "closureReason": null,
+        "expiredAt": null,
+        "castingStatus": "open",
+        "isExpired": false,
+        "updatedAt": "2026-02-12T06:25:21.469Z"
+      }
+    },
+    {
+      "id": "OimcxlvK0DgfjOOkhGsm",
+      "data": {
+        "castingType": "paid-shoot",
+        "title": "Presenter/Model for Video",
+        "description": "We are seeking an enthusiastic and knowledgeable model/presenter for an upcoming cooking video. The ideal candidate should have some experience with cooking and be comfortable in the kitchen. You will be assisting the chef during the production, helping with prep, demonstrations, and engaging with the audience. A friendly, confident personality and a passion for food are essential. If you enjoy cooking and enjoy being in front of the camera, we’d love to hear from you!",
+        "location": "Plaines Wilhems District",
+        "isRemote": false,
+        "gender": [
+          "Any"
+        ],
+        "ethnicities": [
+          "Any"
+        ],
+        "isPaid": true,
+        "paymentCurrency": "MUR",
+        "wardrobeProvided": false,
+        "makeupProvided": false,
+        "travelRequired": false,
+        "accommodationProvided": false,
+        "mealProvided": false,
+        "portfolioRequired": false,
+        "nudityLevel": "none",
+        "numberOfModels": "1",
+        "createdBy": "jldg5OpdC6SYDG6TLPtD7ybSpb83",
+        "media": [
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770891706760_WhatsApp-Image-2026-02-06-at-11-31-49-AM-1.webp",
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770891708210_WhatsApp-Image-2026-02-06-at-11-31-49-AM.webp"
+        ],
+        "images": [
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770891706760_WhatsApp-Image-2026-02-06-at-11-31-49-AM-1.webp",
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770891708210_WhatsApp-Image-2026-02-06-at-11-31-49-AM.webp"
+        ],
+        "shootDate": "2026-02-12",
+        "specialRequirements": "Western Indian clothing",
+        "contactEmail": "info@theflashgroups.com",
+        "contactPhone": "+230 468 6969",
+        "usageRights": "The video will be used for the brand promotion.",
+        "contractDetails": "All rights belong to Flash Communication\ninfo@theflashgroups.com\n+230 468 6969",
+        "applications": [],
+        "createdAt": "2026-02-12T10:21:52.680Z",
+        "approvalStatus": "approved",
+        "updatedAt": "2026-02-12T10:34:43.961Z",
+        "paymentAmount": "5000",
+        "applicationDeadline": "2026-02-15"
+      }
+    },
+    {
+      "id": "ZYhTW69sF8DwA82m3o3W",
+      "data": {
+        "castingType": "paid-shoot",
+        "title": "Test",
+        "description": "test",
+        "location": "Port Louis District",
+        "isRemote": false,
+        "gender": [
+          "Female"
+        ],
+        "ethnicities": [],
+        "isPaid": true,
+        "paymentCurrency": "MUR",
+        "wardrobeProvided": false,
+        "makeupProvided": false,
+        "travelRequired": false,
+        "accommodationProvided": false,
+        "mealProvided": false,
+        "portfolioRequired": true,
+        "nudityLevel": "none",
+        "numberOfModels": "1",
+        "createdBy": "jldg5OpdC6SYDG6TLPtD7ybSpb83",
+        "images": [
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770362245885_download-1.webp",
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770362246883_MORE-PURPLE-Yasss.webp",
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770362247206_download.webp"
+        ],
+        "shootDate": "2026-02-26",
+        "applicationDeadline": "2026-02-13",
+        "duration": "Half day (3-4 hours)",
+        "paymentAmount": "500",
+        "paymentType": "Per Hour (Professional rate)",
+        "contactEmail": "muhammedyazeen10@gmail.com",
+        "contactPhone": "+919656910774",
+        "applications": [],
+        "createdAt": "2026-02-06T07:17:26.179Z",
+        "media": [
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770362246883_MORE-PURPLE-Yasss.webp",
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770362247206_download.webp"
+        ],
+        "approvalStatus": "rejected",
+        "updatedAt": "2026-02-12T10:34:20.060Z"
+      }
+    },
+    {
+      "id": "cwDhaLKPV0arlH4fxnZN",
+      "data": {
+        "castingType": "paid-shoot",
+        "title": "Influencer and Model for Cosmetic Product",
+        "description": "We are looking for talent that embodies \"unfiltered\" professional beauty. The aesthetic is clean, radiant skin paired with high-impact color (glitter pigments, bold lips).\n",
+        "location": "Quatre Bornes, Mauritius",
+        "isRemote": false,
+        "gender": [
+          "Female"
+        ],
+        "ethnicities": [
+          "Any"
+        ],
+        "isPaid": true,
+        "paymentCurrency": "MUR",
+        "wardrobeProvided": false,
+        "makeupProvided": false,
+        "travelRequired": true,
+        "accommodationProvided": false,
+        "mealProvided": false,
+        "portfolioRequired": true,
+        "nudityLevel": "none",
+        "numberOfModels": "3",
+        "createdBy": "jldg5OpdC6SYDG6TLPtD7ybSpb83",
+        "shootDate": "2026-02-19",
+        "duration": "Half day (3-4 hours)",
+        "paymentAmount": "5000",
+        "paymentType": "Project Rate (Fixed amount)",
+        "experience": "Intermediate (1-3 years)",
+        "specialRequirements": "We are looking for 3 to 4 models for this project.",
+        "contactEmail": "marketing@theflashgroups.com",
+        "contactPhone": "4686969",
+        "usageRights": "It will be use on our website and social media",
+        "ageMin": 20,
+        "applications": [],
+        "createdAt": "2025-12-19T07:43:48.934Z",
+        "approvalStatus": "approved",
+        "closedBy": null,
+        "closedAt": null,
+        "closureReason": null,
+        "applicationDeadline": "2026-02-01",
+        "additionalCompensation": "Additional Perks included",
+        "expiredAt": null,
+        "castingStatus": "open",
+        "isExpired": false,
+        "updatedAt": "2026-02-12T06:25:13.935Z",
+        "media": [
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/bodyography.webp",
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1766130221416_Screenshot-2025-12-19-114228.webp"
+        ],
+        "images": [
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/bodyography.webp",
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1766130221416_Screenshot-2025-12-19-114228.webp"
+        ]
+      }
+    },
+    {
+      "id": "nKQZ9drVjJk6xyzBkSeU",
+      "data": {
+        "castingType": "paid-shoot",
+        "title": "Test",
+        "description": "test",
+        "location": "Grand Baie, Mauritius",
+        "isRemote": false,
+        "gender": [],
+        "ethnicities": [],
+        "isPaid": true,
+        "paymentCurrency": "MUR",
+        "wardrobeProvided": false,
+        "makeupProvided": false,
+        "travelRequired": false,
+        "accommodationProvided": false,
+        "mealProvided": false,
+        "portfolioRequired": true,
+        "nudityLevel": "none",
+        "numberOfModels": "1",
+        "createdBy": "jldg5OpdC6SYDG6TLPtD7ybSpb83",
+        "media": [
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770882402799_WhatsApp-Image-2026-02-06-at-11-31-49-AM-1.webp",
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770882404108_WhatsApp-Image-2026-02-06-at-11-31-49-AM.webp"
+        ],
+        "images": [
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770882402799_WhatsApp-Image-2026-02-06-at-11-31-49-AM-1.webp",
+          "https://modelmanagement.b-cdn.net/images/casting/jldg5OpdC6SYDG6TLPtD7ybSpb83/1770882404108_WhatsApp-Image-2026-02-06-at-11-31-49-AM.webp"
+        ],
+        "shootDate": "2026-03-14",
+        "applicationDeadline": "2026-03-03",
+        "paymentAmount": "500",
+        "contactEmail": "test@test.com",
+        "applications": [],
+        "createdAt": "2026-02-12T07:46:48.550Z",
+        "approvalStatus": "rejected",
+        "updatedAt": "2026-02-12T10:34:08.182Z"
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "phase": "phase1",
+  "mode": "import-from-transformed",
+  "inputDir": "C:\\Projects\\model-M\\server\\migrations\\phase1-transformed\\2026-03-13T11-09-28-297Z",
+  "users": {
+    "transformed": 238,
+    "insertedUsers": 236,
+    "updatedUsers": 2
+  },
+  "castings": {
+    "transformed": 5,
+    "upserted": 5
+  },
+  "contacts": {
+    "transformed": 13,
+    "upserted": 13
+  },
+  "note": "Passwords are random hashed placeholders for newly inserted users.",
+  "completedAt": "2026-03-13T11:22:59.104Z"
+}
