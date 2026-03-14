@@ -54,17 +54,20 @@ function buildPasswordResetUrl(token) {
     return `${fallbackBase}${sep}token=${encodeURIComponent(token)}`;
   }
 
-  return `http://localhost:5173/reset-password?token=${encodeURIComponent(token)}`;
+  return `http://localhost:3000/reset-password?token=${encodeURIComponent(token)}`;
 }
 
 export async function sendPasswordResetEmail({ to, fullName, token }) {
   const transporter = getTransporter();
+  const resetUrl = buildPasswordResetUrl(token);
   if (!transporter) {
     console.warn("Password reset: SMTP not configured. Reset email was not sent.");
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(`Password reset URL for ${to}: ${resetUrl}`);
+    }
     return false;
   }
 
-  const resetUrl = buildPasswordResetUrl(token);
   const safeName = fullName?.trim() || "there";
 
   try {

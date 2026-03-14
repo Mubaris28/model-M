@@ -24,11 +24,16 @@ async function main() {
 
   const rotate = readBoolArg("rotate", true);
   const includeAdmins = readBoolArg("includeAdmins", false);
+  const allUsers = readBoolArg("allUsers", false);
 
-  const baseFilter = {
-    firebaseUid: { $exists: true, $ne: null },
-    ...(includeAdmins ? {} : { isAdmin: { $ne: true } }),
-  };
+  const baseFilter = allUsers
+    ? {
+        ...(includeAdmins ? {} : { isAdmin: { $ne: true } }),
+      }
+    : {
+        firebaseUid: { $exists: true, $ne: null },
+        ...(includeAdmins ? {} : { isAdmin: { $ne: true } }),
+      };
 
   await mongoose.connect(mongoUri);
   const users = mongoose.connection.collection("users");
@@ -85,6 +90,7 @@ async function main() {
         updatedUsers: updated,
         rotatePasswords: rotate,
         includeAdmins,
+        allUsers,
       },
       null,
       2

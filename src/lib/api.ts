@@ -211,6 +211,11 @@ export const adminApi = {
   user: (id: string) => api<User>("/api/admin/users/" + id),
   updateUser: (id: string, body: { status?: string; rejectionReason?: string }) =>
     api<User>("/api/admin/users/" + id, { method: "PATCH", body }),
+  forcePasswordResetUser: (id: string) =>
+    api<{ ok: boolean; user: Pick<User, "_id" | "email" | "role"> & { passwordResetRequired: boolean; passwordResetRequiredAt?: string } }>(
+      "/api/admin/users/" + id + "/force-password-reset",
+      { method: "POST" }
+    ),
   castings: (params?: { status?: string }) => {
     const q = new URLSearchParams(params as Record<string, string>).toString();
     return api<Casting[]>("/api/admin/castings" + (q ? `?${q}` : ""));

@@ -107,6 +107,12 @@ function mapUserDoc(uid, userDoc, modelDoc, syntheticEmailDomain) {
     categories: pickArray(modelDoc?.categories || userDoc?.categories),
     instagram: modelDoc?.socialMedia?.instagram || userDoc?.instagram || "",
     idNumber: modelDoc?.idNumber || userDoc?.idNumber || "",
+    legacyFirebaseUser: userDoc,
+    legacyFirebaseModel: modelDoc,
+    legacyMergeInfo: {
+      hasUserDoc: !!userDoc,
+      hasModelDoc: !!modelDoc,
+    },
     createdAt,
     updatedAt,
   };

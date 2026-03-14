@@ -1,0 +1,28 @@
+{
+  "inputDir": "C:\\Projects\\model-M\\server\\migrations\\phase1\\2026-03-13T11-09-28-297Z",
+  "sourceCounts": {
+    "usersCollectionDocs": 238,
+    "modelsCollectionDocs": 119,
+    "mergedUniqueUids": 238,
+    "userOnlyUids": 119,
+    "modelOnlyUids": 0
+  },
+  "dataQuality": {
+    "usersMissingEmail": 0,
+    "duplicateEmailsAcrossUids": 1
+  },
+  "samples": {
+    "firstModelOnlyUids": [],
+    "firstUsersMissingEmail": [],
+    "firstDuplicateEmails": [
+      {
+        "email": "laeticiadouce@gmail.com",
+        "uids": [
+          "o5MNzjL11OQvgvSpwqs5K1z53tI2",
+          "v11dsoZclpdalaCWo9ls6Ns1Co12"
+        ]
+      }
+    ]
+  },
+  "generatedAt": "2026-03-14T06:42:00.939Z"
+}

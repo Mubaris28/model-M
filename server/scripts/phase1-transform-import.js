@@ -106,9 +106,46 @@ function mapUserDoc(uid, userDoc, modelDoc, syntheticEmailDomain) {
     categories: pickArray(modelDoc?.categories || userDoc?.categories),
     instagram: modelDoc?.socialMedia?.instagram || userDoc?.instagram || "",
     idNumber: modelDoc?.idNumber || userDoc?.idNumber || "",
+    legacyFirebaseUser: userDoc,
+    legacyFirebaseModel: modelDoc,
+    legacyMergeInfo: {
+      hasUserDoc: !!userDoc,
+      hasModelDoc: !!modelDoc,
+    },
     createdAt,
     updatedAt,
   };
+}
+
+function splitEmail(email) {
+  const at = email.indexOf("@");
+  if (at < 0) return { local: email, domain: "" };
+  return { local: email.slice(0, at), domain: email.slice(at + 1) };
+}
+
+async function resolveUniqueEmail(usersCollection, desiredEmail, firebaseUid) {
+  const existing = await usersCollection.findOne(
+    { email: desiredEmail },
+    { projection: { _id: 1, firebaseUid: 1 } }
+  );
+  if (!existing) return { email: desiredEmail, hadCollision: false };
+  if (existing.firebaseUid && existing.firebaseUid === firebaseUid) {
+    return { email: desiredEmail, hadCollision: false };
+  }
+
+  const { local, domain } = splitEmail(desiredEmail);
+  const suffix = firebaseUid.slice(0, 8);
+  let candidate = domain ? `${local}+migrated-${suffix}@${domain}` : `${desiredEmail}-migrated-${suffix}`;
+  let idx = 1;
+
+  while (await usersCollection.findOne({ email: candidate }, { projection: { _id: 1 } })) {
+    candidate = domain
+      ? `${local}+migrated-${suffix}-${idx}@${domain}`
+      : `${desiredEmail}-migrated-${suffix}-${idx}`;
+    idx += 1;
+  }
+
+  return { email: candidate, hadCollision: true };
 }
 
 function mapCastingDoc(castingSourceId, doc, firebaseToMongoId) {
@@ -192,6 +229,7 @@ async function main() {
   const firebaseToMongoId = new Map();
   let insertedUsers = 0;
   let updatedUsers = 0;
+  let emailCollisionsResolved = 0;
 
   for (const uid of allUids) {
     const userDoc = usersByUid.get(uid) || null;
@@ -199,13 +237,22 @@ async function main() {
 
     const mapped = mapUserDoc(uid, userDoc, modelDoc, syntheticEmailDomain);
 
-    const existing = await usersCollection.findOne({ email: mapped.email }, { projection: { _id: 1 } });
+    const existingByUid = await usersCollection.findOne(
+      { firebaseUid: uid },
+      { projection: { _id: 1 } }
+    );
 
-    if (existing?._id) {
+    const resolved = await resolveUniqueEmail(usersCollection, mapped.email, uid);
+    const safeEmail = resolved.email;
+    if (resolved.hadCollision) emailCollisionsResolved += 1;
+
+    if (existingByUid?._id) {
       await usersCollection.updateOne(
-        { _id: existing._id },
+        { _id: existingByUid._id },
         {
           $set: {
+            firebaseUid: uid,
+            email: safeEmail,
             fullName: mapped.fullName,
             phone: mapped.phone,
             role: mapped.role,
@@ -232,21 +279,20 @@ async function main() {
             categories: mapped.categories,
             instagram: mapped.instagram,
             idNumber: mapped.idNumber,
+            legacyFirebaseUser: mapped.legacyFirebaseUser,
+            legacyFirebaseModel: mapped.legacyFirebaseModel,
+            legacyMergeInfo: mapped.legacyMergeInfo,
             updatedAt: mapped.updatedAt,
           },
-          $setOnInsert: {
-            email: mapped.email,
-            password: mapped.password,
-            createdAt: mapped.createdAt,
-          },
         },
-        { upsert: true }
+        { upsert: false }
       );
       updatedUsers += 1;
-      firebaseToMongoId.set(uid, existing._id);
+      firebaseToMongoId.set(uid, existingByUid._id);
     } else {
       const insert = await usersCollection.insertOne({
-        email: mapped.email,
+        firebaseUid: uid,
+        email: safeEmail,
         password: mapped.password,
         fullName: mapped.fullName,
         phone: mapped.phone,
@@ -274,6 +320,9 @@ async function main() {
         categories: mapped.categories,
         instagram: mapped.instagram,
         idNumber: mapped.idNumber,
+        legacyFirebaseUser: mapped.legacyFirebaseUser,
+        legacyFirebaseModel: mapped.legacyFirebaseModel,
+        legacyMergeInfo: mapped.legacyMergeInfo,
         createdAt: mapped.createdAt,
         updatedAt: mapped.updatedAt,
       });
@@ -341,6 +390,7 @@ async function main() {
       mergedUniqueUids: allUids.size,
       insertedUsers,
       updatedUsers,
+      emailCollisionsResolved,
     },
     castings: {
       source: castingsJson.count,

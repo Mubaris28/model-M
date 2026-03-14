@@ -30,6 +30,37 @@ function toObjectId(value) {
   return undefined;
 }
 
+function splitEmail(email) {
+  const at = email.indexOf("@");
+  if (at < 0) return { local: email, domain: "" };
+  return { local: email.slice(0, at), domain: email.slice(at + 1) };
+}
+
+async function resolveUniqueEmail(usersCollection, desiredEmail, firebaseUid) {
+  const existing = await usersCollection.findOne(
+    { email: desiredEmail },
+    { projection: { _id: 1, firebaseUid: 1 } }
+  );
+  if (!existing) return { email: desiredEmail, hadCollision: false };
+  if (existing.firebaseUid && existing.firebaseUid === firebaseUid) {
+    return { email: desiredEmail, hadCollision: false };
+  }
+
+  const { local, domain } = splitEmail(desiredEmail);
+  const suffix = String(firebaseUid || "uid").slice(0, 8);
+  let candidate = domain ? `${local}+migrated-${suffix}@${domain}` : `${desiredEmail}-migrated-${suffix}`;
+  let idx = 1;
+
+  while (await usersCollection.findOne({ email: candidate }, { projection: { _id: 1 } })) {
+    candidate = domain
+      ? `${local}+migrated-${suffix}-${idx}@${domain}`
+      : `${desiredEmail}-migrated-${suffix}-${idx}`;
+    idx += 1;
+  }
+
+  return { email: candidate, hadCollision: true };
+}
+
 async function readJson(filePath) {
   const raw = await fs.readFile(filePath, "utf8");
   return JSON.parse(raw);
@@ -68,11 +99,19 @@ async function main() {
 
   let insertedUsers = 0;
   let updatedUsers = 0;
+  let emailCollisionsResolved = 0;
 
   for (const u of users) {
-    const existing = await usersCollection.findOne({ email: u.email }, { projection: { _id: 1 } });
+    const existingByUid = u.firebaseUid
+      ? await usersCollection.findOne({ firebaseUid: u.firebaseUid }, { projection: { _id: 1 } })
+      : null;
+    const resolved = await resolveUniqueEmail(usersCollection, u.email, u.firebaseUid);
+    const safeEmail = resolved.email;
+    if (resolved.hadCollision) emailCollisionsResolved += 1;
+
     const setFields = {
       firebaseUid: u.firebaseUid,
+      email: safeEmail,
       fullName: u.fullName || "Migrated User",
       phone: u.phone || "",
       role: u.role || "user",
@@ -99,11 +138,17 @@ async function main() {
       categories: Array.isArray(u.categories) ? u.categories : [],
       instagram: u.instagram || "",
       idNumber: u.idNumber || "",
+      legacyFirebaseUser: u.legacyFirebaseUser || null,
+      legacyFirebaseModel: u.legacyFirebaseModel || null,
+      legacyMergeInfo: u.legacyMergeInfo || {
+        hasUserDoc: !!u.legacyFirebaseUser,
+        hasModelDoc: !!u.legacyFirebaseModel,
+      },
       updatedAt: toDate(u.updatedAt) || new Date(),
     };
 
-    if (existing?._id) {
-      await usersCollection.updateOne({ _id: existing._id }, { $set: setFields });
+    if (existingByUid?._id) {
+      await usersCollection.updateOne({ _id: existingByUid._id }, { $set: setFields });
       updatedUsers += 1;
     } else {
       const tempPassword = crypto.randomBytes(16).toString("hex");
@@ -112,7 +157,7 @@ async function main() {
 
       await usersCollection.insertOne({
         ...(preferredId ? { _id: preferredId } : {}),
-        email: u.email,
+        email: safeEmail,
         password: passwordHash,
         createdAt: toDate(u.createdAt) || new Date(),
         ...setFields,
@@ -177,6 +222,7 @@ async function main() {
       transformed: users.length,
       insertedUsers,
       updatedUsers,
+      emailCollisionsResolved,
     },
     castings: {
       transformed: castings.length,

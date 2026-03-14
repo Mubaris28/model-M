@@ -1,0 +1,30 @@
+{
+  "inputDir": "c:\\Projects\\model-M\\server\\migrations\\phase1\\2026-03-13T11-09-28-297Z",
+  "source": {
+    "usersDocs": 238,
+    "modelsDocs": 119,
+    "mergedUniqueUids": 238
+  },
+  "mongo": {
+    "totalUsers": 239,
+    "modelRoleUsers": 210,
+    "professionalRoleUsers": 12,
+    "modelProfilesComplete": 105,
+    "modelProfilesPending": 110,
+    "modelProfilesApproved": 55,
+    "modelRoleWithUid": 210,
+    "modelRoleNoUid": 0,
+    "hasModelsCollection": false,
+    "modelsCollectionCount": null
+  },
+  "reconciliation": {
+    "mongoUsersWithFirebaseUid": 237,
+    "missingFromMongoCount": 1,
+    "missingFromMongoSample": [
+      "o5MNzjL11OQvgvSpwqs5K1z53tI2"
+    ],
+    "duplicateFirebaseUidRows": 0,
+    "duplicateFirebaseUidSample": []
+  },
+  "generatedAt": "2026-03-14T06:58:16.671Z"
+}

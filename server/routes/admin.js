@@ -1,5 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
+import crypto from "node:crypto";
 import { auth, adminOnly } from "../middleware/auth.js";
 import User from "../models/User.js";
 import Casting from "../models/Casting.js";
@@ -101,6 +102,37 @@ router.patch("/users/:id", async (req, res) => {
     const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select("-password");
     if (!user) return res.status(404).json({ error: "User not found" });
     res.json(user);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/admin/users/:id/force-password-reset
+router.post("/users/:id/force-password-reset", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("+passwordResetTokenHash +passwordResetTokenExpiresAt");
+    if (!user) return res.status(404).json({ error: "User not found" });
+    if (user.isAdmin) {
+      return res.status(400).json({ error: "Admin password reset must be handled manually" });
+    }
+
+    user.password = crypto.randomBytes(32).toString("hex");
+    user.passwordResetRequired = true;
+    user.passwordResetRequiredAt = new Date();
+    user.passwordResetTokenHash = "";
+    user.passwordResetTokenExpiresAt = null;
+    await user.save();
+
+    res.json({
+      ok: true,
+      user: {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+        passwordResetRequired: user.passwordResetRequired,
+        passwordResetRequiredAt: user.passwordResetRequiredAt,
+      },
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

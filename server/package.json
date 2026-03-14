@@ -6,10 +6,12 @@
     "start": "node index.js",
     "dev": "node --watch index.js",
     "migrate:phase1:export": "node scripts/phase1-export-firebase.js",
+    "migrate:phase1:verify": "node scripts/phase1-verify-export-users.js",
     "migrate:phase1:transform": "node scripts/phase1-transform-only.js",
     "migrate:phase1:import": "node scripts/phase1-transform-import.js",
     "migrate:phase1:import:transformed": "node scripts/phase1-import-transformed.js",
-    "auth:force-reset:migrated": "node scripts/force-password-reset-migrated.js"
+    "auth:force-reset:migrated": "node scripts/force-password-reset-migrated.js",
+    "auth:force-reset:all-non-admin": "node scripts/force-password-reset-migrated.js --allUsers=true --includeAdmins=false"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
