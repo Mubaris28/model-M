@@ -4,6 +4,7 @@ import { imgSrc } from "@/lib/utils";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { publicApi, type PublicModel } from "@/lib/api";
+import { NEW_FACES_NAMES, orderByNames } from "@/lib/homepage-models";
 
 type FaceCard = {
   id: string;
@@ -39,10 +40,11 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
 
   useEffect(() => {
     publicApi
-      .sectionsNewFaces()
+      .models()
       .then((list) => {
         if (!list?.length) return;
-        setFaces(list.map(toFaceCard));
+        const ordered = orderByNames(list, NEW_FACES_NAMES);
+        setFaces(ordered.map(toFaceCard));
       })
       .catch(() => {});
   }, []);
@@ -126,11 +128,7 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
             </motion.div>
           ))}
           {displayList.length === 0 && (
-            <p className="text-muted-foreground text-sm font-body py-8">
-              {faces.length === 0
-                ? "No new faces to show yet. Add approved models with usernames: OPHELIE, LADLI, EMMY DRH, ROSEDELEANNE, MEGHA, MILES."
-                : "No models found for this country yet."}
-            </p>
+            <p className="text-muted-foreground text-sm font-body py-8">No models found for this country yet.</p>
           )}
         </div>
       </div>

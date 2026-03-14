@@ -4,6 +4,7 @@ import { imgSrc } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { publicApi, type PublicModel } from "@/lib/api";
+import { TRENDING_NAMES, orderByNames } from "@/lib/homepage-models";
 
 type ModelCard = { id: string; name: string; image: string | { src: string }; category: string; location: string; height: string; likes: number };
 
@@ -25,10 +26,11 @@ const FeaturedModels = () => {
 
   useEffect(() => {
     publicApi
-      .sectionsTrending()
+      .models()
       .then((list) => {
         if (!list?.length) return;
-        setModels(list.slice(0, 6).map(toCard));
+        const ordered = orderByNames(list, TRENDING_NAMES);
+        setModels(ordered.slice(0, 6).map(toCard));
       })
       .catch(() => {});
   }, []);
