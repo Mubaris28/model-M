@@ -32,9 +32,9 @@ export default function LatestModelsSlider() {
           const ordered = config.latestIds
             .map((id) => allCards.find((c) => c.id === id))
             .filter(Boolean) as SliderCard[];
-          setCards(ordered.slice(0, 15));
+          setCards(ordered.slice(0, 16));
         } else {
-          setCards(allCards.slice(0, 15));
+          setCards(allCards.slice(0, 16));
         }
       })
       .catch(() => {});

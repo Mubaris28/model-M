@@ -222,7 +222,7 @@ const AdminPanelPage = () => {
     const log: string[] = [];
     try {
       for (const { category, names } of CATEGORY_ASSIGNMENTS) {
-        const { results } = await adminApi.resolveModels(names);
+        const { results } = await adminApi.resolveModels([...names]);
         for (const r of results) {
           if (r.id) {
             await adminApi.assignCategory(r.id, category);
@@ -826,7 +826,7 @@ const AdminPanelPage = () => {
                   {([
                     { label: "New Faces (6 names)", key: "newFaces" as const, placeholder: "OPHELIE, LADLI, EMMY DRH, ROSEDELEANNE, MEGHA, MILES" },
                     { label: "Trending Models (6 names)", key: "trending" as const, placeholder: "RITISA, MARY KETH, LAKSHANA, IVAN 09, SAMANTA, KIARA" },
-                    { label: "Latest Models Slider (optional)", key: "latest" as const, placeholder: "Leave empty to use 15 newest" },
+                    { label: "Latest Models Slider (optional)", key: "latest" as const, placeholder: "Leave empty to use 16 newest" },
                   ]).map(({ label, key, placeholder }) => (
                     <div key={key}>
                       <label className="text-xs font-body text-muted-foreground uppercase tracking-wider block mb-1">{label}</label>
@@ -932,11 +932,11 @@ const AdminPanelPage = () => {
                       },
                       {
                         title: "Latest Models Slider",
-                        hint: "Shown in the Latest Models scrolling strip (up to 15). Leave empty → 15 newest.",
+                        hint: "Shown in the Latest Models scrolling strip (up to 16). Leave empty → 16 newest.",
                         ids: homepageConfig?.latestIds || [],
                         add: addToLatest,
                         remove: removeFromLatest,
-                        emptyNote: "Empty — 15 most recently added models will be used.",
+                        emptyNote: "Empty — 16 most recently added models will be used.",
                         selectKey: "latest" as const,
                       },
                     ] as { title: string; hint: string; ids: string[]; add: (id: string) => void; remove: (id: string) => void; emptyNote: string; selectKey: keyof typeof panelSelects }[]
