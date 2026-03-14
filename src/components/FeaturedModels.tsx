@@ -49,9 +49,6 @@ const FeaturedModels = () => {
         </div>
 
         <div className="mobile-slider gap-5 md:gap-6" style={{ gridTemplateColumns: "repeat(3,minmax(0,1fr))" }}>
-          {models.length === 0 && (
-            <p className="col-span-full text-muted-foreground font-body text-sm py-8">No models to show yet. Check back soon.</p>
-          )}
           {models.slice(0, 6).map((model, i) => (
             <motion.div
               key={model.id}

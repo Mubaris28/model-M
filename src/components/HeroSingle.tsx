@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Link } from "@/lib/router-next";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, Play, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const HERO_IMG = "/images/hero/hero-model.jpg";
@@ -11,13 +11,13 @@ export default function HeroSingle() {
   const [showVideo, setShowVideo] = useState(false);
 
   return (
-    <section className="relative min-h-[55vh] max-h-[85dvh] md:min-h-[70vh] md:h-screen md:max-h-[100dvh] overflow-hidden">
+    <section className="relative min-h-[55vh] max-h-[85dvh] md:min-h-[70vh] md:h-screen md:max-h-[100dvh] overflow-hidden bg-foreground">
       <img
         src={HERO_IMG}
-        alt="One Platform for all models"
-        className="absolute inset-0 w-full h-full object-cover object-[70%_center] md:object-[65%_center] lg:object-center"
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover object-center"
       />
-      <div className="absolute inset-0 cinematic-overlay" />
+      <div className="absolute inset-0 bg-gradient-to-r from-foreground/85 via-foreground/50 to-transparent" />
       <div className="absolute inset-0 cinematic-overlay-left" />
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 h-full flex flex-col lg:flex-row items-start lg:items-center justify-end lg:justify-between gap-4 sm:gap-5 md:gap-6 lg:gap-8 xl:gap-10 pt-24 sm:pt-28 md:pt-32 lg:pt-32 xl:pt-36 pb-8 sm:pb-10 lg:pb-8 xl:pb-10">
@@ -52,6 +52,15 @@ export default function HeroSingle() {
             >
               Professionals
               <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              to="/event"
+              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white px-4 py-2.5 sm:px-5 sm:py-3 font-body font-medium tracking-[0.15em] uppercase text-[10px] sm:text-xs hover:bg-white/20 hover:border-white/50 transition-all"
+              aria-label="Casting Event 18 April 2026, Labourdonnais Waterfront Hotel – View details"
+            >
+              <Calendar className="w-4 h-4 shrink-0" />
+              <span>Casting Event</span>
+              <span className="text-white/80 font-normal">18 Apr</span>
             </Link>
           </div>
         </div>

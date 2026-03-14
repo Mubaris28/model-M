@@ -55,7 +55,6 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
   );
   const filtered = activeCountry === "All" ? faces : faces.filter((m) => m.country === activeCountry);
   const displayList = homePreview ? filtered.slice(0, 6) : filtered;
-
   return (
     <section className="py-24 bg-card">
       <div className="container mx-auto px-4 md:px-6">

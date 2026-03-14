@@ -64,6 +64,42 @@ const INTENTS: Array<{
     }),
   },
   {
+    name: "create_profile",
+    keywords: [
+      "create profile",
+      "creating your profile",
+      "create my profile",
+      "creating my profile",
+      "how to create profile",
+      "help creating profile",
+      "profile help",
+      "set up profile",
+    ],
+    reply: (): ChatReply => ({
+      text: "Here’s your route map:\n\n1. Online: Create your account and profile via Sign up. Complete the steps to build your model profile.\n\n2. In person: Come to our Official Model Casting event in Mauritius. Our help desk will be there to assist you in creating your profile and answering any questions. Full details (date, location, what to bring) are on the event page.",
+      link: { href: "/signup", label: "Create profile (Sign up)" },
+    }),
+  },
+  {
+    name: "event_help_desk",
+    keywords: [
+      "event",
+      "casting event",
+      "official casting",
+      "mauritius casting",
+      "help desk",
+      "event help desk",
+      "where is the help desk",
+      "when is the casting",
+      "labourdonnais",
+      "18 april",
+    ],
+    reply: (): ChatReply => ({
+      text: "Our Official Model Casting in Mauritius has all the details. Our help desk will be available at the venue to assist you in creating your profile and answering any questions. The event page has the date, time, location (Labourdonnais Waterfront Hotel), what to bring, and how to register.",
+      link: { href: "/event", label: "View event details" },
+    }),
+  },
+  {
     name: "contact_details",
     keywords: [
       "email", "call", "contact", "number", "address", "phone", "whatsapp",
@@ -247,6 +283,8 @@ const INTENTS: Array<{
 
 export const QUICK_OPTIONS = [
   "Apply as model",
+  "Create profile",
+  "Event / Help desk",
   "View models",
   "Casting calls",
   "Dashboard",
@@ -259,7 +297,7 @@ export const QUICK_OPTIONS = [
 ];
 
 const FALLBACK_REPLY: ChatReply = {
-  text: "I can help with applying as a model, contact, dashboard, report an issue, how it works, safety, support, categories, directory, and more. Pick a quick option below or type your question.",
+  text: "I can help with creating your profile, the casting event and help desk, applying as a model, contact, dashboard, report an issue, how it works, safety, support, categories, directory, and more. Pick a quick option below or type your question.",
 };
 
 export async function getReply(
