@@ -228,6 +228,8 @@ export const adminApi = {
     api<{ results: { id: string | null; name: string; photo?: string }[] }>("/api/admin/resolve-models", { method: "POST", body: { names } }),
   assignCategory: (modelId: string, category: string) =>
     api<{ id: string; name: string; categories: string[] }>("/api/admin/assign-category", { method: "POST", body: { modelId, category } }),
+  seedHomepageAndCategories: () =>
+    api<{ message: string; categoryAssigned: string[]; newFacesIds: string[]; trendingIds: string[] }>("/api/admin/seed-homepage-and-categories", { method: "POST" }),
 };
 
 export interface ContactMessage {

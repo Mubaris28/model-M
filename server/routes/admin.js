@@ -233,4 +233,66 @@ router.post("/assign-category", async (req, res) => {
   }
 });
 
+// Resolve a single name to model ID (role: model, match username or fullName)
+async function resolveName(name) {
+  const q = String(name).trim();
+  if (!q) return null;
+  const regex = new RegExp("^" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i");
+  const user = await User.findOne({ role: "model", $or: [{ username: regex }, { fullName: regex }] }).select("_id").lean();
+  return user ? user._id.toString() : null;
+}
+
+// POST /api/admin/seed-homepage-and-categories — one-shot: assign categories and set New Faces + Trending from default names
+router.post("/seed-homepage-and-categories", async (req, res) => {
+  try {
+    const categoryAssignments = [
+      { category: "Bold", names: ["LEA"] },
+      { category: "Bikini", names: ["GWEN SUN"] },
+      { category: "Mature", names: ["GENEVIEVECHALAND"] },
+      { category: "Glamour", names: ["MEGHA"] },
+      { category: "Commercial", names: ["VICTORIA"] },
+      { category: "Fitness", names: ["BYRJOHA"] },
+    ];
+    const newFacesNames = ["OPHELIE", "LADLI", "EMMY DRH", "ROSEDELEANNE", "MEGHA", "MILES"];
+    const trendingNames = ["RITISA", "MARY KETH", "LAKSHANA", "IVAN 09", "SAMANTA", "KIARA"];
+
+    const assigned = [];
+    for (const { category, names } of categoryAssignments) {
+      for (const name of names) {
+        const id = await resolveName(name);
+        if (id) {
+          await User.findByIdAndUpdate(id, { $addToSet: { categories: category } });
+          assigned.push(`${name} → ${category}`);
+        }
+      }
+    }
+
+    const newFacesIds = [];
+    for (const name of newFacesNames) {
+      const id = await resolveName(name);
+      if (id) newFacesIds.push(id);
+    }
+    const trendingIds = [];
+    for (const name of trendingNames) {
+      const id = await resolveName(name);
+      if (id) trendingIds.push(id);
+    }
+
+    await HomepageConfig.findOneAndUpdate(
+      {},
+      { newFacesIds: newFacesIds.map((id) => new mongoose.Types.ObjectId(id)), trendingIds: trendingIds.map((id) => new mongoose.Types.ObjectId(id)) },
+      { upsert: true }
+    );
+
+    res.json({
+      message: "Seed applied",
+      categoryAssigned: assigned,
+      newFacesIds,
+      trendingIds,
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;

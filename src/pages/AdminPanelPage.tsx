@@ -210,11 +210,30 @@ const AdminPanelPage = () => {
     { category: "Bold", names: ["LEA"] },
     { category: "Bikini", names: ["GWEN SUN"] },
     { category: "Mature", names: ["GENEVIEVECHALAND"] },
+    { category: "Glamour", names: ["MEGHA"] },
     { category: "Commercial", names: ["VICTORIA"] },
     { category: "Fitness", names: ["BYRJOHA"] },
   ] as const;
   const [catAssignLoading, setCatAssignLoading] = useState(false);
   const [catAssignResults, setCatAssignResults] = useState<string[]>([]);
+  const [seedLoading, setSeedLoading] = useState(false);
+  const [seedMessage, setSeedMessage] = useState("");
+
+  const runSeed = async () => {
+    setSeedLoading(true);
+    setSeedMessage("");
+    try {
+      const res = await adminApi.seedHomepageAndCategories();
+      setSeedMessage(
+        `Done. Categories: ${res.categoryAssigned.length}. New Faces: ${res.newFacesIds.length}. Trending: ${res.trendingIds.length}.`
+      );
+      await loadHomepage();
+    } catch (e) {
+      setSeedMessage("Error: " + (e as Error).message);
+    } finally {
+      setSeedLoading(false);
+    }
+  };
 
   const runCategoryAssignments = async () => {
     setCatAssignLoading(true);
@@ -816,6 +835,22 @@ const AdminPanelPage = () => {
                 Manually choose which models appear in each homepage section. Order in the list = display order. Leave a list empty to use the default (newest first).
               </p>
 
+              {/* ── One-click seed ── */}
+              <div className="border border-amber-500/40 bg-amber-500/10 p-4 mb-6">
+                <h3 className="font-display text-lg text-foreground mb-1">Apply default models (seed)</h3>
+                <p className="text-muted-foreground text-xs font-body mb-3">
+                  One click: assign categories (Bold→LEA, Bikini→GWEN SUN, etc.) and set New Faces + Trending from the default name lists. Only models that exist in the DB will be applied.
+                </p>
+                <button
+                  onClick={runSeed}
+                  disabled={seedLoading}
+                  className="px-4 py-2 bg-amber-600 text-white text-sm font-body hover:bg-amber-700 disabled:opacity-50"
+                >
+                  {seedLoading ? "Applying…" : "Seed now"}
+                </button>
+                {seedMessage && <p className="text-sm font-body mt-2 text-foreground">{seedMessage}</p>}
+              </div>
+
               {/* ── Quick Setup ── */}
               <div className="border border-primary/30 bg-primary/5 p-6 mb-6">
                 <h3 className="font-display text-lg text-primary mb-1">Quick Setup — Assign by Name</h3>
@@ -887,6 +922,7 @@ const AdminPanelPage = () => {
                   <li>Bold → LEA</li>
                   <li>Bikini → GWEN SUN</li>
                   <li>Mature → GENEVIEVECHALAND</li>
+                  <li>Glamour → MEGHA</li>
                   <li>Commercial → VICTORIA</li>
                   <li>Fitness → BYRJOHA</li>
                 </ul>
