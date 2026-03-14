@@ -3,6 +3,18 @@
 const raw = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "";
 const API_URL = raw && !/^https?:\/\//i.test(raw) ? `https://${raw.replace(/^\/+/, "")}` : raw;
 
+export class ApiError extends Error {
+  status: number;
+  code?: string;
+
+  constructor(message: string, status: number, code?: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.code = code;
+  }
+}
+
 function getToken(): string | null {
   return localStorage.getItem("token");
 }
@@ -48,17 +60,19 @@ export async function api<T>(
   const data = isJson ? await res.json().catch(() => ({})) : {};
 
   if (!res.ok) {
-    const body = data as { error?: string; message?: string; msg?: string };
+    const body = data as { error?: string; message?: string; msg?: string; code?: string };
     const message =
       body.error || body.message || body.msg || res.statusText || "Something went wrong. Please try again.";
     if (!isJson || (!body.error && !body.message && !body.msg)) {
-      throw new Error(
+      throw new ApiError(
         res.status === 0 || res.status >= 502
           ? "Cannot reach the server. If you're running locally, start the API with: npm run server (in a separate terminal)."
-          : message
+          : message,
+        res.status,
+        body.code
       );
     }
-    throw new Error(message);
+    throw new ApiError(message, res.status, body.code);
   }
   return data as T;
 }
@@ -68,6 +82,10 @@ export const authApi = {
     api<{ user: User; token: string }>("/api/auth/signup", { method: "POST", body }),
   login: (body: { email: string; password: string }) =>
     api<{ user: User; token: string }>("/api/auth/login", { method: "POST", body }),
+  forgotPassword: (body: { email: string }) =>
+    api<{ ok: boolean; message: string }>("/api/auth/forgot-password", { method: "POST", body }),
+  resetPassword: (body: { token: string; password: string }) =>
+    api<{ ok: boolean; message: string }>("/api/auth/reset-password", { method: "POST", body }),
   adminSignup: (body: { email: string; password: string; fullName?: string }) =>
     api<{ user: User; token: string }>("/api/auth/admin/signup", { method: "POST", body }),
   adminLogin: (body: { email: string; password: string }) =>

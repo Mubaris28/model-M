@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema(
     instagram: { type: String, default: "" },
     // Model application (Step 2)
     idNumber: { type: String, default: "" },
+    passwordResetRequired: { type: Boolean, default: false },
+    passwordResetRequiredAt: { type: Date, default: null },
+    passwordResetTokenHash: { type: String, default: "", select: false },
+    passwordResetTokenExpiresAt: { type: Date, default: null, select: false },
   },
   { timestamps: true }
 );

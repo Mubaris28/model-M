@@ -22,6 +22,17 @@ export const loginValidation = [
   handleValidation,
 ];
 
+export const forgotPasswordValidation = [
+  body("email").trim().isEmail().withMessage("Valid email is required").normalizeEmail(),
+  handleValidation,
+];
+
+export const resetPasswordValidation = [
+  body("token").trim().notEmpty().withMessage("Reset token is required"),
+  body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
+  handleValidation,
+];
+
 export const adminSignupValidation = [
   body("email").trim().isEmail().withMessage("Valid email is required").normalizeEmail(),
   body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),

@@ -41,4 +41,45 @@ export async function sendContactEmail({ name, email, message }) {
   }
 }
 
+function buildPasswordResetUrl(token) {
+  const template = process.env.PASSWORD_RESET_URL_TEMPLATE || "";
+  const fallbackBase = process.env.PASSWORD_RESET_URL_BASE || "";
+
+  if (template.includes("{{token}}")) {
+    return template.replace("{{token}}", encodeURIComponent(token));
+  }
+
+  if (fallbackBase) {
+    const sep = fallbackBase.includes("?") ? "&" : "?";
+    return `${fallbackBase}${sep}token=${encodeURIComponent(token)}`;
+  }
+
+  return `http://localhost:5173/reset-password?token=${encodeURIComponent(token)}`;
+}
+
+export async function sendPasswordResetEmail({ to, fullName, token }) {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn("Password reset: SMTP not configured. Reset email was not sent.");
+    return false;
+  }
+
+  const resetUrl = buildPasswordResetUrl(token);
+  const safeName = fullName?.trim() || "there";
+
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || "noreply@modelmanagement.com",
+      to,
+      subject: "Reset your password",
+      text: `Hi ${safeName},\n\nUse this link to reset your password:\n${resetUrl}\n\nThis link expires in 1 hour.\n\nIf you did not request this, you can ignore this email.`,
+      html: `<p>Hi ${safeName},</p><p>Use this link to reset your password:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>This link expires in 1 hour.</p><p>If you did not request this, you can ignore this email.</p>`,
+    });
+    return true;
+  } catch (err) {
+    console.error("Password reset email send failed:", err.message);
+    return false;
+  }
+}
+
 export { CONTACT_TO };

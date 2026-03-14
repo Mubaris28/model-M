@@ -1,8 +1,16 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import crypto from "node:crypto";
 import User from "../models/User.js";
 import { auth } from "../middleware/auth.js";
-import { signupValidation, loginValidation, adminSignupValidation } from "../middleware/validate.js";
+import {
+  signupValidation,
+  loginValidation,
+  adminSignupValidation,
+  forgotPasswordValidation,
+  resetPasswordValidation,
+} from "../middleware/validate.js";
+import { sendPasswordResetEmail } from "../lib/email.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
@@ -52,12 +60,82 @@ router.post("/login", loginValidation, async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
     if (!user) return res.status(401).json({ error: "Invalid email or password" });
+    if (user.passwordResetRequired) {
+      return res.status(403).json({
+        error: "Password reset required",
+        code: "PASSWORD_RESET_REQUIRED",
+      });
+    }
     const ok = await user.comparePassword(password);
     if (!ok) return res.status(401).json({ error: "Invalid email or password" });
 
     const token = signToken(user);
     const u = await User.findById(user._id).select("-password");
     res.json({ user: u, token });
+  } catch (e) {
+    e.statusCode = e.statusCode || 500;
+    next(e);
+  }
+});
+
+// POST /api/auth/forgot-password
+// Always returns success-style response to avoid email enumeration.
+router.post("/forgot-password", forgotPasswordValidation, async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email: email.toLowerCase() }).select("+passwordResetTokenHash");
+
+    if (user) {
+      const rawToken = crypto.randomBytes(32).toString("hex");
+      const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+      const expiresAt = new Date(Date.now() + 1000 * 60 * 60);
+
+      user.passwordResetTokenHash = tokenHash;
+      user.passwordResetTokenExpiresAt = expiresAt;
+      user.passwordResetRequired = true;
+      user.passwordResetRequiredAt = user.passwordResetRequiredAt || new Date();
+      await user.save();
+
+      await sendPasswordResetEmail({
+        to: user.email,
+        fullName: user.fullName,
+        token: rawToken,
+      });
+    }
+
+    res.json({
+      ok: true,
+      message: "If this email exists, a password reset link has been sent.",
+    });
+  } catch (e) {
+    e.statusCode = e.statusCode || 500;
+    next(e);
+  }
+});
+
+// POST /api/auth/reset-password
+router.post("/reset-password", resetPasswordValidation, async (req, res, next) => {
+  try {
+    const { token, password } = req.body;
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await User.findOne({
+      passwordResetTokenHash: tokenHash,
+      passwordResetTokenExpiresAt: { $gt: new Date() },
+    }).select("+password +passwordResetTokenHash +passwordResetTokenExpiresAt");
+
+    if (!user) {
+      return res.status(400).json({ error: "Invalid or expired reset token" });
+    }
+
+    user.password = password;
+    user.passwordResetRequired = false;
+    user.passwordResetRequiredAt = null;
+    user.passwordResetTokenHash = "";
+    user.passwordResetTokenExpiresAt = null;
+    await user.save();
+
+    res.json({ ok: true, message: "Password updated successfully" });
   } catch (e) {
     e.statusCode = e.statusCode || 500;
     next(e);
