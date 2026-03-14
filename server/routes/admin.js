@@ -1,8 +1,10 @@
 import express from "express";
+import mongoose from "mongoose";
 import { auth, adminOnly } from "../middleware/auth.js";
 import User from "../models/User.js";
 import Casting from "../models/Casting.js";
 import Contact from "../models/Contact.js";
+import HomepageConfig from "../models/HomepageConfig.js";
 
 const router = express.Router();
 
@@ -68,6 +70,7 @@ router.get("/users", async (req, res) => {
       filter.$or = [
         { email: new RegExp(search.trim(), "i") },
         { fullName: new RegExp(search.trim(), "i") },
+        { username: new RegExp(search.trim(), "i") },
       ];
     }
     const users = await User.find(filter).select("-password").sort({ createdAt: -1 }).limit(200).lean();
@@ -141,6 +144,50 @@ router.patch("/castings/:id", async (req, res) => {
     const casting = await Casting.findByIdAndUpdate(req.params.id, update, { new: true }).lean();
     if (!casting) return res.status(404).json({ error: "Casting not found" });
     res.json(casting);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/admin/homepage-config — New Faces, Trending & Latest model ID lists
+router.get("/homepage-config", async (req, res) => {
+  try {
+    const doc = await HomepageConfig.findOne().lean();
+    const newFacesIds = (doc?.newFacesIds || []).map((id) => id.toString());
+    const trendingIds = (doc?.trendingIds || []).map((id) => id.toString());
+    const latestIds   = (doc?.latestIds   || []).map((id) => id.toString());
+    res.json({ newFacesIds, trendingIds, latestIds });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// PATCH /api/admin/homepage-config — set New Faces, Trending & Latest model IDs
+router.patch("/homepage-config", async (req, res) => {
+  try {
+    const { newFacesIds, trendingIds, latestIds } = req.body;
+    const toObjectIds = (arr) =>
+      (Array.isArray(arr) ? arr : [])
+        .filter((id) => id && typeof id === "string")
+        .map((id) => {
+          try {
+            return new mongoose.Types.ObjectId(id);
+          } catch {
+            return null;
+          }
+        })
+        .filter(Boolean);
+    const update = {
+      newFacesIds: toObjectIds(newFacesIds),
+      trendingIds: toObjectIds(trendingIds),
+      latestIds:   toObjectIds(latestIds),
+    };
+    const doc = await HomepageConfig.findOneAndUpdate({}, update, { new: true, upsert: true }).lean();
+    res.json({
+      newFacesIds: (doc?.newFacesIds || []).map((id) => id.toString()),
+      trendingIds: (doc?.trendingIds || []).map((id) => id.toString()),
+      latestIds:   (doc?.latestIds   || []).map((id) => id.toString()),
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

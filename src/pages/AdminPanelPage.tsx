@@ -14,14 +14,18 @@ import {
   RefreshCw,
   Camera,
   Building2,
+  Home,
+  Plus,
+  X,
+  Save,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { adminApi, User, AdminStats, ContactMessage, Casting } from "@/lib/api";
+import { adminApi, publicApi, User, AdminStats, ContactMessage, Casting, HomepageConfig, PublicModel } from "@/lib/api";
 import { imgSrc } from "@/lib/utils";
 
 const USERS_PAGE_SIZE = 20;
 
-type TabId = "dashboard" | "users" | "castings" | "marketplace" | "bookings";
+type TabId = "dashboard" | "users" | "castings" | "marketplace" | "bookings" | "homepage";
 
 const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -29,6 +33,7 @@ const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
   { id: "castings", label: "Casting Management", icon: Briefcase },
   { id: "marketplace", label: "Marketplace Offers", icon: ShoppingBag },
   { id: "bookings", label: "Bookings & Applications", icon: CreditCard },
+  { id: "homepage", label: "Homepage Curation", icon: Home },
 ];
 
 const AdminPanelPage = () => {
@@ -40,12 +45,14 @@ const AdminPanelPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersPage, setUsersPage] = useState(0);
+  const [userProfileFilter, setUserProfileFilter] = useState<"all" | "complete" | "incomplete">("all");
   const [authError, setAuthError] = useState("");
 
   const loadUsers = async () => {
     setUsersLoading(true);
     try {
-      const data = await adminApi.users();
+      const params = userProfileFilter !== "all" ? { profile: userProfileFilter } : undefined;
+      const data = await adminApi.users(params);
       setUsers(data);
     } catch {
       setAuthError("Failed to load users.");
@@ -62,6 +69,12 @@ const AdminPanelPage = () => {
       setUsersPage(Math.max(0, totalPages - 1));
     }
   }, [activeTab, totalPages, usersPage]);
+
+  useEffect(() => {
+    if (activeTab !== "users" || !user?.isAdmin) return;
+    loadUsers();
+  }, [activeTab, userProfileFilter, user?.isAdmin]);
+
   const [castingList, setCastingList] = useState<Casting[]>([]);
   const [castingsLoading, setCastingsLoading] = useState(false);
   const [castingStatusFilter, setCastingStatusFilter] = useState<string>("all");
@@ -114,6 +127,66 @@ const AdminPanelPage = () => {
   const [viewUser, setViewUser] = useState<User | null>(null);
   const [viewUserLoading, setViewUserLoading] = useState(false);
 
+  const [homepageConfig, setHomepageConfig] = useState<HomepageConfig | null>(null);
+  const [homepageModels, setHomepageModels] = useState<PublicModel[]>([]);
+  const [homepageLoading, setHomepageLoading] = useState(false);
+  const [homepageSaving, setHomepageSaving] = useState(false);
+
+  const loadHomepage = async () => {
+    setHomepageLoading(true);
+    try {
+      const [config, models] = await Promise.all([adminApi.homepageConfig(), publicApi.models()]);
+      setHomepageConfig(config);
+      setHomepageModels(models);
+    } catch {
+      setAuthError("Failed to load homepage config.");
+    } finally {
+      setHomepageLoading(false);
+    }
+  };
+
+  const saveHomepageConfig = async () => {
+    if (!homepageConfig) return;
+    setHomepageSaving(true);
+    try {
+      const updated = await adminApi.updateHomepageConfig({
+        newFacesIds: homepageConfig.newFacesIds,
+        trendingIds: homepageConfig.trendingIds,
+        latestIds: homepageConfig.latestIds,
+      });
+      setHomepageConfig(updated);
+    } catch {
+      setAuthError("Failed to save homepage config.");
+    } finally {
+      setHomepageSaving(false);
+    }
+  };
+
+  const addToNewFaces = (modelId: string) => {
+    if (!homepageConfig || homepageConfig.newFacesIds.includes(modelId)) return;
+    setHomepageConfig({ ...homepageConfig, newFacesIds: [...homepageConfig.newFacesIds, modelId] });
+  };
+  const removeFromNewFaces = (modelId: string) => {
+    if (!homepageConfig) return;
+    setHomepageConfig({ ...homepageConfig, newFacesIds: homepageConfig.newFacesIds.filter((id) => id !== modelId) });
+  };
+  const addToTrending = (modelId: string) => {
+    if (!homepageConfig || homepageConfig.trendingIds.includes(modelId)) return;
+    setHomepageConfig({ ...homepageConfig, trendingIds: [...homepageConfig.trendingIds, modelId] });
+  };
+  const removeFromTrending = (modelId: string) => {
+    if (!homepageConfig) return;
+    setHomepageConfig({ ...homepageConfig, trendingIds: homepageConfig.trendingIds.filter((id) => id !== modelId) });
+  };
+  const addToLatest = (modelId: string) => {
+    if (!homepageConfig || homepageConfig.latestIds.includes(modelId)) return;
+    setHomepageConfig({ ...homepageConfig, latestIds: [...homepageConfig.latestIds, modelId] });
+  };
+  const removeFromLatest = (modelId: string) => {
+    if (!homepageConfig) return;
+    setHomepageConfig({ ...homepageConfig, latestIds: homepageConfig.latestIds.filter((id) => id !== modelId) });
+  };
+
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -138,8 +211,8 @@ const AdminPanelPage = () => {
   useEffect(() => {
     if (user?.isAdmin) {
       loadStats();
-      if (activeTab === "users") loadUsers();
       if (activeTab === "castings") loadCastings(castingStatusFilter);
+      if (activeTab === "homepage") loadHomepage();
       if (activeTab === "bookings") loadContacts(contactTypeFilter === "all" ? "all" : contactTypeFilter);
     }
   }, [user?.isAdmin, activeTab]);
@@ -148,6 +221,7 @@ const AdminPanelPage = () => {
     loadStats();
     if (activeTab === "users") loadUsers();
     if (activeTab === "castings") loadCastings(castingStatusFilter);
+    if (activeTab === "homepage") loadHomepage();
     if (activeTab === "bookings") loadContacts(contactTypeFilter === "all" ? "all" : contactTypeFilter);
   };
 
@@ -368,7 +442,23 @@ const AdminPanelPage = () => {
 
           {activeTab === "users" && (
             <>
-              <h2 className="font-display text-xl text-foreground mb-4">User Management</h2>
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                <h2 className="font-display text-xl text-foreground">User Management</h2>
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-xs font-body text-muted-foreground self-center">Profile:</span>
+                  {(["all", "complete", "incomplete"] as const).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => { setUserProfileFilter(p); setUsersPage(0); }}
+                      className={`px-3 py-1.5 text-xs font-body uppercase tracking-wider border transition-colors ${
+                        userProfileFilter === p ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-primary/50"
+                      }`}
+                    >
+                      {p === "all" ? "All" : p === "complete" ? "Complete" : "Incomplete"}
+                    </button>
+                  ))}
+                </div>
+              </div>
               {usersLoading ? (
                 <p className="text-muted-foreground font-body">Loading users...</p>
               ) : (
@@ -385,12 +475,14 @@ const AdminPanelPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {paginatedUsers.map((u) => (
+                      {paginatedUsers.map((u) => {
+                        const avatarSrc = u.profilePhoto || u.portfolio?.[0];
+                        return (
                         <tr key={u._id} className="border-t border-border">
                           <td className="p-3">
                             <div className="flex items-center gap-2">
-                              {u.profilePhoto ? (
-                                <img src={imgSrc(u.profilePhoto)} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                              {avatarSrc ? (
+                                <img src={imgSrc(avatarSrc)} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
                               ) : (
                                 <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
                                   {u.role === "model" ? <Camera className="w-4 h-4 text-muted-foreground" /> : <Building2 className="w-4 h-4 text-muted-foreground" />}
@@ -428,7 +520,7 @@ const AdminPanelPage = () => {
                             <button onClick={() => openViewUser(u)} className="text-primary text-xs hover:underline">View</button>
                           </td>
                         </tr>
-                      ))}
+                      );})}
                     </tbody>
                   </table>
                   {users.length === 0 && !usersLoading && (
@@ -577,6 +669,95 @@ const AdminPanelPage = () => {
             <>
               <h2 className="font-display text-xl text-foreground mb-4">Marketplace Offers</h2>
               <p className="text-muted-foreground font-body">Marketplace offers — approve/reject from this tab when connected.</p>
+            </>
+          )}
+
+          {activeTab === "homepage" && (
+            <>
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <h2 className="font-display text-xl text-foreground">Homepage Curation</h2>
+                <button
+                  onClick={saveHomepageConfig}
+                  disabled={homepageSaving || !homepageConfig}
+                  className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-sm font-body hover:opacity-90 disabled:opacity-50"
+                >
+                  <Save className="w-4 h-4" /> {homepageSaving ? "Saving..." : "Save changes"}
+                </button>
+              </div>
+              <p className="text-muted-foreground font-body text-sm mb-6">
+                Manually choose which models appear in each homepage section. Order in the list = display order. Leave a list empty to use the default (newest first).
+              </p>
+              {homepageLoading ? (
+                <p className="text-muted-foreground font-body">Loading...</p>
+              ) : (
+                <div className="space-y-6">
+                  {/* helper: reusable curation panel */}
+                  {(
+                    [
+                      {
+                        title: "New Faces",
+                        hint: "Shown in the New Faces section (first 6 on home page). Leave empty → newest first.",
+                        ids: homepageConfig?.newFacesIds || [],
+                        add: addToNewFaces,
+                        remove: removeFromNewFaces,
+                        emptyNote: "Empty — default order (newest first) will be used.",
+                      },
+                      {
+                        title: "Trending Models",
+                        hint: "Shown in the Trending Models section (first 6). Leave empty → first 6 approved.",
+                        ids: homepageConfig?.trendingIds || [],
+                        add: addToTrending,
+                        remove: removeFromTrending,
+                        emptyNote: "Empty — first 6 approved models will be used.",
+                      },
+                      {
+                        title: "Latest Models Slider",
+                        hint: "Shown in the Latest Models scrolling strip (up to 15). Leave empty → 15 newest.",
+                        ids: homepageConfig?.latestIds || [],
+                        add: addToLatest,
+                        remove: removeFromLatest,
+                        emptyNote: "Empty — 15 most recently added models will be used.",
+                      },
+                    ] as { title: string; hint: string; ids: string[]; add: (id: string) => void; remove: (id: string) => void; emptyNote: string }[]
+                  ).map((panel) => (
+                    <div key={panel.title} className="border border-border bg-card p-6">
+                      <h3 className="font-display text-lg text-primary mb-1">{panel.title}</h3>
+                      <p className="text-muted-foreground text-xs font-body mb-4">{panel.hint}</p>
+                      <select
+                        className="border border-border bg-background px-3 py-2 text-sm font-body w-full mb-4"
+                        value=""
+                        onChange={(e) => { const v = e.target.value; if (v) panel.add(v); e.target.value = ""; }}
+                      >
+                        <option value="">+ Add model...</option>
+                        {homepageModels
+                          .filter((m) => !panel.ids.includes(m._id))
+                          .map((m) => (
+                            <option key={m._id} value={m._id}>
+                              {m.username || m.fullName || m._id.slice(-6)}
+                            </option>
+                          ))}
+                      </select>
+                      <ul className="space-y-1 max-h-64 overflow-y-auto">
+                        {panel.ids.map((id, idx) => {
+                          const m = homepageModels.find((x) => x._id === id);
+                          return (
+                            <li key={id} className="flex items-center justify-between gap-2 py-1.5 border-b border-border last:border-0">
+                              <span className="text-xs text-muted-foreground w-5 shrink-0 text-right">{idx + 1}.</span>
+                              <span className="text-sm font-body flex-1 truncate">{m ? (m.username || m.fullName || "—") : id.slice(-8)}</span>
+                              <button type="button" onClick={() => panel.remove(id)} className="text-muted-foreground hover:text-destructive p-1 shrink-0" title="Remove">
+                                <X className="w-4 h-4" />
+                              </button>
+                            </li>
+                          );
+                        })}
+                        {panel.ids.length === 0 && (
+                          <li className="text-muted-foreground text-sm font-body py-2">{panel.emptyNote}</li>
+                        )}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           )}
 

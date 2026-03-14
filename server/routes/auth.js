@@ -206,7 +206,7 @@ router.get("/check-admin", auth, (req, res) => {
 // PATCH /api/auth/me — update current user (role, profileComplete, status, fullName, phone, company, profilePhoto, portfolio, idPhotoUrl, selfieWithIdUrl, bio, country)
 router.patch("/me", auth, async (req, res, next) => {
   try {
-    const allowed = ["role", "profileComplete", "status", "fullName", "phone", "company", "profilePhoto", "portfolio", "idPhotoUrl", "selfieWithIdUrl", "bio", "country", "dateOfBirth", "gender", "city", "height", "weight", "dressSize", "shoeSize", "eyeColor", "hairColor", "categories", "instagram", "idNumber"];
+    const allowed = ["role", "profileComplete", "status", "fullName", "username", "phone", "company", "profilePhoto", "portfolio", "idPhotoUrl", "selfieWithIdUrl", "bio", "country", "dateOfBirth", "gender", "city", "height", "weight", "dressSize", "shoeSize", "eyeColor", "hairColor", "categories", "instagram", "idNumber"];
     const updates = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) updates[key] = req.body[key];

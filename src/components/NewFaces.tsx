@@ -19,7 +19,7 @@ function toFaceCard(m: PublicModel): FaceCard {
   const age = m.dateOfBirth ? new Date().getFullYear() - new Date(m.dateOfBirth).getFullYear() : 0;
   return {
     id: m._id,
-    name: m.fullName || "Model",
+    name: m.username || m.fullName || "Model",
     image: photo,
     age: age || 20,
     location: m.city || "",
@@ -38,10 +38,20 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    publicApi
-      .models()
-      .then((list) => {
-        if (list?.length) setFaces(list.map(toFaceCard));
+    Promise.all([publicApi.homepageConfig(), publicApi.models()])
+      .then(([config, list]) => {
+        if (!list?.length) return;
+        const cards = list.map(toFaceCard);
+        if (config.newFacesIds?.length > 0) {
+          const idSet = new Set(config.newFacesIds);
+          const ordered = config.newFacesIds
+            .map((id) => cards.find((c) => c.id === id))
+            .filter(Boolean) as FaceCard[];
+          const rest = cards.filter((c) => !idSet.has(c.id));
+          setFaces([...ordered, ...rest]);
+        } else {
+          setFaces(cards);
+        }
       })
       .catch(() => {});
   }, []);

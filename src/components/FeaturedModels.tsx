@@ -11,7 +11,7 @@ function toCard(m: PublicModel): ModelCard {
   const photo = m.profilePhoto || m.portfolio?.[0] || "";
   return {
     id: m._id,
-    name: m.fullName || "Model",
+    name: m.username || m.fullName || "Model",
     image: photo,
     category: m.categories?.[0] || "Model",
     location: [m.city, m.country].filter(Boolean).join(", ") || "—",
@@ -24,10 +24,18 @@ const FeaturedModels = () => {
   const [models, setModels] = useState<ModelCard[]>([]);
 
   useEffect(() => {
-    publicApi
-      .models()
-      .then((list) => {
-        if (list?.length) setModels(list.slice(0, 6).map(toCard));
+    Promise.all([publicApi.homepageConfig(), publicApi.models()])
+      .then(([config, list]) => {
+        if (!list?.length) return;
+        const cards = list.map(toCard);
+        if (config.trendingIds?.length > 0) {
+          const ordered = config.trendingIds
+            .map((id) => cards.find((c) => c.id === id))
+            .filter(Boolean) as ModelCard[];
+          setModels(ordered.slice(0, 6));
+        } else {
+          setModels(cards.slice(0, 6));
+        }
       })
       .catch(() => {});
   }, []);

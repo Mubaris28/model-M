@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Providers } from "./Providers";
 import ScrollToTop from "@/components/ScrollToTop";
-import Chatbot from "@/components/Chatbot";
-import WhatsAppFAB from "@/components/WhatsAppFAB";
-import FloatingSocialButtons from "@/components/FloatingSocialButtons";
+import PublicFloatingWidgets from "@/components/PublicFloatingWidgets";
 import NewFeaturePopup from "@/components/NewFeaturePopup";
 import "./globals.css";
 
@@ -103,16 +101,14 @@ const jsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <Providers>
           <ScrollToTop />
           <div id="main-content">{children}</div>
-          <Chatbot />
-          <WhatsAppFAB />
+          <PublicFloatingWidgets />
           <NewFeaturePopup />
-          <FloatingSocialButtons />
         </Providers>
       </body>
     </html>

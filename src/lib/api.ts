@@ -97,6 +97,7 @@ export const authApi = {
     profileComplete?: boolean;
     status?: string;
     fullName?: string;
+    username?: string;
     phone?: string;
     company?: string;
     profilePhoto?: string;
@@ -220,6 +221,9 @@ export const adminApi = {
     const q = type && type !== "all" ? `?type=${type}` : "";
     return api<ContactMessage[]>("/api/admin/contacts" + q);
   },
+  homepageConfig: () => api<HomepageConfig>("/api/admin/homepage-config"),
+  updateHomepageConfig: (body: { newFacesIds?: string[]; trendingIds?: string[]; latestIds?: string[] }) =>
+    api<HomepageConfig>("/api/admin/homepage-config", { method: "PATCH", body }),
 };
 
 export interface ContactMessage {
@@ -234,6 +238,7 @@ export interface User {
   _id: string;
   email: string;
   fullName?: string;
+  username?: string;
   phone?: string;
   role?: string;
   status?: string;
@@ -290,6 +295,7 @@ export interface Casting {
 export interface PublicModel {
   _id: string;
   fullName?: string;
+  username?: string;
   profilePhoto?: string;
   portfolio?: string[];
   categories?: string[];
@@ -320,12 +326,19 @@ export interface PublicMarketplaceItem {
   createdAt?: string;
 }
 
+export interface HomepageConfig {
+  newFacesIds: string[];
+  trendingIds: string[];
+  latestIds: string[];
+}
+
 export const publicApi = {
   models: () => api<PublicModel[]>("/api/public/models"),
   model: (id: string) => api<PublicModel>(`/api/public/models/${id}`),
   castings: () => api<PublicCasting[]>("/api/public/castings"),
   marketplace: () => api<PublicMarketplaceItem[]>("/api/public/marketplace"),
   marketplaceItem: (id: string) => api<PublicMarketplaceItem>(`/api/public/marketplace/${id}`),
+  homepageConfig: () => api<HomepageConfig>("/api/public/homepage-config"),
 };
 
 export interface MyCasting {

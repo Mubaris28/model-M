@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import HeroSingle from "@/components/HeroSingle";
+import LatestModelsSlider from "@/components/LatestModelsSlider";
 import MagazineGrid from "@/components/MagazineGrid";
 import NewFaces from "@/components/NewFaces";
 import FeaturedModels from "@/components/FeaturedModels";
@@ -17,6 +18,8 @@ const Index = () => {
       <h1 className="sr-only">Model Management Mauritius - Professional Modeling Platform for Models and Talent</h1>
       <Navbar />
       <HeroSingle />
+
+      <LatestModelsSlider />
 
       <MagazineGrid />
       <NewFaces homePreview />

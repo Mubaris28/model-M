@@ -19,6 +19,7 @@ const DashboardAccountPage = () => {
   const [activeTab, setActiveTab] = useState<TabId>("personal");
   const [saved, setSaved] = useState(false);
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
   const [country, setCountry] = useState("");
@@ -29,6 +30,7 @@ const DashboardAccountPage = () => {
 
   useEffect(() => {
     setFullName(user?.fullName ?? "");
+    setUsername(user?.username ?? "");
     setPhone(user?.phone ?? "");
     setBio(user?.bio ?? "");
     setCountry(user?.country ?? "");
@@ -54,7 +56,7 @@ const DashboardAccountPage = () => {
     setSaving(true);
     setSaved(false);
     try {
-      await authApi.updateProfile({ fullName, phone, bio, country: country || undefined, profilePhoto: profilePhoto || undefined });
+      await authApi.updateProfile({ fullName, username: username || undefined, phone, bio, country: country || undefined, profilePhoto: profilePhoto || undefined });
       await refreshUser();
       setSaved(true);
     } finally {
@@ -102,6 +104,13 @@ const DashboardAccountPage = () => {
                     <label className="form-label">Full name</label>
                     <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="form-input" placeholder="Your name" />
                   </div>
+                  {user?.role === "model" && (
+                    <div>
+                      <label className="form-label">Username</label>
+                      <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="form-input" placeholder="Shown on your model card" />
+                      <p className="text-muted-foreground text-xs mt-1">Displayed on your model card and profile</p>
+                    </div>
+                  )}
                   <div>
                     <label className="form-label">Email</label>
                     <input type="email" value={user?.email || ""} readOnly className="form-input bg-secondary text-muted-foreground" />

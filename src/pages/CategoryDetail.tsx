@@ -17,7 +17,7 @@ function toCard(m: PublicModel): ModelCard {
   const photo = m.profilePhoto || m.portfolio?.[0] || "";
   return {
     id: m._id,
-    name: m.fullName || "Model",
+    name: m.username || m.fullName || "Model",
     image: photo,
     location: [m.city, m.country].filter(Boolean).join(", ") || "—",
     likes: 0,
