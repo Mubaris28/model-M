@@ -9,7 +9,6 @@ export const categories = [
   { name: "Bold", slug: "bold", image: `${CATEGORIES_IMG}/cat-bold.jpg`, count: 248, description: "Fearless & striking editorial" },
   { name: "Bikini", slug: "bikini", image: `${CATEGORIES_IMG}/cat-bikini.jpg`, count: 186, description: "Beach & swimwear looks" },
   { name: "Mature", slug: "mature", image: `${CATEGORIES_IMG}/cat-glamour.jpg`, count: 124, description: "Timeless sophistication" },
-  { name: "Glamour", slug: "glamour", image: `${CATEGORIES_IMG}/cat-glamour.jpg`, count: 312, description: "Red carpet elegance" },
   { name: "Commercial", slug: "commercial", image: `${CATEGORIES_IMG}/cat-commercial.jpg`, count: 428, description: "Brand campaigns" },
   { name: "Fitness", slug: "fitness", image: `${CATEGORIES_IMG}/cat-fitness.jpg`, count: 156, description: "Athletic & powerful" },
 ];

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "@/lib/router-next";
 import {
   LayoutDashboard,
@@ -18,6 +18,7 @@ import {
   Plus,
   X,
   Save,
+  Search,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { adminApi, publicApi, User, AdminStats, ContactMessage, Casting, HomepageConfig, PublicModel } from "@/lib/api";
@@ -46,13 +47,18 @@ const AdminPanelPage = () => {
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersPage, setUsersPage] = useState(0);
   const [userProfileFilter, setUserProfileFilter] = useState<"all" | "complete" | "incomplete">("all");
+  const [userSearch, setUserSearch] = useState("");
+  const userSearchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [authError, setAuthError] = useState("");
 
-  const loadUsers = async () => {
+  const loadUsers = async (searchOverride?: string) => {
     setUsersLoading(true);
     try {
-      const params = userProfileFilter !== "all" ? { profile: userProfileFilter } : undefined;
-      const data = await adminApi.users(params);
+      const params: Record<string, string> = {};
+      if (userProfileFilter !== "all") params.profile = userProfileFilter;
+      const q = searchOverride !== undefined ? searchOverride : userSearch;
+      if (q.trim()) params.search = q.trim();
+      const data = await adminApi.users(Object.keys(params).length ? params : undefined);
       setUsers(data);
     } catch {
       setAuthError("Failed to load users.");
@@ -72,8 +78,10 @@ const AdminPanelPage = () => {
 
   useEffect(() => {
     if (activeTab !== "users" || !user?.isAdmin) return;
-    loadUsers();
-  }, [activeTab, userProfileFilter, user?.isAdmin]);
+    if (userSearchRef.current) clearTimeout(userSearchRef.current);
+    userSearchRef.current = setTimeout(() => loadUsers(), 350);
+    return () => { if (userSearchRef.current) clearTimeout(userSearchRef.current); };
+  }, [activeTab, userProfileFilter, userSearch, user?.isAdmin]);
 
   const [castingList, setCastingList] = useState<Casting[]>([]);
   const [castingsLoading, setCastingsLoading] = useState(false);
@@ -131,6 +139,106 @@ const AdminPanelPage = () => {
   const [homepageModels, setHomepageModels] = useState<PublicModel[]>([]);
   const [homepageLoading, setHomepageLoading] = useState(false);
   const [homepageSaving, setHomepageSaving] = useState(false);
+  const [panelSelects, setPanelSelects] = useState({ newFaces: "", trending: "", latest: "" });
+
+  // Quick-setup: resolve names → IDs
+  const [quickSetup, setQuickSetup] = useState({
+    newFaces: "OPHELIE,LADLI,EMMY DRH,ROSEDELEANNE,MEGHA,MILES",
+    trending: "RITISA,MARY KETH,LAKSHANA,IVAN 09,SAMANTA,KIARA",
+    latest: "",
+  });
+  const [quickSetupLoading, setQuickSetupLoading] = useState(false);
+  const [quickSetupResults, setQuickSetupResults] = useState<{
+    section: string;
+    rows: { id: string | null; name: string; photo?: string }[];
+  }[]>([]);
+  const [quickSetupError, setQuickSetupError] = useState("");
+
+  const runQuickSetup = async () => {
+    setQuickSetupLoading(true);
+    setQuickSetupError("");
+    setQuickSetupResults([]);
+    try {
+      const sections = [
+        { section: "New Faces", names: quickSetup.newFaces },
+        { section: "Trending Models", names: quickSetup.trending },
+        ...(quickSetup.latest.trim() ? [{ section: "Latest Models Slider", names: quickSetup.latest }] : []),
+      ];
+      const allResults: typeof quickSetupResults = [];
+      for (const s of sections) {
+        const names = s.names.split(",").map((n) => n.trim()).filter(Boolean);
+        const { results } = await adminApi.resolveModels(names);
+        allResults.push({ section: s.section, rows: results });
+      }
+      setQuickSetupResults(allResults);
+    } catch (e) {
+      setQuickSetupError((e as Error).message || "Failed to resolve models");
+    } finally {
+      setQuickSetupLoading(false);
+    }
+  };
+
+  const applyQuickSetup = async () => {
+    if (!homepageConfig || quickSetupResults.length === 0) return;
+    setHomepageSaving(true);
+    try {
+      const section = (name: string) => quickSetupResults.find((r) => r.section === name);
+      const validIds = (rows: { id: string | null }[] | undefined) =>
+        (rows || []).map((r) => r.id).filter(Boolean) as string[];
+
+      const newFacesSection = section("New Faces");
+      const trendingSection = section("Trending Models");
+      const latestSection = section("Latest Models Slider");
+
+      const updated = await adminApi.updateHomepageConfig({
+        newFacesIds: newFacesSection ? validIds(newFacesSection.rows) : homepageConfig.newFacesIds,
+        trendingIds: trendingSection ? validIds(trendingSection.rows) : homepageConfig.trendingIds,
+        latestIds: latestSection ? validIds(latestSection.rows) : homepageConfig.latestIds,
+      });
+      setHomepageConfig(updated);
+      await loadHomepage();
+      setQuickSetupResults([]);
+    } catch (e) {
+      setAuthError("Failed to apply quick setup: " + (e as Error).message);
+    } finally {
+      setHomepageSaving(false);
+    }
+  };
+
+  // Category assignment state
+  const CATEGORY_ASSIGNMENTS = [
+    { category: "Bold", names: ["LEA"] },
+    { category: "Bikini", names: ["GWEN SUN"] },
+    { category: "Mature", names: ["GENEVIEVECHALAND"] },
+    { category: "Commercial", names: ["VICTORIA"] },
+    { category: "Fitness", names: ["BYRJOHA"] },
+  ] as const;
+  const [catAssignLoading, setCatAssignLoading] = useState(false);
+  const [catAssignResults, setCatAssignResults] = useState<string[]>([]);
+
+  const runCategoryAssignments = async () => {
+    setCatAssignLoading(true);
+    setCatAssignResults([]);
+    const log: string[] = [];
+    try {
+      for (const { category, names } of CATEGORY_ASSIGNMENTS) {
+        const { results } = await adminApi.resolveModels(names);
+        for (const r of results) {
+          if (r.id) {
+            await adminApi.assignCategory(r.id, category);
+            log.push(`✓ ${r.name} → ${category}`);
+          } else {
+            log.push(`✗ "${r.name}" not found`);
+          }
+        }
+      }
+    } catch (e) {
+      log.push("Error: " + (e as Error).message);
+    } finally {
+      setCatAssignLoading(false);
+      setCatAssignResults(log);
+    }
+  };
 
   const loadHomepage = async () => {
     setHomepageLoading(true);
@@ -459,6 +567,26 @@ const AdminPanelPage = () => {
                   ))}
                 </div>
               </div>
+              {/* Search bar */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  value={userSearch}
+                  onChange={(e) => { setUserSearch(e.target.value); setUsersPage(0); }}
+                  placeholder="Search by name, username or email…"
+                  className="w-full border border-border bg-background pl-9 pr-9 py-2 text-sm font-body focus:outline-none focus:border-primary"
+                />
+                {userSearch && (
+                  <button
+                    type="button"
+                    onClick={() => { setUserSearch(""); setUsersPage(0); }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
               {usersLoading ? (
                 <p className="text-muted-foreground font-body">Loading users...</p>
               ) : (
@@ -687,6 +815,96 @@ const AdminPanelPage = () => {
               <p className="text-muted-foreground font-body text-sm mb-6">
                 Manually choose which models appear in each homepage section. Order in the list = display order. Leave a list empty to use the default (newest first).
               </p>
+
+              {/* ── Quick Setup ── */}
+              <div className="border border-primary/30 bg-primary/5 p-6 mb-6">
+                <h3 className="font-display text-lg text-primary mb-1">Quick Setup — Assign by Name</h3>
+                <p className="text-muted-foreground text-xs font-body mb-4">
+                  Enter comma-separated model usernames or full names. Click <strong>Resolve Names</strong> to look them up, then <strong>Apply</strong> to update the homepage sections.
+                </p>
+                <div className="space-y-3 mb-4">
+                  {([
+                    { label: "New Faces (6 names)", key: "newFaces" as const, placeholder: "OPHELIE, LADLI, EMMY DRH, ROSEDELEANNE, MEGHA, MILES" },
+                    { label: "Trending Models (6 names)", key: "trending" as const, placeholder: "RITISA, MARY KETH, LAKSHANA, IVAN 09, SAMANTA, KIARA" },
+                    { label: "Latest Models Slider (optional)", key: "latest" as const, placeholder: "Leave empty to use 15 newest" },
+                  ]).map(({ label, key, placeholder }) => (
+                    <div key={key}>
+                      <label className="text-xs font-body text-muted-foreground uppercase tracking-wider block mb-1">{label}</label>
+                      <input
+                        type="text"
+                        value={quickSetup[key]}
+                        onChange={(e) => setQuickSetup((s) => ({ ...s, [key]: e.target.value }))}
+                        placeholder={placeholder}
+                        className="w-full border border-border bg-background px-3 py-2 text-sm font-body focus:outline-none focus:border-primary"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={runQuickSetup}
+                    disabled={quickSetupLoading}
+                    className="px-4 py-2 border border-primary text-primary text-sm font-body hover:bg-primary/10 disabled:opacity-50"
+                  >
+                    {quickSetupLoading ? "Resolving…" : "Resolve Names"}
+                  </button>
+                  {quickSetupResults.length > 0 && (
+                    <button
+                      onClick={applyQuickSetup}
+                      disabled={homepageSaving}
+                      className="px-4 py-2 bg-primary text-primary-foreground text-sm font-body hover:opacity-90 disabled:opacity-50"
+                    >
+                      {homepageSaving ? "Saving…" : "Apply to Homepage"}
+                    </button>
+                  )}
+                </div>
+                {quickSetupError && <p className="text-destructive text-xs font-body mt-3">{quickSetupError}</p>}
+                {quickSetupResults.length > 0 && (
+                  <div className="mt-4 space-y-4">
+                    {quickSetupResults.map((section) => (
+                      <div key={section.section}>
+                        <p className="text-xs font-body font-semibold text-foreground uppercase tracking-wider mb-1">{section.section}</p>
+                        <ul className="space-y-0.5">
+                          {section.rows.map((r, i) => (
+                            <li key={i} className={`text-xs font-body flex items-center gap-2 ${r.id ? "text-foreground" : "text-destructive"}`}>
+                              {r.id ? "✓" : "✗"} {r.name} {!r.id && <span className="text-muted-foreground">(not found — check username/fullName)</span>}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ── Category Assignment ── */}
+              <div className="border border-border bg-card p-6 mb-6">
+                <h3 className="font-display text-lg text-primary mb-1">Category Assignment</h3>
+                <p className="text-muted-foreground text-xs font-body mb-1">
+                  Assign models to the correct category so they appear on the category sub-pages:
+                </p>
+                <ul className="text-xs font-body text-muted-foreground mb-4 space-y-0.5 pl-3">
+                  <li>Bold → LEA</li>
+                  <li>Bikini → GWEN SUN</li>
+                  <li>Mature → GENEVIEVECHALAND</li>
+                  <li>Commercial → VICTORIA</li>
+                  <li>Fitness → BYRJOHA</li>
+                </ul>
+                <button
+                  onClick={runCategoryAssignments}
+                  disabled={catAssignLoading}
+                  className="px-4 py-2 border border-border text-sm font-body hover:border-primary hover:text-primary disabled:opacity-50"
+                >
+                  {catAssignLoading ? "Assigning…" : "Assign Categories"}
+                </button>
+                {catAssignResults.length > 0 && (
+                  <ul className="mt-3 space-y-0.5">
+                    {catAssignResults.map((line, i) => (
+                      <li key={i} className={`text-xs font-body ${line.startsWith("✓") ? "text-foreground" : "text-destructive"}`}>{line}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
               {homepageLoading ? (
                 <p className="text-muted-foreground font-body">Loading...</p>
               ) : (
@@ -701,6 +919,7 @@ const AdminPanelPage = () => {
                         add: addToNewFaces,
                         remove: removeFromNewFaces,
                         emptyNote: "Empty — default order (newest first) will be used.",
+                        selectKey: "newFaces" as const,
                       },
                       {
                         title: "Trending Models",
@@ -709,6 +928,7 @@ const AdminPanelPage = () => {
                         add: addToTrending,
                         remove: removeFromTrending,
                         emptyNote: "Empty — first 6 approved models will be used.",
+                        selectKey: "trending" as const,
                       },
                       {
                         title: "Latest Models Slider",
@@ -717,16 +937,23 @@ const AdminPanelPage = () => {
                         add: addToLatest,
                         remove: removeFromLatest,
                         emptyNote: "Empty — 15 most recently added models will be used.",
+                        selectKey: "latest" as const,
                       },
-                    ] as { title: string; hint: string; ids: string[]; add: (id: string) => void; remove: (id: string) => void; emptyNote: string }[]
+                    ] as { title: string; hint: string; ids: string[]; add: (id: string) => void; remove: (id: string) => void; emptyNote: string; selectKey: keyof typeof panelSelects }[]
                   ).map((panel) => (
                     <div key={panel.title} className="border border-border bg-card p-6">
                       <h3 className="font-display text-lg text-primary mb-1">{panel.title}</h3>
                       <p className="text-muted-foreground text-xs font-body mb-4">{panel.hint}</p>
                       <select
                         className="border border-border bg-background px-3 py-2 text-sm font-body w-full mb-4"
-                        value=""
-                        onChange={(e) => { const v = e.target.value; if (v) panel.add(v); e.target.value = ""; }}
+                        value={panelSelects[panel.selectKey]}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (v) {
+                            panel.add(v);
+                            setPanelSelects((s) => ({ ...s, [panel.selectKey]: "" }));
+                          }
+                        }}
                       >
                         <option value="">+ Add model...</option>
                         {homepageModels

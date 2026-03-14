@@ -193,4 +193,44 @@ router.patch("/homepage-config", async (req, res) => {
   }
 });
 
+// POST /api/admin/resolve-models — resolve model names to IDs (fuzzy match on username/fullName)
+router.post("/resolve-models", async (req, res) => {
+  try {
+    const { names } = req.body; // string[]
+    if (!Array.isArray(names)) return res.status(400).json({ error: "names must be an array" });
+    const results = await Promise.all(
+      names.map(async (name) => {
+        const q = name.trim();
+        if (!q) return null;
+        const regex = new RegExp(q, "i");
+        const user = await User.findOne({
+          role: "model",
+          $or: [{ username: regex }, { fullName: regex }],
+        }).select("_id username fullName profilePhoto").lean();
+        return user ? { id: user._id.toString(), name: user.username || user.fullName, photo: user.profilePhoto || "" } : { id: null, name: q };
+      })
+    );
+    res.json({ results: results.filter(Boolean) });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/admin/assign-category — assign a category to a model by ID
+router.post("/assign-category", async (req, res) => {
+  try {
+    const { modelId, category } = req.body;
+    if (!modelId || !category) return res.status(400).json({ error: "modelId and category required" });
+    const user = await User.findByIdAndUpdate(
+      modelId,
+      { $addToSet: { categories: category } },
+      { new: true }
+    ).select("_id username fullName categories").lean();
+    if (!user) return res.status(404).json({ error: "Model not found" });
+    res.json({ id: user._id.toString(), name: user.username || user.fullName, categories: user.categories });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;

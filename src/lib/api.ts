@@ -224,6 +224,10 @@ export const adminApi = {
   homepageConfig: () => api<HomepageConfig>("/api/admin/homepage-config"),
   updateHomepageConfig: (body: { newFacesIds?: string[]; trendingIds?: string[]; latestIds?: string[] }) =>
     api<HomepageConfig>("/api/admin/homepage-config", { method: "PATCH", body }),
+  resolveModels: (names: string[]) =>
+    api<{ results: { id: string | null; name: string; photo?: string }[] }>("/api/admin/resolve-models", { method: "POST", body: { names } }),
+  assignCategory: (modelId: string, category: string) =>
+    api<{ id: string; name: string; categories: string[] }>("/api/admin/assign-category", { method: "POST", body: { modelId, category } }),
 };
 
 export interface ContactMessage {
