@@ -475,12 +475,14 @@ const AdminPanelPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {paginatedUsers.map((u) => (
+                      {paginatedUsers.map((u) => {
+                        const avatarSrc = u.profilePhoto || u.portfolio?.[0];
+                        return (
                         <tr key={u._id} className="border-t border-border">
                           <td className="p-3">
                             <div className="flex items-center gap-2">
-                              {(u.profilePhoto || u.portfolio?.[0]) ? (
-                                <img src={imgSrc(u.profilePhoto || u.portfolio?.[0])} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                              {avatarSrc ? (
+                                <img src={imgSrc(avatarSrc)} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
                               ) : (
                                 <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
                                   {u.role === "model" ? <Camera className="w-4 h-4 text-muted-foreground" /> : <Building2 className="w-4 h-4 text-muted-foreground" />}
@@ -518,7 +520,7 @@ const AdminPanelPage = () => {
                             <button onClick={() => openViewUser(u)} className="text-primary text-xs hover:underline">View</button>
                           </td>
                         </tr>
-                      ))}
+                      );})}
                     </tbody>
                   </table>
                   {users.length === 0 && !usersLoading && (
