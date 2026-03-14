@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
-import { publicApi, type PublicModel } from "@/lib/api";
+import { publicApi, type PublicModel, ApiError } from "@/lib/api";
 
 type FaceCard = {
   id: string;
@@ -56,8 +56,15 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
           }
           setFaces((list || []).map(toFaceCard));
         })
-        .catch(() => {
+        .catch((err) => {
           if (cancelled) return;
+          if ((err as ApiError)?.status === 404) {
+            publicApi.models().then((list) => {
+              if (cancelled) return;
+              setFaces((list || []).map(toFaceCard).slice(0, 24));
+            }).catch(() => {});
+            return;
+          }
           if (retries < MAX_RETRIES) {
             retries++;
             setTimeout(load, 1500 * retries);

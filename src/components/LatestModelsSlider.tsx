@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
-import { publicApi, type PublicModel } from "@/lib/api";
+import { publicApi, type PublicModel, ApiError } from "@/lib/api";
 
 type SliderCard = {
   id: string;
@@ -42,8 +42,16 @@ export default function LatestModelsSlider() {
           setCards(list.map(toCard));
           setLoading(false);
         })
-        .catch(() => {
+        .catch((err) => {
           if (cancelled) return;
+          if ((err as ApiError)?.status === 404) {
+            publicApi.models().then((list) => {
+              if (cancelled) return;
+              setCards((list || []).map(toCard).slice(0, 16));
+              setLoading(false);
+            }).catch(() => { if (cancelled) return; setLoading(false); });
+            return;
+          }
           if (retries < MAX_RETRIES) { retries++; setTimeout(load, 1500 * retries); }
           else setLoading(false);
         });

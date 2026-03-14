@@ -35,7 +35,11 @@ const TrendingCastings = () => {
       .then((list) => {
         if (list?.length) setCastings(list.map(toCastingCard));
       })
-      .catch(() => {});
+      .catch(() => {
+        publicApi.castings().then((list) => {
+          if (list?.length) setCastings(list.map(toCastingCard));
+        }).catch(() => {});
+      });
   }, []);
 
   const scroll = (dir: "left" | "right") => {
