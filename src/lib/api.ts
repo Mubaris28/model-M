@@ -334,6 +334,12 @@ export interface HomepageConfig {
 export const publicApi = {
   models: () => api<PublicModel[]>("/api/public/models"),
   model: (id: string) => api<PublicModel>(`/api/public/models/${id}`),
+  /** New Faces section: models by usernames OPHELIE, LADLI, EMMY DRH, ROSEDELEANNE, MEGHA, MILES (from real data). */
+  sectionsNewFaces: () => api<PublicModel[]>("/api/public/sections/new-faces"),
+  /** Trending section: models by usernames RITISA, MARY KETH, LAKSHANA, IVAN 09, SAMANTA, KIARA (from real data). */
+  sectionsTrending: () => api<PublicModel[]>("/api/public/sections/trending"),
+  /** Category sub-page models by slug (bold→LEA, bikini→GWEN SUN, etc. from real data). */
+  categoryModels: (slug: string) => api<PublicModel[]>(`/api/public/categories/${encodeURIComponent(slug)}/models`),
   castings: () => api<PublicCasting[]>("/api/public/castings"),
   marketplace: () => api<PublicMarketplaceItem[]>("/api/public/marketplace"),
   marketplaceItem: (id: string) => api<PublicMarketplaceItem>(`/api/public/marketplace/${id}`),
