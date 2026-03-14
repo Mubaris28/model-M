@@ -1,12 +1,22 @@
 "use client";
 
-"use client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link, useParams } from "@/lib/router-next";
 import { motion } from "framer-motion";
 
 type Section = { title: string; body: string; bullets?: string[]; ctaLabel?: string; ctaLink?: string };
+
+const pathImages: Record<string, string> = {
+  "im-new-to-the-spotlight": "/images/how_it_works/1.webp",
+  "im-a-full-time-model": "/images/how_it_works/2.webp",
+  "im-an-influencer-with-a-passion-for-creating": "/images/how_it_works/2.1.webp",
+  "im-a-creative-photographer": "/images/how_it_works/2.2.webp",
+  "im-a-stylist": "/images/how_it_works/2.3.webp",
+  "im-a-talent-artist": "/images/how_it_works/2.4.webp",
+  "were-more-than-a-brand": "/images/campaign/campaign1.jpeg",
+  "we-are-your-go-to-agency": "/images/how_it_works/4.webp",
+};
 
 const discoverPaths: Record<string, { title: string; subtitle: string; sections: Section[]; footerCta?: string }> = {
   "im-new-to-the-spotlight": {
@@ -105,10 +115,18 @@ const DiscoverPathPage = () => {
     );
   }
 
+  const heroImage = slug ? pathImages[slug] : null;
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-24 pb-16">
+      {heroImage && (
+        <div className="relative h-[40vh] min-h-[220px] max-h-[400px] w-full overflow-hidden">
+          <img src={heroImage} alt="" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-background" />
+        </div>
+      )}
+      <div className={heroImage ? "pb-16" : "pt-24 pb-16"}>
         <div className="container mx-auto px-4 md:px-6 max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -116,7 +134,7 @@ const DiscoverPathPage = () => {
             transition={{ duration: 0.5 }}
             className="space-y-14"
           >
-            <header>
+            <header className={heroImage ? "-mt-16 pt-8 relative z-10" : ""}>
               <Link to="/" className="text-primary font-body text-xs tracking-wider uppercase hover:underline mb-6 inline-block">← Back to Home</Link>
               <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Discover</p>
               <h1 className="font-display text-4xl md:text-6xl line-accent mb-4">{path.title}</h1>

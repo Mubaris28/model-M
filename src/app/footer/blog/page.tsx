@@ -20,7 +20,9 @@ export default function BlogPage() {
           <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map((post) => (
               <Link key={post.id} to={`/footer/blog/${post.id}`} className="group bg-card magazine-border overflow-hidden block hover:border-primary/30 transition-colors">
-                <div className="aspect-video bg-muted" />
+                <div className="aspect-video bg-muted overflow-hidden">
+                  <img src={post.image} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                </div>
                 <div className="p-6">
                   <span className="text-primary text-[10px] font-body tracking-wider uppercase">{post.category}</span>
                   <h2 className="font-display text-xl text-foreground mt-2 mb-2 group-hover:text-primary transition-colors line-clamp-2">{post.title}</h2>

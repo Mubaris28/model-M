@@ -4,6 +4,8 @@
 export type ChatReply = {
   text: string;
   link?: { href: string; label: string };
+  /** Optional GIF or image URL to show in the bot bubble (e.g. welcome or reaction). */
+  gifUrl?: string;
 };
 
 function getApiBase(): string {
@@ -55,7 +57,7 @@ const INTENTS: Array<{
   },
   {
     name: "become_model",
-    keywords: ["apply", "become a model", "become model", "join", "register as model", "how to apply"],
+    keywords: ["apply", "apply as model", "become a model", "become model", "join", "register as model", "how to apply", "i want to be a model"],
     reply: (): ChatReply => ({
       text: "You can apply to become a model through our application process. We'll guide you through the steps and required materials.",
       link: { href: "/become-model", label: "Go to Become a model" },
@@ -110,6 +112,102 @@ const INTENTS: Array<{
     }),
   },
   {
+    name: "report",
+    keywords: ["report", "report issue", "report a problem", "complaint", "report bug", "report abuse"],
+    reply: (): ChatReply => ({
+      text: "You can report an issue or concern through our report form. We take all reports seriously and will follow up.",
+      link: { href: "/report", label: "Report an issue" },
+    }),
+  },
+  {
+    name: "how_it_works",
+    keywords: ["how it works", "how does it work", "how does this work", "process", "getting started"],
+    reply: (): ChatReply => ({
+      text: "Learn how Model Management works: from signing up to applying for castings and building your portfolio.",
+      link: { href: "/footer/how-it-works", label: "How it works" },
+    }),
+  },
+  {
+    name: "safety",
+    keywords: ["safety", "trust", "safe", "safety and trust", "safety & trust", "secure", "verification"],
+    reply: (): ChatReply => ({
+      text: "We take safety and trust seriously. Read about verification, secure chats, and model agreements.",
+      link: { href: "/footer/safety-and-trust", label: "Safety & Trust" },
+    }),
+  },
+  {
+    name: "support",
+    keywords: ["support", "help centre", "faq", "faqs", "frequently asked"],
+    reply: (): ChatReply => ({
+      text: "Visit our support section for FAQs and help. You can also contact us directly.",
+      link: { href: "/footer/support", label: "Support" },
+    }),
+  },
+  {
+    name: "modelling_advice",
+    keywords: ["modelling advice", "modeling advice", "advice", "tips for models", "career advice"],
+    reply: (): ChatReply => ({
+      text: "Get practical modelling advice: from building a portfolio to handling castings and staying professional.",
+      link: { href: "/footer/modelling-advice", label: "Modelling advice" },
+    }),
+  },
+  {
+    name: "careers",
+    keywords: ["career", "careers", "jobs", "work with us", "hiring"],
+    reply: (): ChatReply => ({
+      text: "Interested in working with us? Check our careers page for open positions.",
+      link: { href: "/career", label: "Careers" },
+    }),
+  },
+  {
+    name: "professionals",
+    keywords: ["professional", "professionals", "photographer", "agency", "brand", "client"],
+    reply: (): ChatReply => ({
+      text: "Professionals can join the platform to post castings, find talent, and collaborate. Learn more here.",
+      link: { href: "/professionals", label: "For professionals" },
+    }),
+  },
+  {
+    name: "categories",
+    keywords: ["categories", "category", "types of models", "model types"],
+    reply: (): ChatReply => ({
+      text: "Browse models by category: fashion, commercial, fitness, and more.",
+      link: { href: "/categories", label: "View categories" },
+    }),
+  },
+  {
+    name: "directory",
+    keywords: ["directory", "model directory", "find models", "search models"],
+    reply: (): ChatReply => ({
+      text: "Use our directory to search and discover models and talent.",
+      link: { href: "/directory", label: "Open directory" },
+    }),
+  },
+  {
+    name: "sponsor",
+    keywords: ["sponsor", "sponsorship", "partner", "partners"],
+    reply: (): ChatReply => ({
+      text: "Learn about sponsorship and partnership opportunities with Model Management.",
+      link: { href: "/sponsor", label: "Sponsor / Partners" },
+    }),
+  },
+  {
+    name: "forgot_password",
+    keywords: ["forgot password", "reset password", "password reset", "lost password"],
+    reply: (): ChatReply => ({
+      text: "You can reset your password via the forgot password page. We'll send you a link to your email.",
+      link: { href: "/forgot-password", label: "Reset password" },
+    }),
+  },
+  {
+    name: "models_list",
+    keywords: ["models", "view models", "see models", "browse models", "talents"],
+    reply: (): ChatReply => ({
+      text: "Browse our featured models and talents. You can filter by category and search.",
+      link: { href: "/models", label: "View models" },
+    }),
+  },
+  {
     name: "site_status",
     keywords: [
       "is the site working",
@@ -119,6 +217,8 @@ const INTENTS: Array<{
       "is site up",
       "website working",
       "server",
+      "is the site down",
+      "broken",
     ],
     reply: async (): Promise<ChatReply> => {
       const { ok } = await checkHealth();
@@ -134,7 +234,7 @@ const INTENTS: Array<{
 ];
 
 const FALLBACK_REPLY: ChatReply = {
-  text: "I can help with applying as a model, contact, dashboard, or site status. Try one of the options below or ask in your own words.",
+  text: "I can help with applying as a model, contact, dashboard, report an issue, how it works, safety, support, categories, directory, and more. Pick a quick option below or type your question.",
 };
 
 export async function getReply(

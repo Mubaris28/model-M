@@ -1,6 +1,0 @@
-{
-  "/page": "app/page.js",
-  "/model/[id]/page": "app/model/[id]/page.js",
-  "/category/[slug]/page": "app/category/[slug]/page.js",
-  "/signup/page": "app/signup/page.js"
-}

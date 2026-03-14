@@ -64,15 +64,20 @@ export default function NewFeaturePopup() {
             aria-hidden
           />
           <motion.div
-            role="dialog"
-            aria-labelledby="feature-popup-title"
-            aria-modal="true"
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed left-1/2 top-1/2 z-[101] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl border border-border bg-card shadow-2xl"
+            className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none"
+            aria-hidden
           >
+            <motion.div
+              role="dialog"
+              aria-labelledby="feature-popup-title"
+              aria-modal="true"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="w-full max-w-md overflow-hidden rounded-xl border border-border bg-card shadow-2xl pointer-events-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
             <button
               type="button"
               onClick={dismiss}
@@ -126,6 +131,7 @@ export default function NewFeaturePopup() {
                 </button>
               </div>
             </div>
+            </motion.div>
           </motion.div>
         </>
       )}

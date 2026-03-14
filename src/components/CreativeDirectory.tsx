@@ -1,7 +1,6 @@
 import { Camera, Palette, Scissors, Star, ArrowRight } from "lucide-react";
 import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
-import catArtistic from "@/assets/cat-artistic.jpg";
 
 const creativeRoles = [
   { icon: Star, label: "Influencer", link: "/models" },
@@ -21,7 +20,7 @@ const CreativeDirectory = () => {
           transition={{ duration: 0.7 }}
           className="relative h-[350px] lg:h-auto overflow-hidden order-2 lg:order-1"
         >
-          <img src={typeof catArtistic === "string" ? catArtistic : catArtistic.src} alt="Creative" className="w-full h-full object-cover" />
+          <img src="/images/Categories/cat-artistic.jpg" alt="Creative" className="w-full h-full object-cover" />
         </motion.div>
         <motion.div
           initial={{ opacity: 0, x: 40 }}

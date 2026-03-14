@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { allModels } from "@/components/FeaturedModels";
-import { useParams } from "@/lib/router-next";
+import { useParams, Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
-import { publicApi, type PublicModel } from "@/lib/api";
-import { Heart, MapPin, Ruler, Calendar, Share2, Instagram } from "lucide-react";
-import { motion } from "framer-motion";
+import { publicApi, type PublicModel, contactApi } from "@/lib/api";
+import { Heart, MapPin, Ruler, Calendar, Share2, Instagram, CheckCircle, Loader2, Lock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 type DisplayModel = {
   id: string;
@@ -27,6 +28,7 @@ const ObjectIdRegex = /^[a-f0-9]{24}$/i;
 
 const ModelProfile = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const [model, setModel] = useState<DisplayModel | null>(() => {
     const staticModel = allModels.find((m) => m.id === id);
     if (staticModel)
@@ -46,6 +48,33 @@ const ModelProfile = () => {
     return null;
   });
   const [loading, setLoading] = useState(!!id && ObjectIdRegex.test(id));
+  const [showBookModal, setShowBookModal] = useState(false);
+  const [bookForm, setBookForm] = useState({ name: "", email: "", message: "" });
+  const [bookStatus, setBookStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [bookError, setBookError] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      setBookForm((f) => ({ ...f, name: user.fullName || f.name, email: user.email || f.email }));
+    }
+  }, [user]);
+
+  const handleBook = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBookStatus("submitting");
+    setBookError("");
+    try {
+      await contactApi.send({
+        name: bookForm.name,
+        email: bookForm.email,
+        message: `[BOOKING REQUEST]\nModel: ${model?.name}\nModel ID: ${id}\nUser ID: ${user?._id || "—"}\n\n${bookForm.message}`,
+      });
+      setBookStatus("success");
+    } catch (err) {
+      setBookError((err as Error).message || "Failed to submit. Please try again.");
+      setBookStatus("error");
+    }
+  };
 
   useEffect(() => {
     if (!id || !ObjectIdRegex.test(id)) return;
@@ -134,7 +163,10 @@ const ModelProfile = () => {
               </div>
 
               <div className="flex gap-3 mb-10">
-                <button className="bg-gradient-red text-primary-foreground px-8 py-3 font-body font-medium tracking-[0.15em] uppercase text-sm hover:opacity-90 transition-opacity">
+                <button
+                  onClick={() => setShowBookModal(true)}
+                  className="bg-gradient-red text-primary-foreground px-8 py-3 font-body font-medium tracking-[0.15em] uppercase text-sm hover:opacity-90 transition-opacity"
+                >
                   Book Now
                 </button>
                 <button className="border border-border text-foreground px-6 py-3 font-body tracking-[0.15em] uppercase text-sm hover:border-primary transition-colors flex items-center gap-2">
@@ -199,6 +231,121 @@ const ModelProfile = () => {
       </div>
       <div className="mt-16" />
       <Footer />
+
+      {/* Book Now Modal */}
+      <AnimatePresence>
+        {showBookModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm"
+              onClick={() => { if (bookStatus !== "submitting") setShowBookModal(false); }}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+            >
+              <div className="bg-background magazine-border p-8 w-full max-w-md pointer-events-auto max-h-[90vh] overflow-y-auto">
+                {bookStatus === "success" ? (
+                  <div className="text-center py-4">
+                    <CheckCircle className="w-12 h-12 text-primary mx-auto mb-4" />
+                    <h3 className="font-display text-3xl text-foreground mb-2">Request Sent!</h3>
+                    <p className="text-muted-foreground font-body text-sm mb-6">
+                      Your booking request for <strong>{model?.name}</strong> has been submitted. We&apos;ll be in touch soon.
+                    </p>
+                    <button
+                      onClick={() => { setShowBookModal(false); setBookStatus("idle"); }}
+                      className="btn-primary inline-flex"
+                    >
+                      Close
+                    </button>
+                  </div>
+                ) : !user ? (
+                  <div className="text-center py-4">
+                    <Lock className="w-10 h-10 text-primary mx-auto mb-4" />
+                    <h3 className="font-display text-3xl text-foreground mb-2">Sign in Required</h3>
+                    <p className="text-muted-foreground font-body text-sm mb-6">
+                      You need to be logged in to book a model.
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <Link to="/login" className="btn-primary inline-flex">Log In</Link>
+                      <Link to="/signup" className="border border-border px-5 py-2 font-body text-sm uppercase hover:border-primary hover:text-primary transition-colors">
+                        Sign Up
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <p className="text-primary font-body text-[10px] tracking-[0.4em] uppercase mb-1">Book Model</p>
+                        <h3 className="font-display text-2xl text-foreground">{model?.name}</h3>
+                      </div>
+                      <button
+                        onClick={() => setShowBookModal(false)}
+                        className="text-muted-foreground hover:text-foreground text-xl leading-none"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    {bookError && <p className="text-destructive font-body text-sm mb-4">{bookError}</p>}
+                    <form onSubmit={handleBook} className="space-y-4">
+                      <div>
+                        <label className="form-label">Your Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={bookForm.name}
+                          onChange={(e) => setBookForm((f) => ({ ...f, name: e.target.value }))}
+                          className="form-input"
+                          placeholder="Your full name"
+                        />
+                      </div>
+                      <div>
+                        <label className="form-label">Email</label>
+                        <input
+                          type="email"
+                          required
+                          value={bookForm.email}
+                          onChange={(e) => setBookForm((f) => ({ ...f, email: e.target.value }))}
+                          className="form-input"
+                          placeholder="Your email address"
+                        />
+                      </div>
+                      <div>
+                        <label className="form-label">Project Details</label>
+                        <textarea
+                          rows={4}
+                          required
+                          value={bookForm.message}
+                          onChange={(e) => setBookForm((f) => ({ ...f, message: e.target.value }))}
+                          className="form-input resize-none"
+                          placeholder="Describe your project, dates, budget, and any requirements..."
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={bookStatus === "submitting"}
+                        className="btn-primary inline-flex items-center gap-2 w-full justify-center"
+                      >
+                        {bookStatus === "submitting" ? (
+                          <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>
+                        ) : (
+                          "Send Booking Request"
+                        )}
+                      </button>
+                    </form>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

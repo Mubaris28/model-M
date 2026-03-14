@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BackButton from "@/components/BackButton";
 import { categories } from "@/components/MagazineGrid";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
@@ -12,6 +13,7 @@ const CategoriesPage = () => {
       <Navbar />
       <div className="pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6">
+          <BackButton className="mb-6" />
           <div className="mb-12">
             <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Browse</p>
             <h1 className="font-display text-6xl md:text-8xl line-accent">All Categories</h1>
@@ -20,8 +22,7 @@ const CategoriesPage = () => {
             </p>
           </div>
 
-          <div className="categories-inner">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {categories.map((cat, i) => (
               <motion.div
                 key={cat.slug}
@@ -43,7 +44,6 @@ const CategoriesPage = () => {
                 </Link>
               </motion.div>
             ))}
-            </div>
           </div>
         </div>
       </div>

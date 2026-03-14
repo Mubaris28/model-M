@@ -28,26 +28,20 @@ const CategoryDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
-      {/* Hero */}
-      <div className="relative h-[60vh] overflow-hidden">
-        <img src={imgSrc(category.image)} alt={category.name} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 cinematic-overlay" />
-        <div className="absolute inset-0 cinematic-overlay-left" />
-        <div className="relative z-10 container mx-auto px-4 md:px-6 h-full flex items-end pb-16">
-          <div>
-            <BackButton label="Back to Categories" className="mb-4 text-xs tracking-wider uppercase" />
-            <h1 className="font-display text-6xl md:text-8xl text-foreground">{category.name}</h1>
-            <div className="flex items-center gap-4 mt-3">
-              <span className="text-primary text-xs font-body tracking-[0.3em] uppercase">{category.count} Models</span>
-              <span className="text-muted-foreground text-xs font-body">{category.description}</span>
-            </div>
+
+      <div className="pt-24 pb-8">
+        <div className="container mx-auto px-4 md:px-6">
+          <BackButton label="Back to Categories" className="mb-6" />
+          <h1 className="font-display text-6xl md:text-8xl line-accent">{category.name}</h1>
+          <div className="flex items-center gap-4 mt-3">
+            <span className="text-primary text-xs font-body tracking-[0.3em] uppercase">{category.count} Models</span>
+            <span className="text-muted-foreground text-xs font-body">{category.description}</span>
           </div>
         </div>
       </div>
 
       {/* Models Grid */}
-      <div className="container mx-auto px-4 md:px-6 py-16 categories-inner">
+      <div className="container mx-auto px-4 md:px-6 py-12 categories-inner">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {[...allModels, ...allModels].map((model, i) => (
             <motion.div

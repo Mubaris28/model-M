@@ -196,7 +196,21 @@ export const adminApi = {
     const q = new URLSearchParams(params as Record<string, string>).toString();
     return api<Casting[]>("/api/admin/castings" + (q ? `?${q}` : ""));
   },
+  updateCasting: (id: string, body: { approvalStatus?: string; rejectionReason?: string }) =>
+    api<Casting>("/api/admin/castings/" + id, { method: "PATCH", body }),
+  contacts: (type?: "booking" | "application" | "partner" | "all") => {
+    const q = type && type !== "all" ? `?type=${type}` : "";
+    return api<ContactMessage[]>("/api/admin/contacts" + q);
+  },
 };
+
+export interface ContactMessage {
+  _id: string;
+  name: string;
+  email: string;
+  message: string;
+  createdAt?: string;
+}
 
 export interface User {
   _id: string;
@@ -279,6 +293,37 @@ export const publicApi = {
   models: () => api<PublicModel[]>("/api/public/models"),
   model: (id: string) => api<PublicModel>(`/api/public/models/${id}`),
   castings: () => api<PublicCasting[]>("/api/public/castings"),
+};
+
+export interface MyCasting {
+  _id: string;
+  title: string;
+  description?: string;
+  castingType?: string;
+  location?: string;
+  date?: string;
+  slots?: number;
+  brand?: string;
+  approvalStatus?: "pending" | "approved" | "rejected";
+  createdAt?: string;
+}
+
+export interface CastingBody {
+  title: string;
+  description?: string;
+  castingType?: string;
+  location?: string;
+  date?: string;
+  slots?: number;
+  brand?: string;
+}
+
+export const castingApi = {
+  create: (body: CastingBody) => api<MyCasting>("/api/castings", { method: "POST", body }),
+  mine: () => api<MyCasting[]>("/api/castings/mine"),
+  update: (id: string, body: Partial<CastingBody>) =>
+    api<MyCasting>("/api/castings/" + id, { method: "PATCH", body }),
+  remove: (id: string) => api<{ message: string }>("/api/castings/" + id, { method: "DELETE" }),
 };
 
 export interface PublicCasting {

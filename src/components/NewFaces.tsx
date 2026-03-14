@@ -78,13 +78,13 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
           </Link>
         </div>
 
-        {/* Country tabs */}
-        <div className="flex flex-wrap gap-2 mb-8">
+        {/* Country tabs — horizontal scroll on mobile */}
+        <div className="tabs-slider -mx-4 px-4 md:mx-0 md:px-0 gap-2 mb-8">
           {countries.map((country) => (
             <button
               key={country}
               onClick={() => setActiveCountry(country)}
-              className={`px-4 py-2 text-xs font-body tracking-[0.15em] uppercase whitespace-nowrap transition-all ${
+              className={`px-4 py-2 text-xs font-body tracking-[0.15em] uppercase whitespace-nowrap transition-all shrink-0 ${
                 activeCountry === country
                   ? "bg-primary text-primary-foreground"
                   : "bg-background text-muted-foreground border border-border hover:border-primary hover:text-primary"
@@ -95,9 +95,7 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
           ))}
         </div>
 
-        <div
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 md:gap-6"
-        >
+        <div className="mobile-slider-3 gap-5 md:gap-6">
           {displayList.map((model, i) => (
             <motion.div
               key={model.id}

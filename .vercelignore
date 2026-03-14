@@ -1,0 +1,5 @@
+# Do not upload build output or cache to Vercel (Vercel builds from source)
+.next
+.next/
+.next/cache
+node_modules

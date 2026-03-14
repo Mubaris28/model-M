@@ -54,7 +54,12 @@ const DashboardUpdatePortfolioPage = () => {
     setError(null);
     setMessage(null);
     try {
-      await authApi.updateProfile({ portfolio: portfolioUrls });
+      const updates: Record<string, unknown> = { portfolio: portfolioUrls };
+      // Auto-set first portfolio image as profile photo if none set
+      if (!user?.profilePhoto && portfolioUrls[0]) {
+        updates.profilePhoto = portfolioUrls[0];
+      }
+      await authApi.updateProfile(updates as Parameters<typeof authApi.updateProfile>[0]);
       await refreshUser();
       setMessage("Portfolio saved.");
     } catch (err) {

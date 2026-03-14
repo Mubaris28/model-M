@@ -123,6 +123,17 @@
     box-shadow: 0 30px 60px -15px hsla(0, 85%, 50%, 0.15);
   }
 
+  /* Chatbot typing indicator */
+  @keyframes chat-dot {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+  .chat-typing-dot {
+    animation: chat-dot 1.2s ease-in-out infinite;
+  }
+  .chat-typing-dot:nth-child(2) { animation-delay: 0.15s; }
+  .chat-typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
   .magazine-border {
     border: 1px solid hsla(0, 0%, 0%, 0.08);
   }
@@ -251,10 +262,159 @@
     overflow: hidden;
   }
 
+  /* Screenshot & print protection */
+  @media print {
+    * {
+      display: none !important;
+    }
+    body::after {
+      content: "" !important;
+      display: block !important;
+      position: fixed !important;
+      inset: 0 !important;
+      background: #000 !important;
+    }
+  }
+
   /* Categories inner pages: at lg use 3 columns instead of 4 */
   @media (min-width: 1024px) {
     .categories-inner .lg\:grid-cols-4 {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Mobile horizontal slider for grid sections */
+  .mobile-slider {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+  }
+  .mobile-slider::-webkit-scrollbar { display: none; }
+  .mobile-slider > * {
+    flex: 0 0 72vw;
+    max-width: 280px;
+    scroll-snap-align: start;
+  }
+  .mobile-slider > .col-span-full,
+  .mobile-slider > p:only-child {
+    flex: 1 1 100%;
+    min-width: 100%;
+    max-width: none;
+  }
+  .mobile-slider-3 > .col-span-full,
+  .mobile-slider-3 > p:only-child {
+    flex: 1 1 100%;
+    min-width: 100%;
+    max-width: none;
+  }
+  @media (min-width: 640px) {
+    .mobile-slider {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      overflow-x: unset;
+    }
+    .mobile-slider > * {
+      flex: unset;
+      max-width: unset;
+    }
+  }
+  @media (min-width: 768px) {
+    .mobile-slider {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .mobile-slider {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* 3-column max variant (e.g. New Faces) */
+  .mobile-slider-3 {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+  }
+  .mobile-slider-3::-webkit-scrollbar { display: none; }
+  .mobile-slider-3 > * {
+    flex: 0 0 72vw;
+    max-width: 280px;
+    scroll-snap-align: start;
+  }
+  @media (min-width: 640px) {
+    .mobile-slider-3 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      overflow-x: unset;
+    }
+    .mobile-slider-3 > * {
+      flex: unset;
+      max-width: unset;
+    }
+  }
+  @media (min-width: 768px) {
+    .mobile-slider-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Mobile slider that becomes single column from sm (e.g. casting list) */
+  .mobile-slider-single {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+  }
+  .mobile-slider-single::-webkit-scrollbar { display: none; }
+  .mobile-slider-single > * {
+    flex: 0 0 85vw;
+    max-width: 400px;
+    scroll-snap-align: start;
+  }
+  @media (min-width: 640px) {
+    .mobile-slider-single {
+      display: grid;
+      grid-template-columns: 1fr;
+      overflow-x: unset;
+    }
+    .mobile-slider-single > * {
+      flex: unset;
+      max-width: unset;
+    }
+  }
+
+  /* Horizontal scroll for filter/tabs on mobile */
+  .tabs-slider {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 0.5rem;
+    padding-bottom: 0.25rem;
+  }
+  .tabs-slider::-webkit-scrollbar { display: none; }
+  .tabs-slider > * {
+    flex: 0 0 auto;
+  }
+  @media (min-width: 768px) {
+    .tabs-slider {
+      flex-wrap: wrap;
+      overflow-x: unset;
     }
   }
 }
