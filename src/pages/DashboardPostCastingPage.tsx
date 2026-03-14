@@ -2,7 +2,7 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import BackButton from "@/components/BackButton";
 import { useNavigate } from "@/lib/router-next";
-import { castingApi, type CastingBody } from "@/lib/api";
+import { castingApi, type CastingBody, uploadFile } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, CheckCircle } from "lucide-react";
 
@@ -56,6 +56,9 @@ const DashboardPostCastingPage = () => {
   const { user } = useAuth();
   const [form, setForm] = useState<FormState>(defaultForm);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -71,6 +74,12 @@ const DashboardPostCastingPage = () => {
     setError(null);
     setSubmitting(true);
     try {
+      let imageUrl: string | undefined;
+      if (imageFile) {
+        setUploadingImage(true);
+        imageUrl = await uploadFile(imageFile, "casting");
+      }
+
       const body: CastingBody = {
         title: form.title.trim(),
         brand: form.brand.trim(),
@@ -79,14 +88,36 @@ const DashboardPostCastingPage = () => {
         date: form.date || undefined,
         slots: form.slots ? Number(form.slots) : 1,
         description: form.description.trim(),
+        imageUrl,
       };
       await castingApi.create(body);
       setSuccess(true);
     } catch (err) {
       setError((err as Error).message || "Failed to post casting. Please try again.");
     } finally {
+      setUploadingImage(false);
       setSubmitting(false);
     }
+  };
+
+  const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (!file) {
+      setImageFile(null);
+      setImagePreview("");
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      setError("Please choose an image file.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Image is too large. Max 10MB.");
+      return;
+    }
+    setError(null);
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   if (success) {
@@ -168,6 +199,23 @@ const DashboardPostCastingPage = () => {
             />
           </div>
 
+          {/* Casting photo */}
+          <div>
+            <label className="form-label">Casting Photo</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={onImageChange}
+              className="form-input"
+            />
+            <p className="text-muted-foreground text-xs font-body mt-1">Recommended: JPG/PNG/WebP, up to 10MB.</p>
+            {imagePreview && (
+              <div className="mt-3">
+                <img src={imagePreview} alt="Casting preview" className="w-full max-w-sm rounded-sm border border-border object-cover" />
+              </div>
+            )}
+          </div>
+
           {/* Type + Location row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
@@ -244,11 +292,11 @@ const DashboardPostCastingPage = () => {
           <div className="flex gap-3 pt-2">
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || uploadingImage}
               className="btn-primary inline-flex items-center gap-2"
             >
-              {submitting ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</>
+              {submitting || uploadingImage ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> {uploadingImage ? "Uploading image..." : "Submitting..."}</>
               ) : (
                 "Submit Casting"
               )}
