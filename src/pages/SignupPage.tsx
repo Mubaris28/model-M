@@ -61,10 +61,10 @@ const SignupPage = () => {
       </div>
 
       {/* Mobile: full bg hero + column (logo, welcome text, form) */}
-      <div className="lg:hidden relative min-h-screen w-full flex flex-col">
+      <div className="lg:hidden relative min-h-screen w-full flex flex-col min-h-[100dvh]">
         <img src="/images/hero/hero-model.jpg" alt="" className="absolute inset-0 w-full h-full object-cover object-center" />
         <div className="absolute inset-0 cinematic-overlay" />
-        <div className="relative z-10 flex flex-col flex-1 p-6 pt-10 pb-10 overflow-y-auto">
+        <div className="relative z-10 flex flex-col flex-1 min-h-0 p-4 pt-16 pb-[max(2.5rem,env(safe-area-inset-bottom))] overflow-y-auto">
           <div className="text-center mb-6">
             <Link to="/" className="inline-block mb-4">
               <img src="/images/hero-logo/modelmanagement-logo.png" alt="Model Management" className="object-contain mx-auto w-[140px] h-auto" />
@@ -102,13 +102,13 @@ const SignupPage = () => {
                 <div className="relative">
                   <label className="form-label">Password</label>
                   <input type={showPassword ? "text" : "password"} {...register("password")} className="form-input pr-12" placeholder="Min. 6 characters" autoComplete="new-password" />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-[38px] text-muted-foreground hover:text-foreground" aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2" aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
                   {errors.password && <p className="form-error">{errors.password.message}</p>}
                 </div>
                 <div className="relative">
                   <label className="form-label">Confirm password</label>
                   <input type={showConfirm ? "text" : "password"} {...register("confirmPassword")} className="form-input pr-12" placeholder="Repeat password" autoComplete="new-password" />
-                  <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-[38px] text-muted-foreground hover:text-foreground" aria-label={showConfirm ? "Hide password" : "Show password"}>{showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+                  <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2" aria-label={showConfirm ? "Hide password" : "Show password"}>{showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
                   {errors.confirmPassword && <p className="form-error">{errors.confirmPassword.message}</p>}
                 </div>
                 <div className="flex items-start gap-3">
@@ -159,13 +159,13 @@ const SignupPage = () => {
             <div className="relative">
               <label className="form-label">Password</label>
               <input type={showPassword ? "text" : "password"} {...register("password")} className="form-input pr-12" placeholder="Min. 6 characters" autoComplete="new-password" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-[38px] text-muted-foreground hover:text-foreground" aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2" aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
               {errors.password && <p className="form-error">{errors.password.message}</p>}
             </div>
             <div className="relative">
               <label className="form-label">Confirm password</label>
               <input type={showConfirm ? "text" : "password"} {...register("confirmPassword")} className="form-input pr-12" placeholder="Repeat password" autoComplete="new-password" />
-              <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-[38px] text-muted-foreground hover:text-foreground" aria-label={showConfirm ? "Hide password" : "Show password"}>{showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+              <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2" aria-label={showConfirm ? "Hide password" : "Show password"}>{showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
               {errors.confirmPassword && <p className="form-error">{errors.confirmPassword.message}</p>}
             </div>
             <div className="flex items-start gap-3">

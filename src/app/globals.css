@@ -197,6 +197,13 @@
     @apply placeholder:text-muted-foreground/70;
     @apply focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary;
     @apply disabled:cursor-not-allowed disabled:opacity-60;
+    min-height: 2.75rem;
+  }
+  @media (max-width: 768px) {
+    .form-input {
+      font-size: 16px;
+      min-height: 3rem;
+    }
   }
   .form-label {
     @apply block text-xs font-body font-medium tracking-[0.15em] uppercase text-muted-foreground mb-2;
@@ -209,6 +216,11 @@
   }
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground px-6 py-3 text-sm font-body font-medium tracking-[0.15em] uppercase transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-70 disabled:pointer-events-none;
+  }
+  @media (max-width: 768px) {
+    .btn-primary {
+      min-height: 3rem;
+    }
   }
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 rounded-md border border-border bg-background px-6 py-3 text-sm font-body font-medium tracking-[0.15em] uppercase transition-colors hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-70;

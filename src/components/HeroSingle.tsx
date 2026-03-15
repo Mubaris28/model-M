@@ -20,9 +20,9 @@ export default function HeroSingle() {
       <div className="absolute inset-0 bg-gradient-to-r from-foreground/85 via-foreground/50 to-transparent" />
       <div className="absolute inset-0 cinematic-overlay-left" />
 
-      {/* Mobile: full-height block, content bottom-aligned with generous size */}
-      <div className="relative z-10 container mx-auto px-5 sm:px-6 h-full min-h-0 flex flex-col lg:flex-row items-stretch lg:items-center justify-end lg:justify-between pt-[72px] pb-8 sm:pt-24 md:pt-32 lg:pt-32 xl:pt-36 sm:pb-10 md:pb-10 lg:pb-8 xl:pb-10">
-        <div className="max-w-3xl w-full flex flex-col justify-end lg:justify-center gap-4 sm:gap-5 md:gap-6 lg:gap-8 xl:gap-10 min-h-0">
+      {/* Mobile: content centered; desktop: content between */}
+      <div className="relative z-10 container mx-auto px-5 sm:px-6 h-full min-h-0 flex flex-col lg:flex-row items-stretch lg:items-center max-lg:justify-center lg:justify-between pt-[72px] pb-8 sm:pt-24 md:pt-32 lg:pt-32 xl:pt-36 sm:pb-10 md:pb-10 lg:pb-8 xl:pb-10">
+        <div className="max-w-3xl w-full flex flex-col justify-center gap-4 sm:gap-5 md:gap-6 lg:gap-8 xl:gap-10 min-h-0">
           {/* Content block */}
           <div className="flex flex-col gap-3 sm:gap-4 md:gap-5 lg:gap-6">
             <img

@@ -10,8 +10,8 @@ export default function PublicFloatingWidgets() {
   if (isAdmin) return null;
   return (
     <>
-      <Chatbot />
-      <FloatingSocialButtons />
+      <div className="hidden md:block"><Chatbot /></div>
+      <div className="hidden md:block"><FloatingSocialButtons /></div>
     </>
   );
 }

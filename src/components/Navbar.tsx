@@ -51,6 +51,54 @@ const Navbar = () => {
       <div className="container mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
         <div className="shrink-0" aria-hidden="true" />
 
+        {/* Mobile: Log In + Join Us (or Dashboard / Sign out) next to menu */}
+        <div className="flex lg:hidden items-center gap-2">
+          {isLoggedIn ? (
+            <>
+              <Link
+                to="/dashboard"
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-body font-medium tracking-wider uppercase ${isTransparent ? "text-white/90 hover:bg-white/10" : "text-foreground hover:bg-secondary"}`}
+                aria-label="Dashboard"
+              >
+                <LayoutDashboard className="w-4 h-4 shrink-0" />
+                <span className="max-sm:sr-only">Dashboard</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => { logout(); navigate("/"); }}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-body font-medium tracking-wider uppercase ${isTransparent ? "text-white/90 hover:bg-white/10" : "text-foreground hover:bg-secondary"}`}
+                aria-label="Sign out"
+              >
+                <LogOut className="w-4 h-4 shrink-0" />
+                <span className="max-sm:sr-only">Sign out</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className={`px-3 py-2 rounded-md text-xs font-body font-medium tracking-[0.15em] uppercase ${isTransparent ? "text-white/90 hover:bg-white/10" : "text-muted-foreground hover:text-primary"}`}
+              >
+                Log In
+              </Link>
+              <Link
+                to="/signup"
+                className="bg-gradient-red text-primary-foreground px-3 py-2 rounded-md text-xs font-body font-medium tracking-[0.15em] uppercase hover:opacity-90 transition-opacity"
+              >
+                Join Us
+              </Link>
+            </>
+          )}
+          <button
+            className={`p-2.5 rounded-md -mr-1 ${isTransparent ? "text-white" : "text-foreground"} hover:bg-white/10 transition-colors`}
+            onClick={() => setIsOpen(!isOpen)}
+            aria-expanded={isOpen}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
+          >
+            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+
         <div className="hidden lg:flex items-center gap-6">
           {navLinks.map((link) => (
             <Link
@@ -108,15 +156,6 @@ const Navbar = () => {
             </>
           )}
         </div>
-
-        <button
-          className={`lg:hidden p-2.5 rounded-md -mr-1 ${isTransparent ? "text-white" : "text-foreground"} hover:bg-white/10 transition-colors`}
-          onClick={() => setIsOpen(!isOpen)}
-          aria-expanded={isOpen}
-          aria-label={isOpen ? "Close menu" : "Open menu"}
-        >
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
       </div>
 
       <AnimatePresence>
