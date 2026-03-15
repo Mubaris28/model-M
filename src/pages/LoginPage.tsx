@@ -63,13 +63,16 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* Mobile: full bg hero + column (logo, welcome text, form) */}
-      <div className="lg:hidden relative min-h-screen w-full flex flex-col min-h-[100dvh]">
-        <img src="/images/hero/hero-model.jpg" alt="" className="absolute inset-0 w-full h-full object-cover object-center" />
-        <div className="absolute inset-0 cinematic-overlay" />
-        <div className="relative z-10 flex flex-col flex-1 min-h-0 p-4 pt-16 pb-[max(2.5rem,env(safe-area-inset-bottom))] overflow-y-auto">
-          <div className="text-center mb-6">
-            <Link to="/" className="inline-block mb-4">
+      {/* Mobile: scrollable column, form in plain card so inputs are focusable/tappable */}
+      <div className="lg:hidden relative w-full min-h-[100dvh]">
+        <img src="/images/hero/hero-model.jpg" alt="" className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" />
+        <div className="absolute inset-0 cinematic-overlay pointer-events-none" />
+        <div
+          className="relative z-10 w-full min-h-[100dvh] py-6 px-4 pt-14 pb-8 overflow-y-auto overflow-x-hidden"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          <div className="text-center mb-5">
+            <Link to="/" className="inline-block mb-3">
               <img src="/images/hero-logo/modelmanagement-logo.png" alt="Model Management" className="object-contain mx-auto w-[140px] h-auto" />
             </Link>
             <h1 className="font-display text-3xl text-white mb-2">WELCOME BACK</h1>
@@ -77,19 +80,15 @@ const LoginPage = () => {
               Log in to access your dashboard, manage your portfolio, and discover new opportunities.
             </p>
           </div>
-          <div className="flex-1 flex flex-col justify-center max-w-md w-full mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="bg-background/95 backdrop-blur-sm magazine-border p-6 rounded-sm"
-            >
+          <div className="w-full max-w-md mx-auto">
+            <div className="bg-background border border-border p-6 rounded-sm shadow-sm">
               <h2 className="font-display text-2xl mb-1 text-foreground">Log In</h2>
-              <p className="text-muted-foreground text-xs font-body mb-6">Access your account</p>
+              <p className="text-muted-foreground text-xs font-body mb-5">Access your account</p>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
                 <div>
-                  <label className="form-label">Email</label>
+                  <label className="form-label" htmlFor="login-email">Email</label>
                   <input
+                    id="login-email"
                     type="email"
                     {...register("email")}
                     className="form-input"
@@ -99,15 +98,16 @@ const LoginPage = () => {
                   {errors.email && <p className="form-error">{errors.email.message}</p>}
                 </div>
                 <div className="relative">
-                  <label className="form-label">Password</label>
+                  <label className="form-label" htmlFor="login-password">Password</label>
                   <input
+                    id="login-password"
                     type={showPassword ? "text" : "password"}
                     {...register("password")}
                     className="form-input pr-12"
                     placeholder="Enter password"
                     autoComplete="current-password"
                   />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2" aria-label={showPassword ? "Hide password" : "Show password"}>
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground" aria-label={showPassword ? "Hide password" : "Show password"}>
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                   {errors.password && <p className="form-error">{errors.password.message}</p>}
@@ -124,7 +124,7 @@ const LoginPage = () => {
               <p className="text-center text-muted-foreground text-xs font-body mt-5">
                 Don&apos;t have an account? <Link to="/signup" className="text-primary hover:underline font-medium">Sign Up</Link>
               </p>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
