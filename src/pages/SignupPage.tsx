@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@/lib/router-next";
-import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,6 +50,9 @@ const SignupPage = () => {
       <div className="lg:flex lg:w-1/2 relative overflow-hidden bg-foreground">
         <img src="/images/hero/hero-model.jpg" alt="" className="absolute inset-0 w-full h-full object-cover object-center" />
         <div className="absolute inset-0 cinematic-overlay" />
+        <Link to="/" className="absolute top-6 left-6 z-20 inline-flex items-center gap-2 text-white/90 hover:text-white font-body text-sm tracking-wider uppercase transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Back
+        </Link>
         <div className="relative z-10 flex items-center justify-center p-12 text-center w-full">
           <div>
             <Link to="/" className="inline-block mb-6">

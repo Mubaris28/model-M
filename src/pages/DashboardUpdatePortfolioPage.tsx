@@ -78,21 +78,20 @@ const DashboardUpdatePortfolioPage = () => {
         <p className="text-muted-foreground font-body text-sm mb-8">Upload and manage your portfolio photos (4–6 images).</p>
 
         <input
+          id="portfolio-file-upload"
           ref={inputRef}
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif"
           multiple
-          className="hidden"
+          className="sr-only"
           onChange={onFileChange}
+          disabled={portfolioUrls.length >= 6}
         />
 
         <div className="magazine-border p-6">
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={() => portfolioUrls.length < 6 && inputRef.current?.click()}
-            onKeyDown={(e) => e.key === "Enter" && portfolioUrls.length < 6 && inputRef.current?.click()}
-            className="border-2 border-dashed border-border p-8 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+          <label
+            htmlFor="portfolio-file-upload"
+            className={`block border-2 border-dashed p-8 text-center transition-colors ${portfolioUrls.length >= 6 ? "border-primary/30 bg-secondary/50 cursor-default pointer-events-none" : "border-border cursor-pointer hover:border-primary/50"}`}
           >
             {uploading ? (
               <>
@@ -103,11 +102,11 @@ const DashboardUpdatePortfolioPage = () => {
               <>
                 <ImagePlus className="w-12 h-12 text-muted-foreground mx-auto mb-3" aria-hidden />
                 <p className="text-muted-foreground font-body text-sm">
-                  {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — click to add more` : "Click to upload — JPG, PNG, WebP. Min 4, max 6."}
+                  {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — tap to add more` : "Tap to upload — JPG, PNG, WebP. Min 4, max 6."}
                 </p>
               </>
             )}
-          </div>
+          </label>
 
           {portfolioUrls.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-6">

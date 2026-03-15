@@ -350,21 +350,20 @@ const BecomeModelPage = () => {
               <section className="space-y-4">
                 <h4 className="text-xs font-body text-muted-foreground tracking-[0.2em] uppercase border-b border-border pb-2">Portfolio</h4>
               <div>
-                <label className="form-label">Portfolio (4–6 images)</label>
+                <label className="form-label" htmlFor="portfolio-upload">Portfolio (4–6 images)</label>
                 <input
+                  id="portfolio-upload"
                   ref={portfolioInputRef}
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/gif"
                   multiple
-                  className="hidden"
+                  className="sr-only"
                   onChange={onPortfolioChange}
+                  disabled={portfolioUrls.length >= 6}
                 />
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => portfolioUrls.length < 6 && portfolioInputRef.current?.click()}
-                  onKeyDown={(e) => e.key === "Enter" && portfolioUrls.length < 6 && portfolioInputRef.current?.click()}
-                  className={`border-2 border-dashed p-6 text-center transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${portfolioUrls.length >= 6 ? "border-primary/30 bg-secondary/50 cursor-default" : "border-border cursor-pointer hover:border-primary/50"}`}
+                <label
+                  htmlFor="portfolio-upload"
+                  className={`block border-2 border-dashed p-6 text-center transition-colors ${portfolioUrls.length >= 6 ? "border-primary/30 bg-secondary/50 cursor-default pointer-events-none" : "border-border cursor-pointer hover:border-primary/50"}`}
                 >
                   {uploading === "portfolio" ? (
                     <>
@@ -375,11 +374,11 @@ const BecomeModelPage = () => {
                     <>
                       <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" aria-hidden />
                       <p className="text-muted-foreground text-xs font-body">
-                        {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — click to add more` : "Click or drop — JPG, PNG, WebP. Min 4, max 6."}
+                        {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — tap to add more` : "Tap to upload — JPG, PNG, WebP. Min 4, max 6."}
                       </p>
                     </>
                   )}
-                </div>
+                </label>
                 {portfolioUrls.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-3">
                     {portfolioUrls.map((url, i) => (
@@ -412,14 +411,11 @@ const BecomeModelPage = () => {
                 <input type="text" value={step2.idNumber} onChange={(e) => setStep2((s) => ({ ...s, idNumber: e.target.value }))} className="form-input" placeholder="e.g. passport number" />
               </div>
               <div>
-                <label className="form-label">ID / Passport photo</label>
-                <input ref={idPhotoInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={onIdPhotoChange} />
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => idPhotoInputRef.current?.click()}
-                  onKeyDown={(e) => e.key === "Enter" && idPhotoInputRef.current?.click()}
-                  className="border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+                <label className="form-label" htmlFor="id-photo-upload">ID / Passport photo</label>
+                <input id="id-photo-upload" ref={idPhotoInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="sr-only" onChange={onIdPhotoChange} />
+                <label
+                  htmlFor="id-photo-upload"
+                  className="block border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
                 >
                   {uploading === "id" ? (
                     <>
@@ -431,20 +427,17 @@ const BecomeModelPage = () => {
                   ) : (
                     <>
                       <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-muted-foreground text-xs font-body">Upload one image (JPEG, PNG, WebP)</p>
+                      <p className="text-muted-foreground text-xs font-body">Tap to upload — JPEG, PNG, WebP</p>
                     </>
                   )}
-                </div>
+                </label>
               </div>
               <div>
-                <label className="form-label">Selfie with ID</label>
-                <input ref={selfieInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={onSelfieChange} />
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => selfieInputRef.current?.click()}
-                  onKeyDown={(e) => e.key === "Enter" && selfieInputRef.current?.click()}
-                  className="border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+                <label className="form-label" htmlFor="selfie-upload">Selfie with ID</label>
+                <input id="selfie-upload" ref={selfieInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="sr-only" onChange={onSelfieChange} />
+                <label
+                  htmlFor="selfie-upload"
+                  className="block border-2 border-dashed border-border p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
                 >
                   {uploading === "selfie" ? (
                     <>
@@ -459,7 +452,7 @@ const BecomeModelPage = () => {
                       <p className="text-muted-foreground text-xs font-body">One image: selfie holding your ID</p>
                     </>
                   )}
-                </div>
+                </label>
               </div>
               {error && (
                 <div className="rounded-md bg-primary/10 border border-primary/30 p-3 text-primary text-sm font-body">
@@ -469,16 +462,16 @@ const BecomeModelPage = () => {
             </div>
           )}
 
-          <div className="flex items-center justify-between mt-8">
+          <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 mt-8">
             <button
               type="button"
               onClick={() => setStep(step === 1 ? 1 : step - 1)}
-              className={`inline-flex items-center gap-2 text-muted-foreground text-sm font-body hover:text-foreground transition-colors ${step === 1 ? "invisible" : ""}`}
+              className={`inline-flex items-center gap-2 text-muted-foreground text-sm font-body hover:text-foreground transition-colors py-2 ${step === 1 ? "invisible" : ""}`}
             >
               <ArrowLeft className="w-4 h-4" /> {step === 2 ? "Back to Step 1" : "Back to Role Selection"}
             </button>
             {step === 1 ? (
-              <button type="button" onClick={handleContinueToVerification} className="btn-primary">
+              <button type="button" onClick={handleContinueToVerification} className="btn-primary w-full sm:w-auto inline-flex items-center justify-center gap-2">
                 Continue to verification <ArrowRight className="w-4 h-4" />
               </button>
             ) : (
@@ -486,7 +479,7 @@ const BecomeModelPage = () => {
                 type="button"
                 onClick={handleSubmit}
                 disabled={loading}
-                className="btn-primary inline-flex items-center justify-center gap-2"
+                className="btn-primary w-full sm:w-auto inline-flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -495,7 +488,7 @@ const BecomeModelPage = () => {
                   </>
                 ) : (
                   <>
-                    Submit application <ArrowRight className="w-4 h-4" />
+                    Submit Application <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>

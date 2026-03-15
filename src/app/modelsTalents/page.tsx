@@ -38,27 +38,18 @@ export default function ModelsTalentsPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero */}
-      <div className="relative h-[65vh] min-h-[420px] overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1400&q=80"
-          alt="Models & Talents"
-          className="w-full h-full object-cover object-top"
-        />
-        <div className="absolute inset-0 cinematic-overlay" />
-        <div className="absolute inset-0 cinematic-overlay-left" />
-        <div className="relative z-10 container mx-auto px-4 md:px-6 h-full flex flex-col justify-end pb-16">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-3">For Models</p>
-            <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-white leading-none mb-4">
-              Dreamed of<br />Modeling?
-            </h1>
-            <p className="font-body text-lg text-white/80 mb-8 max-w-lg">
-              Originality is what brands are falling in love with. Now&apos;s your chance.
-            </p>
-            <Link to="/casting" className="btn-primary inline-flex">Track Casting Openings</Link>
-          </motion.div>
-        </div>
+      {/* Page header */}
+      <div className="pt-24 pb-10 md:pt-32 md:pb-14 container mx-auto px-4 md:px-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-3">For Models</p>
+          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-none mb-4">
+            Dreamed of<br />Modeling?
+          </h1>
+          <p className="font-body text-base md:text-lg text-muted-foreground mb-6 max-w-lg">
+            Originality is what brands are falling in love with. Now&apos;s your chance.
+          </p>
+          <Link to="/casting" className="btn-primary inline-flex">Track Casting Openings</Link>
+        </motion.div>
       </div>
 
       {/* Feature cards */}

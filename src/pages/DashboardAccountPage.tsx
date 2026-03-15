@@ -139,30 +139,30 @@ const DashboardAccountPage = () => {
                 <p className="text-muted-foreground text-xs font-body">What others see. Upload profile picture and add a short bio.</p>
                 <div className="grid grid-cols-1 gap-4">
                   <div className="flex items-center gap-4">
-                    <input ref={photoInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={onPhotoChange} />
-                    <div
-                      className={cn(
-                        "w-20 h-20 rounded-full bg-secondary flex items-center justify-center overflow-hidden",
-                        profilePhoto && "ring-2 ring-primary/30"
-                      )}
-                    >
-                      {uploadingPhoto ? (
-                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                      ) : profilePhoto ? (
-                        <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-muted-foreground text-xs font-body">Photo</span>
-                      )}
-                    </div>
+                    <input id="profile-photo-upload" ref={photoInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="sr-only" onChange={onPhotoChange} disabled={uploadingPhoto} />
+                    <label htmlFor="profile-photo-upload" className="cursor-pointer shrink-0">
+                      <div
+                        className={cn(
+                          "w-20 h-20 rounded-full bg-secondary flex items-center justify-center overflow-hidden",
+                          profilePhoto && "ring-2 ring-primary/30"
+                        )}
+                      >
+                        {uploadingPhoto ? (
+                          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                        ) : profilePhoto ? (
+                          <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-muted-foreground text-xs font-body">Photo</span>
+                        )}
+                      </div>
+                    </label>
                     <div>
-                      <button
-                        type="button"
-                        onClick={() => photoInputRef.current?.click()}
-                        disabled={uploadingPhoto}
-                        className="text-primary text-xs font-body tracking-[0.15em] uppercase hover:underline disabled:opacity-50"
+                      <label
+                        htmlFor="profile-photo-upload"
+                        className={cn("text-primary text-xs font-body tracking-[0.15em] uppercase hover:underline cursor-pointer", uploadingPhoto && "opacity-50 pointer-events-none")}
                       >
                         <Upload className="w-4 h-4 inline mr-1" /> Upload photo
-                      </button>
+                      </label>
                       <p className="text-muted-foreground text-[10px] mt-1">JPEG, PNG, WebP. Max 10MB.</p>
                     </div>
                   </div>

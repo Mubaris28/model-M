@@ -1,46 +1,49 @@
 "use client";
 
-import { motion } from "framer-motion";
-
 interface PageLoaderProps {
   label?: string;
+  size?: "sm" | "md" | "lg";
+  fullscreen?: boolean;
 }
 
-export default function PageLoader({ label = "Loading..." }: PageLoaderProps) {
+export default function PageLoader({ label, size = "md", fullscreen = true }: PageLoaderProps) {
+  const sizeClasses = {
+    sm: "w-5 h-5 border-2",
+    md: "w-8 h-8 border-2",
+    lg: "w-12 h-12 border-[3px]",
+  };
+
+  const spinner = (
+    <div className={`rounded-full border-border border-t-primary animate-spin ${sizeClasses[size]}`} />
+  );
+
+  if (!fullscreen) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-8">
+        {spinner}
+        {label && <p className="text-muted-foreground font-body text-xs tracking-[0.2em] uppercase">{label}</p>}
+      </div>
+    );
+  }
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[99] flex flex-col items-center justify-center bg-background"
-    >
-      <div className="flex flex-col items-center gap-6">
-        {/* Logo mark */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
-          className="w-12 h-12 bg-primary flex items-center justify-center"
-        >
-          <span className="font-display text-2xl text-primary-foreground tracking-widest">M</span>
-        </motion.div>
-
-        {/* Bar loader */}
-        <div className="w-48 h-[2px] bg-muted overflow-hidden">
-          <motion.div
-            className="h-full bg-primary"
-            initial={{ x: "-100%" }}
-            animate={{ x: "100%" }}
-            transition={{ repeat: Infinity, duration: 1.1, ease: "easeInOut" }}
-          />
-        </div>
-
+    <div className="fixed inset-0 z-[99] flex flex-col items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-4">
+        {spinner}
         {label && (
-          <p className="text-muted-foreground font-body text-xs tracking-[0.3em] uppercase">
-            {label}
-          </p>
+          <p className="text-muted-foreground font-body text-xs tracking-[0.3em] uppercase">{label}</p>
         )}
       </div>
-    </motion.div>
+    </div>
+  );
+}
+
+/** Inline spinner for use inside buttons or small UI elements */
+export function Spinner({ className = "" }: { className?: string }) {
+  return (
+    <span
+      className={`inline-block w-4 h-4 rounded-full border-2 border-border border-t-current animate-spin ${className}`}
+      aria-hidden="true"
+    />
   );
 }

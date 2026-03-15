@@ -3,9 +3,9 @@
 import { Link, useLocation } from "@/lib/router-next";
 import {
   LayoutDashboard, User, Heart, Briefcase, Star, CreditCard, Bell, ArrowRight,
-  Megaphone, Calendar, Store, ImagePlus, Crown, List, Plus,
+  Megaphone, Calendar, Store, ImagePlus, Crown, List, Plus, Menu, X,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { publicApi, type PublicCasting } from "@/lib/api";
@@ -56,6 +56,7 @@ const DashboardPage = () => {
   const displayName = user?.fullName || user?.email?.split("@")[0] || "User";
   const menuItems = isProfessional ? PROFESSIONAL_MENU : MODEL_MENU;
   const [recentCastings, setRecentCastings] = useState<PublicCasting[]>([]);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     publicApi.castings().then((list) => {
@@ -63,68 +64,131 @@ const DashboardPage = () => {
     }).catch(() => {});
   }, []);
 
+  useEffect(() => {
+    if (mobileSidebarOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileSidebarOpen]);
+
   const roleLabel = isModel ? "Model" : isProfessional ? "Professional" : "User";
   const statusLabel = user?.status || "pending";
+
+  const sidebarContent = (
+    <>
+      <div className="magazine-border p-5 mb-4">
+        <div className="flex items-center gap-3 mb-3">
+          {user?.profilePhoto ? (
+            <img src={imgSrc(user.profilePhoto)} alt="" className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <User className="w-6 h-6 text-primary" />
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-base truncate">{displayName}</p>
+            <p className="text-muted-foreground text-xs font-body truncate">{user?.email}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[10px] font-body font-medium tracking-[0.2em] uppercase bg-primary/10 text-primary px-2 py-0.5">
+            {roleLabel}
+          </span>
+          <span className={`text-[10px] font-body font-medium tracking-[0.15em] uppercase px-2 py-0.5 ${STATUS_COLORS[statusLabel] || "bg-secondary text-secondary-foreground"}`}>
+            {statusLabel}
+          </span>
+        </div>
+      </div>
+      <nav className="space-y-0.5 overflow-y-auto">
+        {menuItems.map((item) => (
+          <Link
+            key={item.label}
+            to={item.path}
+            onClick={() => setMobileSidebarOpen(false)}
+            className={`flex items-center gap-3 px-4 py-2.5 text-xs font-body tracking-[0.1em] uppercase transition-colors ${
+              location.pathname === item.path
+                ? "bg-primary/10 text-primary border-l-2 border-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+            }`}
+          >
+            <item.icon className="w-4 h-4 flex-shrink-0" />
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="pt-20">
-        <div className="container mx-auto px-4 md:px-6 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
+        <div className="container mx-auto px-4 md:px-6 py-6 lg:py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6 lg:gap-8">
 
-            {/* Sidebar */}
-            <aside className="hidden lg:block">
-              {/* Profile card */}
-              <div className="magazine-border p-5 mb-4">
-                <div className="flex items-center gap-3 mb-3">
-                  {user?.profilePhoto ? (
-                    <img src={imgSrc(user.profilePhoto)} alt="" className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <User className="w-6 h-6 text-primary" />
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="font-display text-base truncate">{displayName}</p>
-                    <p className="text-muted-foreground text-xs font-body truncate">{user?.email}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-body font-medium tracking-[0.2em] uppercase bg-primary/10 text-primary px-2 py-0.5">
-                    {roleLabel}
-                  </span>
-                  <span className={`text-[10px] font-body font-medium tracking-[0.15em] uppercase px-2 py-0.5 ${STATUS_COLORS[statusLabel] || "bg-secondary text-secondary-foreground"}`}>
-                    {statusLabel}
-                  </span>
-                </div>
-              </div>
-
-              <nav className="space-y-0.5">
-                {menuItems.map((item) => (
-                  <Link
-                    key={item.label}
-                    to={item.path}
-                    className={`flex items-center gap-3 px-4 py-2.5 text-xs font-body tracking-[0.1em] uppercase transition-colors ${
-                      location.pathname === item.path
-                        ? "bg-primary/10 text-primary border-l-2 border-primary"
-                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                    }`}
-                  >
-                    <item.icon className="w-4 h-4 flex-shrink-0" />
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
+            {/* Desktop Sidebar */}
+            <aside className="hidden lg:flex lg:flex-col w-[260px] shrink-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+              {sidebarContent}
             </aside>
 
+            {/* Mobile: Menu button + slide-in sidebar */}
+            <div className="lg:hidden flex items-center gap-3 mb-4">
+              <button
+                type="button"
+                onClick={() => setMobileSidebarOpen(true)}
+                className="flex items-center gap-2 px-4 py-2.5 magazine-border text-sm font-body tracking-[0.1em] uppercase text-foreground hover:border-primary/50 transition-colors"
+                aria-label="Open dashboard menu"
+              >
+                <Menu className="w-5 h-5 text-primary" />
+                Menu
+              </button>
+              <span className="text-muted-foreground font-body text-sm">Dashboard</span>
+            </div>
+
+            <AnimatePresence>
+              {mobileSidebarOpen && (
+                <>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+                    onClick={() => setMobileSidebarOpen(false)}
+                    aria-hidden="true"
+                  />
+                  <motion.aside
+                    initial={{ x: "-100%" }}
+                    animate={{ x: 0 }}
+                    exit={{ x: "-100%" }}
+                    transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+                    className="fixed inset-y-0 left-0 z-50 w-[min(280px,85vw)] max-w-[280px] bg-background border-r border-border flex flex-col shadow-xl lg:hidden pt-20 px-3 pb-6"
+                  >
+                    <div className="flex items-center justify-between mb-4 px-1">
+                      <span className="text-xs font-body tracking-[0.2em] uppercase text-muted-foreground">Dashboard</span>
+                      <button
+                        type="button"
+                        onClick={() => setMobileSidebarOpen(false)}
+                        className="p-2 rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                        aria-label="Close menu"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto -mx-3 px-3">
+                      {sidebarContent}
+                    </div>
+                  </motion.aside>
+                </>
+              )}
+            </AnimatePresence>
+
             {/* Main content */}
-            <main>
+            <main className="min-w-0">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
 
                 {/* Welcome header */}
                 <div className="mb-6">
-                  <h1 className="font-display text-4xl mb-1">Welcome back, {displayName.split(" ")[0]}</h1>
+                  <h1 className="font-display text-3xl sm:text-4xl mb-1">Welcome back, {displayName.split(" ")[0]}</h1>
                   <p className="text-muted-foreground font-body text-sm">
                     {isProfessional
                       ? "Manage your castings, discover talent, and grow your projects."
@@ -156,20 +220,6 @@ const DashboardPage = () => {
                     </div>
                   </div>
                 )}
-
-                {/* Mobile menu */}
-                <div className="lg:hidden grid grid-cols-3 gap-2 mb-6">
-                  {menuItems.slice(0, 6).map((item) => (
-                    <Link
-                      key={item.label}
-                      to={item.path}
-                      className="flex flex-col items-center gap-1 p-3 magazine-border text-center hover:border-primary/40 transition-colors"
-                    >
-                      <item.icon className="w-5 h-5 text-primary" />
-                      <span className="text-[9px] font-body tracking-wider uppercase text-muted-foreground leading-tight">{item.label}</span>
-                    </Link>
-                  ))}
-                </div>
 
                 {/* Recent Castings */}
                 <div className="magazine-border p-5 mb-4">

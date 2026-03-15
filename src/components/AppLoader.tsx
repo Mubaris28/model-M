@@ -6,11 +6,19 @@ import { motion, AnimatePresence } from "framer-motion";
 const TEXT = "MODEL MANAGEMENT";
 const MIN_DURATION_MS = 2200;
 const FADE_OUT_MS = 500;
+const SESSION_KEY = "mm_intro_shown";
 
 export default function AppLoader() {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Only show intro loader once per browser session
+    const alreadyShown = sessionStorage.getItem(SESSION_KEY);
+    if (alreadyShown) return;
+
+    setVisible(true);
+    sessionStorage.setItem(SESSION_KEY, "1");
+
     const start = Date.now();
     const hide = () => {
       const elapsed = Date.now() - start;

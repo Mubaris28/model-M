@@ -20,7 +20,9 @@ import {
   LayoutGrid,
   Tag,
   ImageIcon,
+  Menu,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { adminApi, publicApi, User, AdminStats, ContactMessage, Casting, type PublicModel, type PublicCasting } from "@/lib/api";
 import { imgSrc } from "@/lib/utils";
@@ -44,6 +46,7 @@ const AdminPanelPage = () => {
   const navigate = useNavigate();
   const { user, logout, loading: authLoading } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -391,16 +394,15 @@ const AdminPanelPage = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <aside
-        className={`border-r border-border bg-card flex flex-col transition-all ${
-          sidebarCollapsed ? "w-16" : "w-56"
-        }`}
-      >
-        <div className="p-4 flex items-center justify-between border-b border-border">
-          {!sidebarCollapsed && <span className="font-display text-lg text-primary">Admin Panel</span>}
+  const sidebarContent = (isMobile = false) => (
+    <>
+      <div className="p-4 flex items-center justify-between border-b border-border">
+        <span className="font-display text-lg text-primary">{isMobile || !sidebarCollapsed ? "Admin Panel" : ""}</span>
+        {isMobile ? (
+          <button onClick={() => setMobileSidebarOpen(false)} className="p-2 text-muted-foreground hover:text-primary" aria-label="Close menu">
+            <X className="w-4 h-4" />
+          </button>
+        ) : (
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="p-2 text-muted-foreground hover:text-primary"
@@ -408,73 +410,123 @@ const AdminPanelPage = () => {
           >
             {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
-        </div>
-        <nav className="flex-1 p-2 space-y-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-left text-sm font-body transition-colors ${
-                activeTab === tab.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary"
-              }`}
-            >
-              <tab.icon className="w-4 h-4 flex-shrink-0" />
-              {!sidebarCollapsed && tab.label}
-            </button>
-          ))}
-        </nav>
-        <div className="p-2 border-t border-border space-y-1">
-          {!sidebarCollapsed && (
-            <Link
-              to="/admin/premium-users"
-              className="flex items-center gap-3 px-3 py-2 text-sm font-body text-muted-foreground hover:text-primary"
-            >
-              <CreditCard className="w-4 h-4" />
-              Premium Users
-            </Link>
-          )}
-          {!sidebarCollapsed && (
-            <Link
-              to="/admin/bank-transfers"
-              className="flex items-center gap-3 px-3 py-2 text-sm font-body text-muted-foreground hover:text-primary"
-            >
-              <Banknote className="w-4 h-4" />
-              Payment Verifications
-            </Link>
-          )}
-          <a href="/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-3 py-2 text-sm font-body text-muted-foreground hover:text-primary">
-            <ExternalLink className="w-4 h-4" />
-            {!sidebarCollapsed && "View Site"}
-          </a>
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 text-sm font-body text-muted-foreground hover:text-primary">
-            <LogOut className="w-4 h-4" />
-            {!sidebarCollapsed && "Sign Out"}
+        )}
+      </div>
+      <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => { setActiveTab(tab.id); if (isMobile) setMobileSidebarOpen(false); }}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 text-left text-sm font-body transition-colors ${
+              activeTab === tab.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary"
+            }`}
+          >
+            <tab.icon className="w-4 h-4 flex-shrink-0" />
+            {(isMobile || !sidebarCollapsed) && tab.label}
           </button>
-        </div>
+        ))}
+      </nav>
+      <div className="p-2 border-t border-border space-y-1">
+        {(isMobile || !sidebarCollapsed) && (
+          <Link
+            to="/admin/premium-users"
+            className="flex items-center gap-3 px-3 py-2 text-sm font-body text-muted-foreground hover:text-primary"
+            onClick={() => isMobile && setMobileSidebarOpen(false)}
+          >
+            <CreditCard className="w-4 h-4" />
+            Premium Users
+          </Link>
+        )}
+        {(isMobile || !sidebarCollapsed) && (
+          <Link
+            to="/admin/bank-transfers"
+            className="flex items-center gap-3 px-3 py-2 text-sm font-body text-muted-foreground hover:text-primary"
+            onClick={() => isMobile && setMobileSidebarOpen(false)}
+          >
+            <Banknote className="w-4 h-4" />
+            Payment Verifications
+          </Link>
+        )}
+        <a href="/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-3 py-2 text-sm font-body text-muted-foreground hover:text-primary">
+          <ExternalLink className="w-4 h-4" />
+          {(isMobile || !sidebarCollapsed) && "View Site"}
+        </a>
+        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 text-sm font-body text-muted-foreground hover:text-primary">
+          <LogOut className="w-4 h-4" />
+          {(isMobile || !sidebarCollapsed) && "Sign Out"}
+        </button>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="min-h-screen bg-background flex">
+      {/* Desktop Sidebar */}
+      <aside
+        className={`hidden md:flex flex-col border-r border-border bg-card transition-all ${
+          sidebarCollapsed ? "w-16" : "w-56"
+        }`}
+      >
+        {sidebarContent(false)}
       </aside>
 
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {mobileSidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-black/50 md:hidden"
+              onClick={() => setMobileSidebarOpen(false)}
+              aria-hidden="true"
+            />
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="fixed inset-y-0 left-0 z-50 w-72 bg-card border-r border-border flex flex-col md:hidden shadow-xl"
+            >
+              {sidebarContent(true)}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* Main */}
-      <main className="flex-1 overflow-auto">
-        <header className="border-b border-border bg-card px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h1 className="font-display text-2xl text-primary">Admin Panel</h1>
-            <p className="text-muted-foreground text-sm font-body">Welcome, {user?.email || "admin"}</p>
+      <main className="flex-1 overflow-auto min-w-0">
+        <header className="border-b border-border bg-card px-4 md:px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              className="md:hidden p-2 text-muted-foreground hover:text-primary rounded-md border border-border"
+              aria-label="Open menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="font-display text-xl md:text-2xl text-primary">Admin Panel</h1>
+              <p className="text-muted-foreground text-xs md:text-sm font-body truncate max-w-[180px] md:max-w-none">Welcome, {user?.email || "admin"}</p>
+            </div>
           </div>
           <button
             onClick={handleRefresh}
-            className="flex items-center gap-2 px-4 py-2 border border-border text-sm font-body hover:border-primary hover:text-primary"
+            className="flex items-center gap-2 px-3 md:px-4 py-2 border border-border text-xs md:text-sm font-body hover:border-primary hover:text-primary"
           >
-            <RefreshCw className="w-4 h-4" /> Refresh Data
+            <RefreshCw className="w-4 h-4" /> <span className="hidden sm:inline">Refresh Data</span><span className="sm:hidden">Refresh</span>
           </button>
         </header>
 
         {authError && activeTab !== "dashboard" && (
-          <div className="mx-6 mt-4 p-4 bg-destructive/10 border border-destructive/30 text-destructive text-sm">
+          <div className="mx-4 md:mx-6 mt-4 p-4 bg-destructive/10 border border-destructive/30 text-destructive text-sm">
             {authError}
           </div>
         )}
 
-        <div className="p-6">
+        <div className="p-3 md:p-6">
           {activeTab === "dashboard" && (
             <>
               <h2 className="font-display text-xl text-foreground mb-4">Dashboard Overview</h2>
