@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsDesktop } from "@/hooks/use-mobile";
 import { ApiError } from "@/lib/api";
 import { getRedirectPath } from "@/lib/authFlow";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
@@ -12,6 +13,7 @@ import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const isDesktop = useIsDesktop();
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState("");
 
@@ -46,8 +48,9 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col lg:flex-row">
-      {/* Desktop: left panel with hero image (no red overlay) */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-foreground">
+      {/* Desktop: left panel (only when desktop so one form in DOM) */}
+      {isDesktop && (
+      <div className="lg:flex lg:w-1/2 relative overflow-hidden bg-foreground">
         <img src="/images/hero/hero-model.jpg" alt="" className="absolute inset-0 w-full h-full object-cover object-center" />
         <div className="absolute inset-0 cinematic-overlay" />
         <div className="relative z-10 flex items-center justify-center p-12 text-center w-full">
@@ -62,9 +65,11 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
+      )}
 
-      {/* Mobile: scrollable column, form in plain card so inputs are focusable/tappable */}
-      <div className="lg:hidden relative w-full min-h-[100dvh]">
+      {/* Mobile: only when not desktop so exactly one form in the DOM */}
+      {!isDesktop && (
+      <div className="relative w-full min-h-[100dvh]">
         <img src="/images/hero/hero-model.jpg" alt="" className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none" />
         <div className="absolute inset-0 cinematic-overlay pointer-events-none" />
         <div
@@ -128,9 +133,11 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
+      )}
 
-      {/* Desktop: right panel form only */}
-      <div className="hidden lg:flex w-full lg:w-1/2 items-center justify-center p-6 md:p-12">
+      {/* Desktop: right panel form only (only when desktop) */}
+      {isDesktop && (
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -179,6 +186,7 @@ const LoginPage = () => {
           </p>
         </motion.div>
       </div>
+      )}
     </div>
   );
 };
