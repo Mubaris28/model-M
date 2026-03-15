@@ -1,8 +1,10 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { Menu, X, User, LayoutDashboard, LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "@/lib/router-next";
 import { useAuth } from "@/contexts/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +21,14 @@ const Navbar = () => {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (isOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   const navLinks = [
     { label: "Home", path: "/" },
@@ -99,52 +109,104 @@ const Navbar = () => {
           )}
         </div>
 
-        <button className={`lg:hidden p-2 ${isTransparent ? "text-white" : "text-foreground"}`} onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        <button
+          className={`lg:hidden p-2.5 rounded-md -mr-1 ${isTransparent ? "text-white" : "text-foreground"} hover:bg-white/10 transition-colors`}
+          onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          aria-label={isOpen ? "Close menu" : "Open menu"}
+        >
+          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
-      {isOpen && (
-        <div className="lg:hidden bg-background border-t border-border animate-fade-in">
-          <div className="px-4 py-6 flex flex-col gap-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                to={link.path}
-                className="text-muted-foreground hover:text-foreground transition-colors text-sm font-body tracking-[0.15em] uppercase"
-                onClick={() => setIsOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="flex flex-col sm:flex-row gap-3 mt-2">
-              {isLoggedIn ? (
-                <>
-                  <Link to="/dashboard" className="border border-border text-foreground px-5 py-2.5 text-xs font-body font-medium tracking-[0.15em] uppercase flex items-center gap-2" onClick={() => setIsOpen(false)}>
-                    <LayoutDashboard className="w-4 h-4" /> Dashboard
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => { logout(); setIsOpen(false); navigate("/"); }}
-                    className="border border-primary text-primary px-5 py-2.5 text-xs font-body font-medium tracking-[0.15em] uppercase flex items-center gap-2"
-                  >
-                    <LogOut className="w-4 h-4" /> Sign out
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login" className="border border-border text-foreground px-5 py-2.5 text-xs font-body font-medium tracking-[0.15em] uppercase" onClick={() => setIsOpen(false)}>
-                    Log In
-                  </Link>
-                  <Link to="/signup" className="bg-gradient-red text-primary-foreground px-5 py-2.5 text-xs font-body font-medium tracking-[0.15em] uppercase" onClick={() => setIsOpen(false)}>
-                    Join Us
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 lg:hidden bg-foreground/95 backdrop-blur-md"
+              onClick={() => setIsOpen(false)}
+              aria-hidden="true"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="fixed inset-x-0 top-0 z-50 lg:hidden bg-background border-b border-border shadow-xl"
+            >
+              <div className="flex items-center justify-between px-4 md:px-6 py-4 border-b border-border">
+                <span className="text-xs font-body tracking-[0.2em] uppercase text-muted-foreground">Menu</span>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2.5 rounded-full bg-secondary text-foreground hover:bg-secondary/80 transition-colors"
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <nav className="overflow-y-auto max-h-[calc(100dvh-140px)] px-4 md:px-6 py-6" aria-label="Mobile navigation">
+                <ul className="flex flex-col gap-1">
+                  {navLinks.map((link, i) => (
+                    <li key={link.label}>
+                      <Link
+                        to={link.path}
+                        className="block py-3.5 text-base font-body tracking-[0.12em] uppercase text-foreground hover:text-primary transition-colors border-b border-border/50"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex flex-col gap-3 mt-8 pt-6 border-t border-border">
+                  {isLoggedIn ? (
+                    <>
+                      <Link
+                        to="/dashboard"
+                        className="flex items-center gap-3 w-full py-3.5 px-4 rounded-md border border-border text-foreground font-body text-sm tracking-[0.15em] uppercase hover:border-primary hover:text-primary transition-colors"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <LayoutDashboard className="w-5 h-5 shrink-0" />
+                        Dashboard
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => { logout(); setIsOpen(false); navigate("/"); }}
+                        className="flex items-center gap-3 w-full py-3.5 px-4 rounded-md border border-primary text-primary font-body text-sm tracking-[0.15em] uppercase hover:bg-primary/10 transition-colors text-left"
+                      >
+                        <LogOut className="w-5 h-5 shrink-0" />
+                        Sign out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/login"
+                        className="flex items-center gap-3 w-full py-3.5 px-4 rounded-md border border-border text-foreground font-body text-sm tracking-[0.15em] uppercase hover:border-primary hover:text-primary transition-colors justify-center"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <User className="w-5 h-5 shrink-0" />
+                        Log In
+                      </Link>
+                      <Link
+                        to="/signup"
+                        className="flex items-center justify-center gap-2 w-full py-4 px-4 rounded-md bg-gradient-red text-primary-foreground font-body text-sm font-medium tracking-[0.15em] uppercase hover:opacity-90 transition-opacity"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        Join Us
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </nav>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

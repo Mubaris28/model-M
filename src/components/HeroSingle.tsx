@@ -20,48 +20,52 @@ export default function HeroSingle() {
       <div className="absolute inset-0 bg-gradient-to-r from-foreground/85 via-foreground/50 to-transparent" />
       <div className="absolute inset-0 cinematic-overlay-left" />
 
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 h-full min-h-0 flex flex-col lg:flex-row items-start lg:items-center justify-center lg:justify-between gap-2 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-10 pt-20 sm:pt-24 md:pt-32 lg:pt-32 xl:pt-36 pb-6 sm:pb-8 md:pb-10 lg:pb-8 xl:pb-10">
-        <div className="max-w-3xl w-full shrink-0 flex flex-col gap-1.5 sm:gap-2 md:gap-3 lg:gap-4">
-          <img
-            src="/images/hero-logo/modelmanagement-logo.png"
-            alt="Model Management"
-            className="block w-[110px] sm:w-[140px] md:w-[200px] lg:w-[220px] h-auto object-contain shrink-0"
-          />
-          <p className="text-primary font-body text-[9px] sm:text-[10px] md:text-xs tracking-[0.4em] sm:tracking-[0.5em] uppercase shrink-0">
-            Model Management
-          </p>
-          <h1 className="font-display text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-[80px] leading-[0.9] text-white uppercase shrink-0">
-            <span className="block">One Platform</span>
-            <span className="block">for all</span>
-            <span className="block">models</span>
-          </h1>
-          <p className="text-white/90 font-body text-[11px] sm:text-xs md:text-base lg:text-lg tracking-wide shrink-0">
-            Single account for your modeling journey
-          </p>
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 md:gap-4 shrink-0">
-            <Link
-              to="/modelsTalents"
-              className="inline-flex items-center gap-1 sm:gap-2 md:gap-3 bg-gradient-red text-primary-foreground px-3 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 font-body font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase text-[10px] sm:text-xs md:text-sm hover:opacity-90 transition-opacity group"
-            >
-              Models
-              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link
-              to="/professionals"
-              className="inline-flex items-center gap-1 sm:gap-2 md:gap-3 border-2 border-white text-white px-3 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 font-body font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase text-[10px] sm:text-xs md:text-sm hover:border-primary hover:text-primary transition-all group"
-            >
-              Professionals
-              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link
-              to="/event"
-              className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white px-3 py-2 sm:px-5 sm:py-3 font-body font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase text-[10px] sm:text-xs hover:bg-white/20 hover:border-white/50 transition-all"
-              aria-label="Casting Event 18 April 2026, Labourdonnais Waterfront Hotel – View details"
-            >
-              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-              <span>Casting Event</span>
-              <span className="text-white/80 font-normal">18 Apr</span>
-            </Link>
+      {/* Mobile: full-height block, content bottom-aligned with generous size */}
+      <div className="relative z-10 container mx-auto px-5 sm:px-6 h-full min-h-0 flex flex-col lg:flex-row items-stretch lg:items-center justify-end lg:justify-between pt-[72px] pb-8 sm:pt-24 md:pt-32 lg:pt-32 xl:pt-36 sm:pb-10 md:pb-10 lg:pb-8 xl:pb-10">
+        <div className="max-w-3xl w-full flex flex-col justify-end lg:justify-center gap-4 sm:gap-5 md:gap-6 lg:gap-8 xl:gap-10 min-h-0">
+          {/* Content block */}
+          <div className="flex flex-col gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+            <img
+              src="/images/hero-logo/modelmanagement-logo.png"
+              alt="Model Management"
+              className="block w-[160px] sm:w-[180px] md:w-[200px] lg:w-[220px] h-auto object-contain"
+            />
+            <p className="text-primary font-body text-xs sm:text-xs md:text-xs tracking-[0.5em] uppercase">
+              Model Management
+            </p>
+            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl 2xl:text-[80px] leading-[0.95] text-white uppercase">
+              <span className="block">One Platform</span>
+              <span className="block">for all</span>
+              <span className="block">models</span>
+            </h1>
+            <p className="text-white/90 font-body text-sm sm:text-base md:text-base lg:text-lg tracking-wide max-w-md">
+              Single account for your modeling journey
+            </p>
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 md:gap-4">
+              <Link
+                to="/modelsTalents"
+                className="inline-flex items-center gap-2 sm:gap-2 md:gap-3 bg-gradient-red text-primary-foreground px-5 py-3.5 sm:px-6 sm:py-3 md:px-8 md:py-4 font-body font-medium tracking-[0.15em] uppercase text-sm sm:text-xs md:text-sm hover:opacity-90 transition-opacity group"
+              >
+                Models
+                <ArrowRight className="w-4 h-4 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                to="/professionals"
+                className="inline-flex items-center gap-2 sm:gap-2 md:gap-3 border-2 border-white text-white px-5 py-3.5 sm:px-6 sm:py-3 md:px-8 md:py-4 font-body font-medium tracking-[0.15em] uppercase text-sm sm:text-xs md:text-sm hover:border-primary hover:text-primary transition-all group"
+              >
+                Professionals
+                <ArrowRight className="w-4 h-4 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                to="/event"
+                className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white px-4 py-3.5 sm:px-5 sm:py-3 font-body font-medium tracking-[0.15em] uppercase text-sm sm:text-xs hover:bg-white/20 hover:border-white/50 transition-all"
+                aria-label="Casting Event 18 April 2026, Labourdonnais Waterfront Hotel – View details"
+              >
+                <Calendar className="w-4 h-4 shrink-0" />
+                <span>Casting Event</span>
+                <span className="text-white/80 font-normal">18 Apr</span>
+              </Link>
+            </div>
           </div>
         </div>
 
