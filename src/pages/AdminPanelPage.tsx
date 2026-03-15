@@ -1430,11 +1430,25 @@ const AdminPanelPage = () => {
               ) : viewUser ? (
                 <>
                   <div className="flex flex-wrap gap-4 items-start">
-                    {viewUser.profilePhoto ? (
-                      <img src={viewUser.profilePhoto} alt="" className="w-24 h-24 rounded-full object-cover border border-border" />
-                    ) : (
-                      <div className="w-24 h-24 rounded-full bg-secondary flex items-center justify-center text-muted-foreground text-xs">No photo</div>
-                    )}
+                    {(viewUser.profilePhoto || (viewUser.portfolio?.length && viewUser.portfolio[0])) ? (
+                      <img
+                        src={viewUser.profilePhoto || viewUser.portfolio![0]}
+                        alt=""
+                        className="w-24 h-24 rounded-full object-cover border border-border"
+                        onError={(e) => {
+                          const el = e.currentTarget;
+                          el.style.display = "none";
+                          const fallback = el.nextElementSibling;
+                          if (fallback) (fallback as HTMLElement).style.display = "flex";
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className="w-24 h-24 rounded-full bg-secondary flex items-center justify-center text-muted-foreground text-xs border border-border"
+                      style={viewUser.profilePhoto || (viewUser.portfolio?.length && viewUser.portfolio[0]) ? { display: "none" } : undefined}
+                    >
+                      No photo
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-display text-lg text-foreground">{viewUser.fullName || "—"}</p>
                       <p className="text-muted-foreground text-sm font-body">{viewUser.email}</p>
