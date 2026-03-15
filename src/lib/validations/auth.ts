@@ -12,7 +12,9 @@ export const signupSchema = z
     phone: z.string().max(50).optional().or(z.literal("")),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(1, "Confirm password"),
-    agreeTerms: z.boolean(),
+    agreeTerms: z
+      .union([z.boolean(), z.array(z.any()), z.string()])
+      .transform((val) => (Array.isArray(val) ? val.length > 0 : val === true || val === "on")),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

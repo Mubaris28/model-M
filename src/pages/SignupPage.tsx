@@ -113,7 +113,7 @@ const SignupPage = () => {
                 </div>
                 <div className="flex items-start gap-3">
                   <input type="checkbox" id="agreeTerms" {...register("agreeTerms")} className="mt-1.5 h-4 w-4 rounded border-input accent-primary" />
-                  <label htmlFor="agreeTerms" className="text-sm font-body text-muted-foreground cursor-pointer">I agree to the <Link to="#" className="text-primary hover:underline">Terms of Service</Link> and <Link to="#" className="text-primary hover:underline">Privacy Policy</Link></label>
+                  <label htmlFor="agreeTerms" className="text-sm font-body text-muted-foreground cursor-pointer">I agree to the <Link to="/footer/terms-of-service" className="text-primary hover:underline">Terms of Service</Link> and <Link to="/footer/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link></label>
                 </div>
                 {errors.agreeTerms && <p className="form-error">{errors.agreeTerms.message}</p>}
                 {formError && <div className="p-4 rounded-md bg-primary/10 border border-primary/30 text-primary text-sm font-body">{formError}</div>}
@@ -170,7 +170,7 @@ const SignupPage = () => {
             </div>
             <div className="flex items-start gap-3">
               <input type="checkbox" id="agreeTerms-desktop" {...register("agreeTerms")} className="mt-1.5 h-4 w-4 rounded border-input accent-primary" />
-              <label htmlFor="agreeTerms-desktop" className="text-sm font-body text-muted-foreground cursor-pointer">I agree to the <Link to="#" className="text-primary hover:underline">Terms of Service</Link> and <Link to="#" className="text-primary hover:underline">Privacy Policy</Link></label>
+              <label htmlFor="agreeTerms-desktop" className="text-sm font-body text-muted-foreground cursor-pointer">I agree to the <Link to="/footer/terms-of-service" className="text-primary hover:underline">Terms of Service</Link> and <Link to="/footer/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link></label>
             </div>
             {errors.agreeTerms && <p className="form-error">{errors.agreeTerms.message}</p>}
             {formError && <div className="p-4 rounded-md bg-primary/10 border border-primary/30 text-primary text-sm font-body">{formError}</div>}

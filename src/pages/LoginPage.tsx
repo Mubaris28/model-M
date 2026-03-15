@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/contexts/AuthContext";
-import { ApiError, authApi } from "@/lib/api";
+import { ApiError } from "@/lib/api";
 import { getRedirectPath } from "@/lib/authFlow";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 
@@ -28,9 +28,8 @@ const LoginPage = () => {
   const onSubmit = async (data: LoginInput) => {
     setFormError("");
     try {
-      await login(data.email, data.password);
-      const { user: loggedInUser } = await authApi.me();
-      navigate(getRedirectPath(loggedInUser));
+      const user = await login(data.email, data.password);
+      navigate(getRedirectPath(user));
     } catch (err) {
       const apiErr = err as ApiError;
       if (apiErr?.code === "PASSWORD_RESET_REQUIRED") {

@@ -5,7 +5,7 @@ type AuthContextType = {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   adminLogin: (email: string, password: string) => Promise<void>;
   adminSignup: (email: string, password: string, fullName?: string) => Promise<void>;
   signup: (email: string, password: string, fullName?: string, phone?: string) => Promise<void>;
@@ -59,12 +59,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (email: string, password: string) => {
       const { user: u, token: t } = await authApi.login({ email, password });
-setAuthToken(t, u);
-    setToken(t);
-    setUserState(u);
-  },
-  []
-);
+      setAuthToken(t, u);
+      setToken(t);
+      setUserState(u);
+      return u;
+    },
+    []
+  );
 
   const signup = useCallback(
     async (email: string, password: string, fullName?: string, phone?: string) => {
@@ -123,7 +124,9 @@ const defaultAuth: AuthContextType = {
   user: null,
   token: null,
   loading: true,
-  login: noopAsync,
+  login: async () => {
+    throw new Error("Auth provider not mounted");
+  },
   adminLogin: noopAsync,
   adminSignup: noopAsync,
   signup: noopAsync,
