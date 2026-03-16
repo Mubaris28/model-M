@@ -1,5 +1,12 @@
-// All /api requests go to same origin; Next.js rewrites to backend (see next.config.js).
-// Set NEXT_PUBLIC_API_URL in production (e.g. https://model-m.onrender.com) so rewrites target your API.
+// API base URL:
+// - Local dev: leave NEXT_PUBLIC_API_URL unset → relative URLs → Next.js rewrites to localhost:3001
+// - Production (Vercel): set NEXT_PUBLIC_API_URL=https://your-render-app.onrender.com
+//   The browser calls the Render backend directly (CORS is open on the backend).
+const _rawApiUrl = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "";
+// Ensure it has https:// if a host was provided without a protocol
+const API_BASE = _rawApiUrl
+  ? (_rawApiUrl.startsWith("http") ? _rawApiUrl : `https://${_rawApiUrl}`).replace(/\/+$/, "")
+  : "";
 
 export class ApiError extends Error {
   status: number;
@@ -29,7 +36,9 @@ export async function api<T>(
   const token = getToken();
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const url = path.startsWith("/") ? path : `/${path}`;
+  // When API_BASE is set (production), call backend directly from the browser.
+  // When empty (local dev), use a relative path that Next.js rewrites to localhost:3001.
+  const url = `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
 
   let res: Response;
   try {
@@ -140,8 +149,9 @@ export const contactApi = {
 };
 
 function getUploadBaseUrl(): string {
-  // Use same-origin so Next.js rewrite proxies to backend (no CORS, works in prod).
-  return "";
+  const raw = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "";
+  if (!raw) return ""; // local dev: relative URL, Next.js rewrite handles it
+  return (raw.startsWith("http") ? raw : `https://${raw}`).replace(/\/+$/, "");
 }
 
 export async function uploadFile(file: File, folder: "profile" | "portfolio" | "id" | "selfie" | "casting"): Promise<string> {
