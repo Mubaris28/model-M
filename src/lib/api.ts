@@ -33,7 +33,15 @@ export async function api<T>(
 
   let res: Response;
   try {
-    res = await fetch(`${API_URL}${path}`, {
+    // Normalize base URL + path so we don't accidentally end up with
+    // `/api/api/...` when NEXT_PUBLIC_API_URL already contains `/api`.
+    const base = (API_URL || "").replace(/\/$/, "");
+    const normalizedPath =
+      base.endsWith("/api") && path.startsWith("/api")
+        ? path.replace(/^\/api/, "") // avoid duplicate /api prefix
+        : path;
+
+    res = await fetch(`${base}${normalizedPath}`, {
       ...rest,
       headers,
       ...(body && { body: JSON.stringify(body) }),
