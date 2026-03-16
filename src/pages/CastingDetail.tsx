@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useParams, Link } from "@/lib/router-next";
 import BackButton from "@/components/BackButton";
-import { Calendar, MapPin, Users, Share2, CheckCircle, Loader2, Lock } from "lucide-react";
+import { Calendar, MapPin, Users, Share2, CheckCircle, Loader2, Lock, Banknote, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import PageLoader from "@/components/PageLoader";
@@ -23,8 +23,10 @@ type CastingDetail = {
   slots: number;
   description: string;
   urgent?: boolean;
-  image?: string | { src: string };
+  images: string[];
   categories: string[];
+  price?: string;
+  applicationDeadline?: string;
 };
 
 const CastingDetailPage = () => {
@@ -58,8 +60,12 @@ const CastingDetailPage = () => {
             location: found.location || "—",
             slots: found.slots ?? 0,
             description: found.description || "",
-            image: found.imageUrl || "",
+            images: found.imageUrls || [],
             categories: found.castingType ? [found.castingType] : [],
+            price: found.price || undefined,
+            applicationDeadline: found.applicationDeadline
+              ? new Date(found.applicationDeadline).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+              : undefined,
           });
         } else {
           setCasting(null);
@@ -148,13 +154,30 @@ const CastingDetailPage = () => {
         <div className="container mx-auto px-4 md:px-6 max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
 
-            {casting.image && (
-              <div className="mb-6 overflow-hidden rounded-sm border border-border bg-muted">
-                <img
-                  src={imgSrc(casting.image)}
-                  alt={casting.title}
-                  className="w-full h-auto max-h-[520px] object-cover"
-                />
+            {casting.images.length > 0 && (
+              <div className="mb-6 space-y-2">
+                {/* First image — full width cover */}
+                <div className="overflow-hidden rounded-sm border border-border bg-muted">
+                  <img
+                    src={imgSrc(casting.images[0])}
+                    alt={casting.title}
+                    className="w-full h-auto max-h-[520px] object-cover"
+                  />
+                </div>
+                {/* Remaining images — grid */}
+                {casting.images.length > 1 && (
+                  <div className={`grid gap-2 ${casting.images.length === 2 ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3"}`}>
+                    {casting.images.slice(1).map((src, i) => (
+                      <div key={i} className="overflow-hidden rounded-sm border border-border bg-muted">
+                        <img
+                          src={imgSrc(src)}
+                          alt={`${casting.title} photo ${i + 2}`}
+                          className="w-full aspect-square object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -172,6 +195,18 @@ const CastingDetailPage = () => {
                 <Users className="w-4 h-4 text-primary" />
                 <span>{casting.slots} open position{casting.slots !== 1 ? "s" : ""}</span>
               </div>
+              {casting.price && (
+                <div className="flex items-center gap-2 text-sm font-body text-muted-foreground">
+                  <Banknote className="w-4 h-4 text-primary" />
+                  <span>{casting.price}</span>
+                </div>
+              )}
+              {casting.applicationDeadline && (
+                <div className="flex items-center gap-2 text-sm font-body text-muted-foreground">
+                  <Clock className="w-4 h-4 text-primary" />
+                  <span>Apply by {casting.applicationDeadline}</span>
+                </div>
+              )}
             </div>
 
             {/* Description – trimmed */}

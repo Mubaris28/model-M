@@ -175,7 +175,7 @@ export async function uploadFile(file: File, folder: "profile" | "portfolio" | "
   return (data as { url: string }).url;
 }
 
-export async function uploadFiles(files: File[], folder: "portfolio"): Promise<string[]> {
+export async function uploadFiles(files: File[], folder: "portfolio" | "casting"): Promise<string[]> {
   const token = getToken();
   if (!token) throw new Error("You must be logged in to upload.");
   const base = getUploadBaseUrl();
@@ -200,6 +200,42 @@ export async function uploadFiles(files: File[], folder: "portfolio"): Promise<s
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error((data as { error?: string }).error || "Upload failed. Please try again.");
   return (data as { urls: string[] }).urls;
+}
+
+export function uploadFilesWithProgress(
+  files: File[],
+  folder: "portfolio" | "casting",
+  onProgress: (pct: number) => void
+): Promise<string[]> {
+  return new Promise((resolve, reject) => {
+    const token = getToken();
+    if (!token) { reject(new Error("You must be logged in to upload.")); return; }
+    const base = getUploadBaseUrl();
+    const url = `${base ? base.replace(/\/$/, "") : ""}/api/upload/multiple?folder=${folder}`;
+    const form = new FormData();
+    files.forEach((f) => form.append("files", f));
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    xhr.upload.addEventListener("progress", (e) => {
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+    });
+    xhr.addEventListener("load", () => {
+      try {
+        const data = JSON.parse(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve((data as { urls: string[] }).urls);
+        } else {
+          reject(new Error((data as { error?: string }).error || "Upload failed. Please try again."));
+        }
+      } catch {
+        reject(new Error("Upload failed. Please try again."));
+      }
+    });
+    xhr.addEventListener("error", () => reject(new Error("Cannot reach server. Check your connection and try again.")));
+    xhr.addEventListener("abort", () => reject(new Error("Upload was cancelled.")));
+    xhr.send(form);
+  });
 }
 
 export const adminApi = {
@@ -314,7 +350,9 @@ export interface Casting {
   date?: string;
   slots?: number;
   brand?: string;
-  imageUrl?: string;
+  imageUrls?: string[];
+  price?: string;
+  applicationDeadline?: string;
   approvalStatus?: string;
   creatorId?: User;
   createdAt?: string;
@@ -383,7 +421,9 @@ export interface MyCasting {
   date?: string;
   slots?: number;
   brand?: string;
-  imageUrl?: string;
+  imageUrls?: string[];
+  price?: string;
+  applicationDeadline?: string;
   approvalStatus?: "pending" | "approved" | "rejected";
   createdAt?: string;
 }
@@ -396,7 +436,9 @@ export interface CastingBody {
   date?: string;
   slots?: number;
   brand?: string;
-  imageUrl?: string;
+  imageUrls?: string[];
+  price?: string;
+  applicationDeadline?: string;
 }
 
 export const castingApi = {
@@ -416,7 +458,9 @@ export interface PublicCasting {
   date?: string;
   slots?: number;
   brand?: string;
-  imageUrl?: string;
+  imageUrls?: string[];
+  price?: string;
+  applicationDeadline?: string;
   approvalStatus?: string;
   createdAt?: string;
 }

@@ -21,6 +21,9 @@ import {
   Tag,
   ImageIcon,
   Menu,
+  Calendar,
+  MapPin,
+  Clock,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -93,6 +96,7 @@ const AdminPanelPage = () => {
   const [castingsLoading, setCastingsLoading] = useState(false);
   const [castingStatusFilter, setCastingStatusFilter] = useState<string>("all");
   const [castingActionLoading, setCastingActionLoading] = useState<string | null>(null);
+  const [selectedCasting, setSelectedCasting] = useState<Casting | null>(null);
 
   const loadCastings = async (status?: string) => {
     setCastingsLoading(true);
@@ -793,6 +797,12 @@ const AdminPanelPage = () => {
                             {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}
                           </td>
                           <td className="p-3 flex gap-1.5 flex-wrap">
+                            <button
+                              onClick={() => setSelectedCasting(c)}
+                              className="text-xs px-2 py-1 bg-secondary text-foreground hover:bg-secondary/70"
+                            >
+                              View
+                            </button>
                             {c.approvalStatus !== "approved" && (
                               <button
                                 onClick={() => handleCastingAction(c._id, "approved")}
@@ -1013,8 +1023,8 @@ const AdminPanelPage = () => {
                         if (!c) return null;
                         return (
                           <div key={c._id} className="flex items-center gap-2 border border-border p-2 bg-background w-[220px]">
-                            {c.imageUrl ? (
-                              <img src={imgSrc(c.imageUrl)} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0" />
+                            {c.imageUrls?.[0] ? (
+                              <img src={imgSrc(c.imageUrls[0])} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0" />
                             ) : (
                               <div className="w-12 h-12 rounded bg-secondary flex items-center justify-center flex-shrink-0">
                                 <Briefcase className="w-5 h-5 text-muted-foreground" />
@@ -1334,6 +1344,97 @@ const AdminPanelPage = () => {
         </div>
       )}
 
+      {/* Casting detail modal */}
+      {selectedCasting && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedCasting(null)}>
+          <div className="bg-background border border-border w-full max-w-lg rounded-sm shadow-xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b border-border flex items-center justify-between">
+              <h3 className="font-display text-lg text-primary truncate pr-4">{selectedCasting.title}</h3>
+              <button type="button" onClick={() => setSelectedCasting(null)} className="text-muted-foreground hover:text-foreground flex-shrink-0">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              {selectedCasting.imageUrls && selectedCasting.imageUrls.length > 0 && (
+                <div className="grid grid-cols-3 gap-2">
+                  {selectedCasting.imageUrls.map((url, i) => (
+                    <img key={i} src={imgSrc(url)} alt="" className="w-full aspect-square object-cover rounded-sm border border-border" />
+                  ))}
+                </div>
+              )}
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm font-body">
+                <div>
+                  <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Brand</dt>
+                  <dd className="text-foreground">{selectedCasting.brand || "—"}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Type</dt>
+                  <dd className="text-foreground">{selectedCasting.castingType || "—"}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" />Location</dt>
+                  <dd className="text-foreground">{selectedCasting.location || "—"}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5 flex items-center gap-1"><Calendar className="w-3 h-3" />Casting Date</dt>
+                  <dd className="text-foreground">{selectedCasting.date ? new Date(selectedCasting.date).toLocaleDateString() : "—"}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5 flex items-center gap-1"><Banknote className="w-3 h-3" />Price</dt>
+                  <dd className="text-foreground">{selectedCasting.price || "—"}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5 flex items-center gap-1"><Clock className="w-3 h-3" />Application Deadline</dt>
+                  <dd className="text-foreground">{selectedCasting.applicationDeadline ? new Date(selectedCasting.applicationDeadline).toLocaleDateString() : "—"}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Positions</dt>
+                  <dd className="text-foreground">{selectedCasting.slots ?? "—"}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Status</dt>
+                  <dd>
+                    <span className={`px-2 py-0.5 text-xs font-medium uppercase tracking-wider ${
+                      selectedCasting.approvalStatus === "approved" ? "bg-green-100 text-green-700" :
+                      selectedCasting.approvalStatus === "rejected" ? "bg-red-100 text-red-700" :
+                      "bg-yellow-100 text-yellow-700"
+                    }`}>
+                      {selectedCasting.approvalStatus || "pending"}
+                    </span>
+                  </dd>
+                </div>
+              </dl>
+              {selectedCasting.description && (
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Description</p>
+                  <p className="text-sm font-body text-foreground whitespace-pre-wrap">{selectedCasting.description}</p>
+                </div>
+              )}
+              <div className="flex gap-2 pt-2 border-t border-border">
+                {selectedCasting.approvalStatus !== "approved" && (
+                  <button
+                    onClick={() => { handleCastingAction(selectedCasting._id, "approved"); setSelectedCasting(null); }}
+                    disabled={castingActionLoading === selectedCasting._id}
+                    className="text-xs px-3 py-1.5 bg-green-100 text-green-700 hover:bg-green-200 disabled:opacity-50"
+                  >
+                    Approve
+                  </button>
+                )}
+                {selectedCasting.approvalStatus !== "rejected" && (
+                  <button
+                    onClick={() => { handleCastingAction(selectedCasting._id, "rejected"); setSelectedCasting(null); }}
+                    disabled={castingActionLoading === selectedCasting._id}
+                    className="text-xs px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50"
+                  >
+                    Reject
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add casting to Trending Castings modal */}
       {addCastingModal && homepageData && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setAddCastingModal(false)}>
@@ -1369,8 +1470,8 @@ const AdminPanelPage = () => {
                         onClick={() => { addCastingToTrending(c._id); setAddCastingModal(false); }}
                         className="w-full flex items-center gap-3 p-2 border border-border hover:border-primary hover:bg-primary/5 text-left"
                       >
-                        {c.imageUrl ? (
-                          <img src={imgSrc(c.imageUrl)} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0" />
+                        {c.imageUrls?.[0] ? (
+                          <img src={imgSrc(c.imageUrls[0])} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0" />
                         ) : (
                           <div className="w-10 h-10 rounded bg-secondary flex items-center justify-center flex-shrink-0">
                             <Briefcase className="w-4 h-4 text-muted-foreground" />

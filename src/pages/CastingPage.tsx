@@ -37,7 +37,7 @@ function toCastingRow(c: PublicCasting): CastingRow {
     location: c.location || "—",
     slots: c.slots ?? 0,
     description: c.description || "",
-    image: c.imageUrl || "",
+    image: c.imageUrls?.[0] || "",
     categories: c.castingType ? [c.castingType] : [],
   };
 }

@@ -21,7 +21,7 @@ function toCastingCard(c: PublicCasting): CastingCard {
     location: c.location || "—",
     slots: c.slots ?? 0,
     categories: c.castingType ? [c.castingType] : [],
-    imageUrl: c.imageUrl || "",
+    imageUrl: c.imageUrls?.[0] || "",
   };
 }
 
