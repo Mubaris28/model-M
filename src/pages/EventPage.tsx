@@ -30,10 +30,10 @@ const EventPage = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero: split layout — image one side, content the other; no top padding */}
+      {/* Hero: content above on mobile, image side-by-side on desktop */}
       <section className="relative grid grid-cols-1 lg:grid-cols-2 min-h-[70vh] lg:min-h-[85vh]">
-        {/* Content side (right on desktop, first on mobile) */}
-        <div className="relative order-2 lg:order-2 flex flex-col bg-foreground text-white px-4 md:px-6 lg:px-10 xl:px-14 py-10 md:py-14 lg:py-16 justify-center">
+        {/* Content side (first on mobile, right on desktop) */}
+        <div className="relative order-1 lg:order-2 flex flex-col bg-foreground text-white px-4 md:px-6 lg:px-10 xl:px-14 py-10 md:py-14 lg:py-16 justify-center">
           <BackButton className="mb-6 md:mb-8 text-white border-white/40 hover:border-white hover:bg-white/10" />
           <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-3 md:mb-4">
             Upcoming Event
@@ -49,14 +49,14 @@ const EventPage = () => {
             Join our exclusive casting session. Meet industry professionals and take the next step in your career.
           </p>
         </div>
-        {/* Image side (left on desktop, second on mobile) */}
-        <div className="relative order-1 lg:order-1 min-h-[40vh] lg:min-h-0 overflow-hidden">
+        {/* Image side (below on mobile, left on desktop) */}
+        <div className="relative order-2 lg:order-1 min-h-[40vh] lg:min-h-0 overflow-hidden">
           <img
             src={imgSrc(EVENT_IMAGE)}
             alt=""
             className="absolute inset-0 w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/20 via-transparent to-transparent lg:from-foreground/40 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-foreground/20 via-transparent to-transparent pointer-events-none" />
         </div>
       </section>
 

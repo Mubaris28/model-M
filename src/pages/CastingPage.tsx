@@ -11,6 +11,7 @@ import { Calendar, MapPin, Users, ArrowRight, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { publicApi, type PublicCasting } from "@/lib/api";
+import { FilterSelect } from "@/components/FilterSelect";
 
 type CastingRow = {
   id: string;
@@ -23,6 +24,8 @@ type CastingRow = {
   urgent?: boolean;
   image?: string | { src: string };
   categories?: string[];
+  price?: string;
+  gender?: string;
 };
 
 function toCastingRow(c: PublicCasting): CastingRow {
@@ -39,6 +42,8 @@ function toCastingRow(c: PublicCasting): CastingRow {
     description: c.description || "",
     image: c.imageUrls?.[0] || "",
     categories: c.castingType ? [c.castingType] : [],
+    price: c.price,
+    gender: (c as unknown as { gender?: string }).gender,
   };
 }
 
@@ -79,9 +84,20 @@ const CastingPage = () => {
       if (categoryFilter !== "All" && !(c.categories || []).includes(categoryFilter)) return false;
       if (castingTypeFilter !== "All" && castingTypeFilter !== (c.categories?.[0] || "")) return false;
       if (locationFilter !== "all" && c.location !== locationFilter) return false;
+      if (genderFilter !== "All" && genderFilter !== "Any") {
+        if (!c.gender || c.gender !== genderFilter) return false;
+      }
+      if (paymentFilter === "paid") {
+        const price = c.price;
+        if (!price || String(price).trim() === "" || price === "0" || /^TFP|Unpaid|Free$/i.test(String(price))) return false;
+      }
+      if (paymentFilter === "unpaid") {
+        const price = c.price;
+        if (price && String(price).trim() !== "" && price !== "0" && !/^TFP|Unpaid|Free$/i.test(String(price))) return false;
+      }
       return true;
     });
-  }, [castings, categoryFilter, castingTypeFilter, locationFilter]);
+  }, [castings, categoryFilter, castingTypeFilter, locationFilter, genderFilter, paymentFilter]);
 
   const hasActiveFilters = categoryFilter !== "All" || castingTypeFilter !== "All" || locationFilter !== "all" || genderFilter !== "All" || paymentFilter !== "All";
 
@@ -131,31 +147,9 @@ const CastingPage = () => {
 
             {/* Dropdown filters */}
             <div className="flex flex-wrap gap-3 items-end">
-              {/* Gender */}
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Gender</span>
-                <select value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)} className="form-input py-1.5 text-xs min-w-[130px]">
-                  {GENDER_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-                </select>
-              </div>
-
-              {/* Location */}
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Location</span>
-                <select value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)} className="form-input py-1.5 text-xs min-w-[150px]">
-                  <option value="all">All locations</option>
-                  {locations.map((loc) => <option key={loc} value={loc}>{loc}</option>)}
-                </select>
-              </div>
-
-              {/* Payment */}
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Payment</span>
-                <select value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)} className="form-input py-1.5 text-xs min-w-[130px]">
-                  {PAYMENT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
-              </div>
-
+              <FilterSelect label="Gender" value={genderFilter} onValueChange={setGenderFilter} options={GENDER_OPTIONS} minWidth="130px" />
+              <FilterSelect label="Location" value={locationFilter} onValueChange={setLocationFilter} options={["all", ...locations]} optionLabels={{ all: "All locations" }} placeholder="All locations" minWidth="150px" />
+              <FilterSelect label="Payment" value={paymentFilter} onValueChange={setPaymentFilter} options={PAYMENT_OPTIONS.map((o) => o.value)} optionLabels={PAYMENT_OPTIONS.reduce((acc, o) => ({ ...acc, [o.value]: o.label }), {} as Record<string, string>)} minWidth="130px" />
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
@@ -173,67 +167,85 @@ const CastingPage = () => {
             )}
           </div>
 
-          {/* List — responsive grid (2 columns on desktop) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Casting cards — natural heights, no border or content bg */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 items-start">
             {filtered.map((casting, i) => (
               <motion.div
                 key={casting.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: Math.min(i * 0.05, 0.3) }}
+                transition={{ duration: 0.4, delay: Math.min(i * 0.06, 0.35) }}
               >
                 <Link
                   to={`/casting/${casting.id}`}
-                  className="group flex flex-col h-full bg-card magazine-border overflow-hidden hover:border-primary/30 transition-all"
+                  className="group flex flex-col overflow-hidden transition-opacity hover:opacity-95"
                 >
-                  <div className="w-full h-80 md:h-96 overflow-hidden bg-muted">
-                    {casting.image ? (
+                  {/* Image — natural size, different height per card ok */}
+                  {casting.image ? (
+                    <div className="w-full overflow-hidden bg-muted relative">
                       <img
                         src={imgSrc(casting.image)}
                         alt={casting.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.02]"
+                        style={{ display: "block", maxHeight: "520px", objectFit: "cover", width: "100%" }}
                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="text-center">
-                          <div className="w-12 h-12 bg-primary/10 flex items-center justify-center mx-auto mb-2">
-                            <Users className="w-6 h-6 text-primary/50" />
-                          </div>
-                          <p className="text-muted-foreground font-body text-xs">Casting</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0 p-5 md:p-6 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
                         {casting.urgent && (
-                          <span className="bg-primary/10 text-primary text-[10px] font-body font-medium px-2.5 py-0.5 tracking-[0.2em] uppercase">
+                          <span className="bg-primary text-primary-foreground text-[10px] font-body font-semibold px-2.5 py-1 tracking-[0.18em] uppercase shadow-sm">
                             Urgent
                           </span>
                         )}
                         {(casting.categories || []).map((cat) => (
-                          <span key={cat} className="bg-secondary text-secondary-foreground text-[10px] font-body px-2.5 py-0.5 tracking-[0.15em] uppercase">
+                          <span key={cat} className="bg-black/70 text-white text-[10px] font-body px-2.5 py-1 tracking-[0.15em] uppercase">
                             {cat}
                           </span>
                         ))}
                       </div>
-                      <p className="text-primary text-xs font-body tracking-wider mb-1">{casting.brand}</p>
-                      <h3 className="font-display text-2xl md:text-3xl text-foreground group-hover:text-primary transition-colors mb-2">
+                    </div>
+                  ) : (
+                    <div className="w-full h-56 bg-muted flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-14 h-14 bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                          <Users className="w-7 h-7 text-primary/40" />
+                        </div>
+                        <p className="text-muted-foreground font-body text-xs tracking-wider uppercase">Casting Call</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Content — no border, no card bg; blends with page */}
+                  <div className="flex flex-col pt-4 pb-1 gap-3">
+                    <div>
+                      <p className="text-primary text-[11px] font-body tracking-[0.25em] uppercase mb-1">{casting.brand}</p>
+                      <h3 className="font-display text-xl md:text-2xl text-foreground group-hover:text-primary transition-colors leading-tight uppercase">
                         {casting.title}
                       </h3>
-                      <p className="text-muted-foreground text-xs font-body line-clamp-2">{casting.description}</p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-4 mt-4 text-muted-foreground text-xs font-body">
-                      <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {casting.date}</span>
-                      <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {casting.location}</span>
-                      <span className="flex items-center gap-1.5"><Users className="w-3 h-3" /> {casting.slots} Models</span>
+                    {casting.description && (
+                      <p className="text-muted-foreground text-xs font-body leading-relaxed line-clamp-2">
+                        {casting.description}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-3 text-muted-foreground text-[11px] font-body">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 shrink-0 text-primary/60" />
+                        {casting.date}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 shrink-0 text-primary/60" />
+                        {casting.location}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 shrink-0 text-primary/60" />
+                        {casting.slots} Models
+                      </span>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-end px-5 md:px-6 pb-5 md:pb-6 mt-1">
-                    <span className="inline-flex items-center gap-1.5 text-primary text-xs font-body tracking-[0.15em] uppercase">
-                      View Details <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
+                    <div className="pt-2">
+                      <span className="inline-flex items-center gap-1.5 text-primary text-[11px] font-body tracking-[0.18em] uppercase font-medium group-hover:gap-2.5 transition-all">
+                        View Details <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
                   </div>
                 </Link>
               </motion.div>

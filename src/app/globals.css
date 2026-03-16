@@ -226,6 +226,44 @@
   .form-card {
     @apply rounded-xl border border-border bg-card p-6 md:p-8 shadow-sm;
   }
+
+  /* Filter dropdowns — custom UI (Models, Casting, Marketplace, etc.) */
+  .filter-select-trigger {
+    @apply h-9 min-w-[7rem] rounded-md border border-border bg-background px-3 py-2 text-xs font-body text-foreground text-left;
+    @apply transition-[border-color,box-shadow] duration-150;
+    outline: none;
+    box-shadow: none;
+  }
+  .filter-select-trigger:focus,
+  .filter-select-trigger:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  .filter-select-trigger.is-open,
+  .filter-select-trigger.is-open:focus {
+    border-width: 2px;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 1px hsl(var(--primary));
+  }
+  .filter-select-trigger:hover:not(.is-open) {
+    border-color: hsl(var(--primary) / 0.5);
+  }
+  .filter-select-content {
+    @apply max-h-[18rem] overflow-y-auto rounded-md border border-border bg-background shadow-lg;
+    list-style: none;
+    padding: 0.25rem;
+    margin: 0;
+  }
+  .filter-select-item {
+    @apply relative flex cursor-pointer select-none items-center rounded-sm py-2 pl-8 pr-2 text-xs font-body text-foreground outline-none;
+    @apply transition-colors duration-100;
+  }
+  .filter-select-item:hover {
+    @apply bg-primary text-primary-foreground;
+  }
+  .filter-select-item.is-selected {
+    @apply bg-primary text-primary-foreground;
+  }
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground px-6 py-3 text-sm font-body font-medium tracking-[0.15em] uppercase transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-70 disabled:pointer-events-none;
   }

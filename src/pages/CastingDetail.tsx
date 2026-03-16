@@ -155,24 +155,24 @@ const CastingDetailPage = () => {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
 
             {casting.images.length > 0 && (
-              <div className="mb-6 space-y-2">
-                {/* First image — full width cover */}
+              <div className="mb-6 space-y-4">
+                {/* First image — original size, natural aspect ratio */}
                 <div className="overflow-hidden rounded-sm border border-border bg-muted">
                   <img
                     src={imgSrc(casting.images[0])}
                     alt={casting.title}
-                    className="w-full h-auto max-h-[520px] object-cover"
+                    className="w-full h-auto max-w-full object-contain"
                   />
                 </div>
-                {/* Remaining images — grid */}
+                {/* Remaining images — original size, natural aspect ratio */}
                 {casting.images.length > 1 && (
-                  <div className={`grid gap-2 ${casting.images.length === 2 ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3"}`}>
+                  <div className={`grid gap-4 ${casting.images.length === 2 ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3"}`}>
                     {casting.images.slice(1).map((src, i) => (
                       <div key={i} className="overflow-hidden rounded-sm border border-border bg-muted">
                         <img
                           src={imgSrc(src)}
                           alt={`${casting.title} photo ${i + 2}`}
-                          className="w-full aspect-square object-cover"
+                          className="w-full h-auto max-w-full object-contain"
                         />
                       </div>
                     ))}

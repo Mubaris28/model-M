@@ -1,14 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "@/lib/router-next";
 import { ArrowRight, Play, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const HERO_IMG = "/images/hero/hero-model.jpg";
+const MOBILE_VIDEO = "/images/hero-video/mobile.mp4";
+const MAIN_VIDEO = "/images/hero-video/main-vid.mp4";
 
 export default function HeroSingle() {
   const [showVideo, setShowVideo] = useState(false);
+  const [videoInView, setVideoInView] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Lazy-load video sources only when hero is in view (avoids ERR_CACHE_OPERATION_NOT_SUPPORTED on other pages)
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => setVideoInView(e.isIntersecting),
+      { rootMargin: "50px", threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   return (
     <section className="relative min-h-[100dvh] h-[100dvh] max-h-[100dvh] md:min-h-[70vh] md:h-screen md:max-h-[100dvh] overflow-hidden bg-foreground">
@@ -72,18 +88,18 @@ export default function HeroSingle() {
               loop
               muted
               playsInline
-              preload="metadata"
+              preload="none"
               className="absolute inset-0 w-full h-full object-cover md:hidden"
-              src="/images/hero-video/mobile.mp4"
+              src={videoInView ? MOBILE_VIDEO : undefined}
             />
             <video
               autoPlay
               loop
               muted
               playsInline
-              preload="metadata"
+              preload="none"
               className="absolute inset-0 w-full h-full object-cover hidden md:block"
-              src="/images/hero-video/main-vid.mp4"
+              src={videoInView ? MAIN_VIDEO : undefined}
             />
             <div className="absolute inset-0 flex items-center justify-center bg-black/20">
               <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-white flex items-center justify-center">
@@ -110,11 +126,11 @@ export default function HeroSingle() {
               controls
               autoPlay
               playsInline
-              preload="metadata"
+              preload="none"
               poster={HERO_IMG}
-              src="/images/hero-video/main-vid.mp4"
+              src={MAIN_VIDEO}
             >
-              <source src="/images/hero-video/main-vid.mp4" type="video/mp4" />
+              <source src={MAIN_VIDEO} type="video/mp4" />
               Your browser does not support video.
             </video>
             <button

@@ -11,6 +11,7 @@ import { publicApi, type PublicModel } from "@/lib/api";
 import { Heart, Grid, LayoutList, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useMemo, useEffect } from "react";
+import { FilterSelect } from "@/components/FilterSelect";
 
 const INITIAL_SHOW = 12;
 
@@ -210,64 +211,15 @@ const ModelsPage = () => {
               </div>
             </div>
 
-            {/* Row 3 — Dropdown filters */}
+            {/* Row 3 — Dropdown filters (custom UI) */}
             <div className="flex flex-wrap gap-3 items-end pt-1">
-              {/* Gender */}
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Gender</span>
-                <select value={gender} onChange={(e) => { setGender(e.target.value); setShowCount(INITIAL_SHOW); }} className="form-input py-1.5 text-xs min-w-[130px]">
-                  {GENDER_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-                </select>
-              </div>
-
-              {/* Ethnicity */}
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Ethnicity</span>
-                <select value={ethnicity} onChange={(e) => { setEthnicity(e.target.value); setShowCount(INITIAL_SHOW); }} className="form-input py-1.5 text-xs min-w-[150px]">
-                  {ETHNICITY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-                </select>
-              </div>
-
-              {/* Hair Color */}
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Hair Color</span>
-                <select value={hairColor} onChange={(e) => { setHairColor(e.target.value); setShowCount(INITIAL_SHOW); }} className="form-input py-1.5 text-xs min-w-[130px]">
-                  {HAIR_COLOR_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-                </select>
-              </div>
-
-              {/* Eye Color */}
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Eye Color</span>
-                <select value={eyeColor} onChange={(e) => { setEyeColor(e.target.value); setShowCount(INITIAL_SHOW); }} className="form-input py-1.5 text-xs min-w-[120px]">
-                  {EYE_COLOR_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-                </select>
-              </div>
-
-              {/* Experience */}
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Experience</span>
-                <select value={experience} onChange={(e) => { setExperience(e.target.value); setShowCount(INITIAL_SHOW); }} className="form-input py-1.5 text-xs min-w-[180px]">
-                  {EXPERIENCE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
-              </div>
-
-              {/* Age */}
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Age</span>
-                <select value={ageRange} onChange={(e) => { setAgeRange(e.target.value); setShowCount(INITIAL_SHOW); }} className="form-input py-1.5 text-xs min-w-[110px]">
-                  {AGE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
-              </div>
-
-              {/* Country */}
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Country</span>
-                <select value={country} onChange={(e) => { setCountry(e.target.value); setShowCount(INITIAL_SHOW); }} className="form-input py-1.5 text-xs min-w-[130px]">
-                  {countries.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-
+              <FilterSelect label="Gender" value={gender} onValueChange={(v) => { setGender(v); setShowCount(INITIAL_SHOW); }} options={GENDER_OPTIONS} minWidth="130px" />
+              <FilterSelect label="Ethnicity" value={ethnicity} onValueChange={(v) => { setEthnicity(v); setShowCount(INITIAL_SHOW); }} options={ETHNICITY_OPTIONS} minWidth="150px" />
+              <FilterSelect label="Hair Color" value={hairColor} onValueChange={(v) => { setHairColor(v); setShowCount(INITIAL_SHOW); }} options={HAIR_COLOR_OPTIONS} minWidth="130px" />
+              <FilterSelect label="Eye Color" value={eyeColor} onValueChange={(v) => { setEyeColor(v); setShowCount(INITIAL_SHOW); }} options={EYE_COLOR_OPTIONS} minWidth="120px" />
+              <FilterSelect label="Experience" value={experience} onValueChange={(v) => { setExperience(v); setShowCount(INITIAL_SHOW); }} options={EXPERIENCE_OPTIONS.map((o) => o.value)} minWidth="180px" />
+              <FilterSelect label="Age" value={ageRange} onValueChange={(v) => { setAgeRange(v); setShowCount(INITIAL_SHOW); }} options={AGE_OPTIONS.map((o) => o.value)} minWidth="110px" />
+              <FilterSelect label="Country" value={country} onValueChange={(v) => { setCountry(v); setShowCount(INITIAL_SHOW); }} options={countries} minWidth="130px" />
               {hasActiveFilters && (
                 <button onClick={clearFilters} className="flex items-center gap-1.5 text-primary text-[11px] font-body tracking-wider uppercase hover:underline self-end pb-1">
                   <X className="w-3 h-3" /> Clear all
