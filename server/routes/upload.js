@@ -1,5 +1,6 @@
 import express from "express";
 import multer from "multer";
+import sharp from "sharp";
 import { auth } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -38,6 +39,20 @@ const upload = multer({
   },
 });
 
+const MAX_DIMENSION = 1920;
+
+// Compress and resize images before upload. GIFs are passed through unchanged.
+async function processImage(buffer, mimetype) {
+  if (mimetype === "image/gif") {
+    return { buffer, contentType: mimetype, ext: "gif" };
+  }
+  const processed = await sharp(buffer)
+    .resize(MAX_DIMENSION, MAX_DIMENSION, { fit: "inside", withoutEnlargement: true })
+    .webp({ quality: 80 })
+    .toBuffer();
+  return { buffer: processed, contentType: "image/webp", ext: "webp" };
+}
+
 async function uploadToBunny(buffer, contentType, path) {
   if (!BUNNY_API_KEY) {
     const err = new Error("Storage is not configured. Please try again later or contact support.");
@@ -72,8 +87,8 @@ async function uploadToBunny(buffer, contentType, path) {
   return `https://${BUNNY_STORAGE_ZONE}.b-cdn.net/${path}`;
 }
 
-function safeFilename(original) {
-  const ext = (original || "").split(".").pop()?.toLowerCase() || "jpg";
+function safeFilename(original, forcedExt) {
+  const ext = forcedExt || (original || "").split(".").pop()?.toLowerCase() || "jpg";
   const base = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
   return `${base}.${ext}`;
 }
@@ -91,8 +106,9 @@ router.post("/", auth, upload.single("file"), async (req, res) => {
       return res.status(503).json({ error: "Storage is not configured. Please try again later or contact support." });
     }
     const folder = (req.query.folder || "uploads").replace(/[^a-z0-9_-]/gi, "") || "uploads";
-    const path = `${UPLOAD_PATH_PREFIX}/${folder}/${String(req.user._id)}/${safeFilename(req.file.originalname)}`;
-    const url = await uploadToBunny(req.file.buffer, req.file.mimetype, path);
+    const { buffer, contentType, ext } = await processImage(req.file.buffer, req.file.mimetype);
+    const path = `${UPLOAD_PATH_PREFIX}/${folder}/${String(req.user._id)}/${safeFilename(req.file.originalname, ext)}`;
+    const url = await uploadToBunny(buffer, contentType, path);
     res.json({ url });
   } catch (e) {
     if (e.code === "STORAGE_NOT_CONFIGURED") {
@@ -120,8 +136,9 @@ router.post("/multiple", auth, upload.array("files", 10), async (req, res) => {
     const userId = String(req.user._id);
     const urls = [];
     for (const file of files) {
-      const path = `${UPLOAD_PATH_PREFIX}/${folder}/${userId}/${safeFilename(file.originalname)}`;
-      const url = await uploadToBunny(file.buffer, file.mimetype, path);
+      const { buffer, contentType, ext } = await processImage(file.buffer, file.mimetype);
+      const path = `${UPLOAD_PATH_PREFIX}/${folder}/${userId}/${safeFilename(file.originalname, ext)}`;
+      const url = await uploadToBunny(buffer, contentType, path);
       urls.push(url);
     }
     res.json({ urls });

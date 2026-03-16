@@ -12,7 +12,7 @@ router.post("/", async (req, res) => {
     if (req.user.role !== "professional" && !req.user.isAdmin) {
       return res.status(403).json({ error: "Only professional accounts can post castings." });
     }
-    const { title, description, castingType, location, date, slots, brand, imageUrl } = req.body;
+    const { title, description, castingType, location, date, slots, brand, imageUrls, price, applicationDeadline } = req.body;
     if (!title || !title.trim()) {
       return res.status(400).json({ error: "Title is required." });
     }
@@ -24,7 +24,9 @@ router.post("/", async (req, res) => {
       date: date ? new Date(date) : undefined,
       slots: slots ? Number(slots) : 0,
       brand: (brand || "").trim(),
-      imageUrl: (imageUrl || "").trim(),
+      imageUrls: Array.isArray(imageUrls) ? imageUrls.slice(0, 5) : [],
+      price: (price || "").trim(),
+      applicationDeadline: applicationDeadline ? new Date(applicationDeadline) : undefined,
       creatorId: req.user._id,
       approvalStatus: "pending",
     });
@@ -55,7 +57,7 @@ router.patch("/:id", async (req, res) => {
     if (casting.creatorId.toString() !== req.user._id.toString() && !req.user.isAdmin) {
       return res.status(403).json({ error: "You can only edit your own castings." });
     }
-    const { title, description, castingType, location, date, slots, brand, imageUrl } = req.body;
+    const { title, description, castingType, location, date, slots, brand, imageUrls, price, applicationDeadline } = req.body;
     if (title !== undefined) casting.title = title.trim();
     if (description !== undefined) casting.description = description.trim();
     if (castingType !== undefined) casting.castingType = castingType.trim();
@@ -63,7 +65,9 @@ router.patch("/:id", async (req, res) => {
     if (date !== undefined) casting.date = date ? new Date(date) : undefined;
     if (slots !== undefined) casting.slots = Number(slots);
     if (brand !== undefined) casting.brand = brand.trim();
-    if (imageUrl !== undefined) casting.imageUrl = (imageUrl || "").trim();
+    if (imageUrls !== undefined) casting.imageUrls = Array.isArray(imageUrls) ? imageUrls.slice(0, 5) : [];
+    if (price !== undefined) casting.price = (price || "").trim();
+    if (applicationDeadline !== undefined) casting.applicationDeadline = applicationDeadline ? new Date(applicationDeadline) : undefined;
     await casting.save();
     res.json(casting);
   } catch (e) {

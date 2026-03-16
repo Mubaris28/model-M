@@ -10,6 +10,9 @@ const castingSchema = new mongoose.Schema(
     slots: { type: Number, default: 0 },
     brand: { type: String, default: "" },
     imageUrl: { type: String, default: "" },
+    imageUrls: { type: [String], default: [] },
+    price: { type: String, default: "" },
+    applicationDeadline: { type: Date },
     creatorId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     approvalStatus: {
       type: String,
