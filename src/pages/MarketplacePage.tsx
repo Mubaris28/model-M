@@ -10,6 +10,7 @@ import { publicApi, type PublicMarketplaceItem } from "@/lib/api";
 import { ArrowUpRight, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
+import { FilterSelect } from "@/components/FilterSelect";
 
 const CATEGORY_TABS = ["All", "Photography", "Styling", "Training", "Digital", "Makeup", "Other"];
 const AVAILABILITY_OPTIONS = [
@@ -102,22 +103,8 @@ const MarketplacePage = () => {
 
             {/* Dropdowns */}
             <div className="flex flex-wrap gap-3 items-end">
-              {/* Location */}
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Location</span>
-                <select value={location} onChange={(e) => setLocation(e.target.value)} className="form-input py-1.5 text-xs min-w-[140px]">
-                  {locations.map((l) => <option key={l} value={l}>{l}</option>)}
-                </select>
-              </div>
-
-              {/* Availability */}
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase">Availability</span>
-                <select value={availability} onChange={(e) => setAvailability(e.target.value as "all" | "available" | "unavailable")} className="form-input py-1.5 text-xs min-w-[140px]">
-                  {AVAILABILITY_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
-              </div>
-
+              <FilterSelect label="Location" value={location} onValueChange={(v) => setLocation(v)} options={locations} minWidth="140px" />
+              <FilterSelect label="Availability" value={availability} onValueChange={(v) => setAvailability(v as "all" | "available" | "unavailable")} options={AVAILABILITY_OPTIONS.map((o) => o.value)} optionLabels={AVAILABILITY_OPTIONS.reduce((acc, o) => ({ ...acc, [o.value]: o.label }), {} as Record<string, string>)} minWidth="140px" />
               {hasActiveFilters && (
                 <button onClick={clearFilters} className="flex items-center gap-1.5 text-primary text-[11px] font-body tracking-wider uppercase hover:underline self-end pb-1">
                   <X className="w-3 h-3" /> Clear all

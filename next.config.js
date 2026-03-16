@@ -4,7 +4,8 @@ const nextConfig = {
   experimental: {
     middlewareClientMaxBodySize: 60 * 1024 * 1024, // 60MB — allows up to 5 casting photos
   },
-  // Proxy /api to the Node.js backend (run with npm run dev:all)
+  // Local dev only: proxy /api/* → Express backend on localhost:3001.
+  // In production (Vercel), the browser calls NEXT_PUBLIC_API_URL directly — no rewrite needed.
   async rewrites() {
     return [
       {

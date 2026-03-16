@@ -2,7 +2,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
 import PageLoader from "@/components/PageLoader";
-import { categories } from "@/components/MagazineGrid";
 import { useParams, Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import BackButton from "@/components/BackButton";
@@ -24,12 +23,24 @@ function toCard(m: PublicModel): ModelCard {
 
 const CategoryDetail = () => {
   const { slug } = useParams();
-  const category = categories.find((c) => c.slug === slug);
+  const [category, setCategory] = useState<{ slug: string; name: string; description: string } | null>(null);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [models, setModels] = useState<ModelCard[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
 
   useEffect(() => {
-    if (!category) { setPageLoading(false); return; }
+    publicApi
+      .categories()
+      .then((data) => {
+        const found = (data.categories ?? []).find((c) => c.slug === slug);
+        setCategory(found ?? null);
+      })
+      .catch(() => setCategory(null))
+      .finally(() => setCategoriesLoaded(true));
+  }, [slug]);
+
+  useEffect(() => {
+    if (!category) return;
     setPageLoading(true);
     publicApi
       .categoryModels(category.slug)
@@ -38,8 +49,7 @@ const CategoryDetail = () => {
       .finally(() => setPageLoading(false));
   }, [category]);
 
-  if (pageLoading) return <PageLoader label={`Loading ${category?.name ?? ""}...`} />;
-
+  if (!categoriesLoaded) return <PageLoader label="Loading category..." />;
   if (!category) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -51,6 +61,7 @@ const CategoryDetail = () => {
       </div>
     );
   }
+  if (pageLoading) return <PageLoader label={`Loading ${category.name}...`} />;
 
   return (
     <div className="min-h-screen bg-background">
@@ -61,7 +72,7 @@ const CategoryDetail = () => {
           <BackButton label="Back to Categories" className="mb-6" />
           <h1 className="font-display text-6xl md:text-8xl line-accent">{category.name}</h1>
           <div className="flex items-center gap-4 mt-3">
-            <span className="text-primary text-xs font-body tracking-[0.3em] uppercase">{category.count} Models</span>
+            <span className="text-primary text-xs font-body tracking-[0.3em] uppercase">{models.length} Models</span>
             <span className="text-muted-foreground text-xs font-body">{category.description}</span>
           </div>
         </div>

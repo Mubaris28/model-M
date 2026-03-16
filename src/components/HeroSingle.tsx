@@ -6,6 +6,8 @@ import { ArrowRight, Play, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const HERO_IMG = "/images/hero/hero-model.jpg";
+const MOBILE_VIDEO = "/images/hero-video/mobile.mp4";
+const MAIN_VIDEO = "/images/hero-video/main-vid.mp4";
 
 export default function HeroSingle() {
   const [showVideo, setShowVideo] = useState(false);
@@ -64,31 +66,25 @@ export default function HeroSingle() {
           <button
             type="button"
             onClick={() => setShowVideo(true)}
-            className="group relative block w-full aspect-[9/16] rounded-sm border-2 border-white/50 bg-black/40 overflow-hidden hover:border-white/80 hover:bg-black/50 transition-all"
+            className="group relative block w-full aspect-[9/16] rounded-sm border-2 border-white/50 bg-black/60 overflow-hidden hover:border-white hover:bg-black/80 transition-all"
             aria-label="Watch Reels"
           >
+            {/* Looping mobile reels preview video */}
             <video
+              src={MOBILE_VIDEO}
               autoPlay
               loop
               muted
               playsInline
-              className="absolute inset-0 w-full h-full object-cover md:hidden"
-              src="/images/hero-video/mobile.mp4"
+              preload="metadata"
+              className="absolute inset-0 w-full h-full object-cover"
             />
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover hidden md:block"
-              src="/images/hero-video/main-vid.mp4"
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-white flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-white flex items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors">
                 <Play className="w-5 h-5 sm:w-6 sm:h-6 text-white fill-white ml-1" />
               </div>
             </div>
-            <div className="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
+            <div className="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black/70 to-transparent pointer-events-none">
               <span className="text-white font-body text-xs tracking-[0.2em] uppercase">Reels</span>
             </div>
           </button>
@@ -101,17 +97,19 @@ export default function HeroSingle() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
           >
             <video
               className="w-full h-full object-contain"
               controls
               autoPlay
+              muted
               playsInline
+              preload="metadata"
               poster={HERO_IMG}
-              src="/images/hero-video/main-vid.mp4"
+              src={MAIN_VIDEO}
             >
-              <source src="/images/hero-video/main-vid.mp4" type="video/mp4" />
+              <source src={MAIN_VIDEO} type="video/mp4" />
               Your browser does not support video.
             </video>
             <button

@@ -7,7 +7,7 @@ const NewFacesPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-24 pb-4">
+      <div className="pb-4">
         <NewFacesComp />
       </div>
       <div className="container mx-auto px-4 md:px-6 py-8">

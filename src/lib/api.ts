@@ -1,7 +1,12 @@
-// Next.js rewrites /api to backend (3001). Set NEXT_PUBLIC_API_URL in prod if API is on another origin.
-// Must be full URL with protocol (e.g. https://your-api.onrender.com) or browser will treat it as a path.
-const raw = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "";
-const API_URL = raw && !/^https?:\/\//i.test(raw) ? `https://${raw.replace(/^\/+/, "")}` : raw;
+// API base URL:
+// - Local dev: leave NEXT_PUBLIC_API_URL unset → relative URLs → Next.js rewrites to localhost:3001
+// - Production (Vercel): set NEXT_PUBLIC_API_URL=https://your-render-app.onrender.com
+//   The browser calls the Render backend directly (CORS is open on the backend).
+const _rawApiUrl = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "";
+// Ensure it has https:// if a host was provided without a protocol
+const API_BASE = _rawApiUrl
+  ? (_rawApiUrl.startsWith("http") ? _rawApiUrl : `https://${_rawApiUrl}`).replace(/\/+$/, "")
+  : "";
 
 export class ApiError extends Error {
   status: number;
@@ -31,9 +36,13 @@ export async function api<T>(
   const token = getToken();
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
+  // When API_BASE is set (production), call backend directly from the browser.
+  // When empty (local dev), use a relative path that Next.js rewrites to localhost:3001.
+  const url = `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+
   let res: Response;
   try {
-    res = await fetch(`${API_URL}${path}`, {
+    res = await fetch(url, {
       ...rest,
       headers,
       ...(body && { body: JSON.stringify(body) }),
@@ -140,12 +149,9 @@ export const contactApi = {
 };
 
 function getUploadBaseUrl(): string {
-  if (typeof window !== "undefined") {
-    const raw = (process.env?.NEXT_PUBLIC_API_URL as string) || "";
-    const base = raw && !/^https?:\/\//i.test(raw) ? `https://${raw.replace(/^\/+/, "")}` : raw;
-    return base;
-  }
-  return (process.env?.NEXT_PUBLIC_API_URL as string) || "";
+  const raw = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "";
+  if (!raw) return ""; // local dev: relative URL, Next.js rewrite handles it
+  return (raw.startsWith("http") ? raw : `https://${raw}`).replace(/\/+$/, "");
 }
 
 export async function uploadFile(file: File, folder: "profile" | "portfolio" | "id" | "selfie" | "casting"): Promise<string> {
@@ -272,9 +278,18 @@ export const adminApi = {
       body,
     }),
   homepageCategories: () =>
-    api<{ categorySlots: Record<string, { ids: string[]; models: PublicModel[] }>; approvedModels: PublicModel[] }>("/api/admin/homepage-categories"),
+    api<{
+      mainCategories: { slug: string; name: string; description: string }[];
+      categorySlots: Record<string, { ids: string[]; models: PublicModel[] }>;
+      approvedModels: PublicModel[];
+    }>("/api/admin/homepage-categories"),
   updateHomepageCategory: (slug: string, ids: string[]) =>
     api<{ ok: boolean }>(`/api/admin/homepage-categories/${encodeURIComponent(slug)}`, { method: "PUT", body: { ids } }),
+  updateHomepageCategoriesMain: (categories: { slug: string; name: string; description: string }[]) =>
+    api<{ ok: boolean; mainCategories: { slug: string; name: string; description: string }[] }>(
+      "/api/admin/homepage-categories/main",
+      { method: "PUT", body: { categories } }
+    ),
   homepageLatest: () =>
     api<{ ids: string[]; count: number; latestModels: PublicModel[]; approvedModels: PublicModel[] }>("/api/admin/homepage-latest"),
   updateHomepageLatest: (body: { ids: string[]; count?: number }) =>
@@ -472,6 +487,8 @@ export const publicApi = {
   sectionsNewFaces: () => api<PublicModel[]>("/api/public/sections/new-faces"),
   sectionsTrending: () => api<PublicModel[]>("/api/public/sections/trending"),
   sectionsLatest: () => api<PublicModel[]>("/api/public/sections/latest"),
+  categories: () =>
+    api<{ categories: { slug: string; name: string; description: string }[] }>("/api/public/categories"),
   categoryModels: (slug: string) => api<PublicModel[]>(`/api/public/categories/${encodeURIComponent(slug)}/models`),
   castings: () => api<PublicCasting[]>("/api/public/castings"),
   sectionsTrendingCastings: () => api<PublicCasting[]>("/api/public/sections/trending-castings"),

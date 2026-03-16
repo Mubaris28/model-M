@@ -26,8 +26,10 @@ export default function PageLoader({ label, size = "md", fullscreen = true }: Pa
     );
   }
 
+  // Next.js may log "Skipping auto scroll behavior due to position: fixed" when this is mounted.
+  // That's expected: the router skips scroll restoration for fixed overlays. Safe to ignore.
   return (
-    <div className="fixed inset-0 z-[99] flex flex-col items-center justify-center bg-background">
+    <div className="fixed inset-0 z-[99] flex flex-col items-center justify-center bg-background" aria-busy="true" aria-live="polite">
       <div className="flex flex-col items-center gap-4">
         {spinner}
         {label && (

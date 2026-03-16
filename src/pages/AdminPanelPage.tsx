@@ -22,6 +22,8 @@ import {
   ImageIcon,
   Mail,
   Menu,
+  ChevronUp,
+  ChevronDown,
   Calendar,
   MapPin,
   Clock,
@@ -388,14 +390,19 @@ const AdminPanelPage = () => {
 
   // Categories section state
   const [categoriesData, setCategoriesData] = useState<{
+    mainCategories: { slug: string; name: string; description: string }[];
     categorySlots: Record<string, { ids: string[]; models: PublicModel[] }>;
     approvedModels: PublicModel[];
   } | null>(null);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [categoriesSaving, setCategoriesSaving] = useState<string | null>(null);
+  const [mainCategoriesSaving, setMainCategoriesSaving] = useState(false);
+  const [mainCategoriesLocal, setMainCategoriesLocal] = useState<{ slug: string; name: string; description: string }[]>([]);
   const [categoryIdsLocal, setCategoryIdsLocal] = useState<Record<string, string[]>>({});
   const [addCategoryModal, setAddCategoryModal] = useState<string | null>(null);
   const [addCategorySearch, setAddCategorySearch] = useState("");
+  const [addMainCategoryOpen, setAddMainCategoryOpen] = useState(false);
+  const [newMainCategory, setNewMainCategory] = useState({ name: "", slug: "", description: "" });
 
   // Latest Models section state
   const [latestData, setLatestData] = useState<{
@@ -450,13 +457,60 @@ const AdminPanelPage = () => {
     try {
       const data = await adminApi.homepageCategories();
       setCategoriesData(data);
+      setMainCategoriesLocal(data.mainCategories?.length ? data.mainCategories : []);
       const localMap: Record<string, string[]> = {};
-      for (const slug of Object.keys(data.categorySlots)) {
+      for (const slug of Object.keys(data.categorySlots || {})) {
         localMap[slug] = data.categorySlots[slug].ids;
       }
       setCategoryIdsLocal(localMap);
     } catch { setAuthError("Failed to load categories."); }
     finally { setCategoriesLoading(false); }
+  };
+
+  const saveMainCategories = async () => {
+    setMainCategoriesSaving(true);
+    try {
+      await adminApi.updateHomepageCategoriesMain(mainCategoriesLocal);
+      await loadCategoriesData();
+    } catch { setAuthError("Failed to save main categories."); }
+    finally { setMainCategoriesSaving(false); }
+  };
+
+  const addMainCategory = () => {
+    const slug = newMainCategory.slug.trim() || String(newMainCategory.name || "").toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") || "category";
+    const name = newMainCategory.name.trim() || slug;
+    if (!slug) return;
+    if (mainCategoriesLocal.some((c) => c.slug === slug)) {
+      setAuthError("A category with this slug already exists.");
+      return;
+    }
+    setMainCategoriesLocal((prev) => [...prev, { slug, name, description: newMainCategory.description.trim() }]);
+    setCategoryIdsLocal((prev) => ({ ...prev, [slug]: prev[slug] ?? [] }));
+    setNewMainCategory({ name: "", slug: "", description: "" });
+    setAddMainCategoryOpen(false);
+  };
+
+  const removeMainCategory = (slug: string) => {
+    setMainCategoriesLocal((prev) => prev.filter((c) => c.slug !== slug));
+  };
+
+  const moveMainCategory = (index: number, dir: 1 | -1) => {
+    const j = index + dir;
+    if (j < 0 || j >= mainCategoriesLocal.length) return;
+    setMainCategoriesLocal((prev) => {
+      const next = [...prev];
+      [next[index], next[j]] = [next[j], next[index]];
+      return next;
+    });
+  };
+
+  const updateMainCategoryAt = (index: number, field: "name" | "slug" | "description", value: string) => {
+    setMainCategoriesLocal((prev) => {
+      const next = [...prev];
+      const cur = next[index];
+      next[index] = { ...cur, [field]: value };
+      return next;
+    });
   };
 
   const saveCategorySection = async (slug: string) => {
@@ -1547,19 +1601,129 @@ const AdminPanelPage = () => {
           {/* ── CATEGORIES TAB ── */}
           {activeTab === "categories" && (
             <>
-              <h2 className="font-display text-xl text-foreground mb-2">Category Pages</h2>
+              <h2 className="font-display text-xl text-foreground mb-2">Categories section</h2>
               <p className="text-muted-foreground text-sm font-body mb-6">
-                Control which models appear on each category sub-page. Save each category individually.
+                <strong>Main cards</strong> are the category cards on the homepage. Add, remove, or reorder them below and edit name/description. <strong>Sub cards</strong> are the models shown on each category page—assign models per category; the first model&apos;s photo is the category card image.
               </p>
               {categoriesLoading ? (
                 <p className="text-muted-foreground font-body">Loading...</p>
               ) : categoriesData ? (
                 <div className="space-y-8">
-                  {Object.entries(categoryIdsLocal).map(([slug, ids]) => {
-                    const label = slug.charAt(0).toUpperCase() + slug.slice(1);
+                  {/* Main cards: add / remove / reorder / edit */}
+                  <div className="border border-border bg-card p-5">
+                    <h3 className="font-display text-lg text-primary mb-3 flex items-center justify-between">
+                      Main cards (homepage)
+                      <button
+                        type="button"
+                        onClick={() => { setAddMainCategoryOpen(true); setNewMainCategory({ name: "", slug: "", description: "" }); }}
+                        className="flex items-center gap-1.5 text-xs font-body uppercase tracking-wider text-primary hover:underline"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Add category
+                      </button>
+                    </h3>
+                    <p className="text-muted-foreground text-sm font-body mb-4">These cards appear in the Categories section. Order and labels are used on the site.</p>
+                    <div className="space-y-3 mb-4">
+                      {mainCategoriesLocal.map((cat, index) => (
+                        <div key={cat.slug} className="flex flex-wrap items-center gap-3 border border-border p-3 bg-background">
+                          <div className="flex flex-col gap-0.5">
+                            <button type="button" onClick={() => moveMainCategory(index, -1)} disabled={index === 0} className="p-0.5 text-muted-foreground hover:text-primary disabled:opacity-30" title="Move up"><ChevronUp className="w-4 h-4" /></button>
+                            <button type="button" onClick={() => moveMainCategory(index, 1)} disabled={index === mainCategoriesLocal.length - 1} className="p-0.5 text-muted-foreground hover:text-primary disabled:opacity-30" title="Move down"><ChevronDown className="w-4 h-4" /></button>
+                          </div>
+                          <input
+                            type="text"
+                            value={cat.name}
+                            onChange={(e) => updateMainCategoryAt(index, "name", e.target.value)}
+                            placeholder="Name"
+                            className="w-32 border border-border bg-background px-2 py-1.5 text-sm font-body"
+                          />
+                          <input
+                            type="text"
+                            value={cat.slug}
+                            onChange={(e) => updateMainCategoryAt(index, "slug", e.target.value.toLowerCase().replace(/\s+/g, "-"))}
+                            placeholder="slug"
+                            className="w-28 border border-border bg-background px-2 py-1.5 text-sm font-body text-muted-foreground"
+                          />
+                          <input
+                            type="text"
+                            value={cat.description}
+                            onChange={(e) => updateMainCategoryAt(index, "description", e.target.value)}
+                            placeholder="Short description"
+                            className="flex-1 min-w-[160px] border border-border bg-background px-2 py-1.5 text-sm font-body"
+                          />
+                          <button type="button" onClick={() => removeMainCategory(cat.slug)} className="text-xs text-destructive hover:underline font-body">Remove</button>
+                        </div>
+                      ))}
+                      {mainCategoriesLocal.length === 0 && <p className="text-muted-foreground text-sm font-body">No main categories. Click &quot;Add category&quot; to create one.</p>}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={saveMainCategories}
+                      disabled={mainCategoriesSaving}
+                      className="px-4 py-2 bg-primary text-primary-foreground font-body text-xs uppercase tracking-wider disabled:opacity-50"
+                    >
+                      {mainCategoriesSaving ? "Saving…" : "Save main cards"}
+                    </button>
+                  </div>
+
+                  {addMainCategoryOpen && (
+                    <div className="border border-border bg-card p-5">
+                      <h4 className="font-display text-base text-primary mb-3">New main category</h4>
+                      <div className="flex flex-wrap items-end gap-3 mb-3">
+                        <div>
+                          <label className="block text-xs font-body text-muted-foreground uppercase tracking-wider mb-1">Name</label>
+                          <input
+                            type="text"
+                            value={newMainCategory.name}
+                            onChange={(e) => setNewMainCategory((prev) => ({ ...prev, name: e.target.value, slug: prev.slug || e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") }))}
+                            placeholder="e.g. Artistic"
+                            className="w-48 border border-border bg-background px-2 py-1.5 text-sm font-body"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-body text-muted-foreground uppercase tracking-wider mb-1">Slug (URL)</label>
+                          <input
+                            type="text"
+                            value={newMainCategory.slug}
+                            onChange={(e) => setNewMainCategory((prev) => ({ ...prev, slug: e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") }))}
+                            placeholder="e.g. artistic"
+                            className="w-40 border border-border bg-background px-2 py-1.5 text-sm font-body"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-[200px]">
+                          <label className="block text-xs font-body text-muted-foreground uppercase tracking-wider mb-1">Description</label>
+                          <input
+                            type="text"
+                            value={newMainCategory.description}
+                            onChange={(e) => setNewMainCategory((prev) => ({ ...prev, description: e.target.value }))}
+                            placeholder="Short description for the card"
+                            className="w-full border border-border bg-background px-2 py-1.5 text-sm font-body"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button type="button" onClick={addMainCategory} className="px-3 py-1.5 bg-primary text-primary-foreground font-body text-xs uppercase tracking-wider">Add</button>
+                        <button type="button" onClick={() => { setAddMainCategoryOpen(false); setNewMainCategory({ name: "", slug: "", description: "" }); }} className="px-3 py-1.5 border border-border font-body text-xs uppercase tracking-wider">Cancel</button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sub cards: models per category — first model = category card image on homepage */}
+                  <h3 className="font-display text-lg text-primary">Sub cards (models per category)</h3>
+                  <p className="text-muted-foreground text-sm font-body mb-4">The <strong>first model</strong> in each list is used as that category&apos;s card image on the homepage. Use the arrows to reorder, then Save.</p>
+                  {mainCategoriesLocal.map((cat) => {
+                    const slug = cat.slug;
+                    const ids = categoryIdsLocal[slug] ?? [];
+                    const label = cat.name || slug.charAt(0).toUpperCase() + slug.slice(1);
+                    const moveModel = (index: number, dir: 1 | -1) => {
+                      const next = [...ids];
+                      const j = index + dir;
+                      if (j < 0 || j >= next.length) return;
+                      [next[index], next[j]] = [next[j], next[index]];
+                      setCategoryIdsLocal((prev) => ({ ...prev, [slug]: next }));
+                    };
                     return (
                       <div key={slug} className="border border-border bg-card p-5">
-                        <h3 className="font-display text-lg text-primary mb-3 flex items-center justify-between">
+                        <h4 className="font-display text-base text-primary mb-3 flex items-center justify-between">
                           {label}
                           <div className="flex items-center gap-3">
                             <button
@@ -1578,14 +1742,34 @@ const AdminPanelPage = () => {
                               {categoriesSaving === slug ? "Saving…" : "Save"}
                             </button>
                           </div>
-                        </h3>
+                        </h4>
                         <div className="flex flex-wrap gap-3">
-                          {ids.map((id) => {
+                          {ids.map((id, index) => {
                             const m = categoriesData.approvedModels.find((x) => x._id === id);
                             if (!m) return null;
                             const photo = m.profilePhoto || m.portfolio?.[0];
                             return (
-                              <div key={m._id} className="flex items-center gap-2 border border-border p-2 bg-background w-[180px]">
+                              <div key={m._id} className="flex items-center gap-2 border border-border p-2 bg-background w-[200px]">
+                                <div className="flex flex-col gap-0.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => moveModel(index, -1)}
+                                    disabled={index === 0}
+                                    className="p-0.5 text-muted-foreground hover:text-primary disabled:opacity-30"
+                                    title="Move up (first = card image)"
+                                  >
+                                    <ChevronUp className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => moveModel(index, 1)}
+                                    disabled={index === ids.length - 1}
+                                    className="p-0.5 text-muted-foreground hover:text-primary disabled:opacity-30"
+                                    title="Move down"
+                                  >
+                                    <ChevronDown className="w-4 h-4" />
+                                  </button>
+                                </div>
                                 {photo ? (
                                   <img src={imgSrc(photo)} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0" />
                                 ) : (
@@ -1595,6 +1779,7 @@ const AdminPanelPage = () => {
                                 )}
                                 <div className="min-w-0 flex-1">
                                   <p className="text-sm font-body truncate text-foreground">{m.fullName || m.username || "Model"}</p>
+                                  {index === 0 && <p className="text-[10px] text-primary font-body uppercase tracking-wider">Card image</p>}
                                   <button
                                     type="button"
                                     onClick={() => setCategoryIdsLocal((prev) => ({ ...prev, [slug]: prev[slug].filter((x) => x !== m._id) }))}

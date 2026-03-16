@@ -9,6 +9,8 @@ import {
   resolveCategoryDefault,
   MODEL_FIELDS,
   MODEL_BASE,
+  CATEGORY_USERNAMES,
+  DEFAULT_CATEGORY_DEFINITIONS,
 } from "../lib/homepageSectionResolve.js";
 
 const router = express.Router();
@@ -65,6 +67,20 @@ router.get("/sections/latest", async (_req, res) => {
   } catch (e) {
     if (mongoose.connection.readyState !== 1) return res.json([]);
     res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/public/categories — list of main category cards (slug, name, description)
+router.get("/categories", async (req, res) => {
+  try {
+    const config = await HomepageConfig.findOne().lean();
+    const list = config?.categoryDefinitions?.length
+      ? config.categoryDefinitions.filter((c) => c && c.slug && String(c.slug).trim())
+      : DEFAULT_CATEGORY_DEFINITIONS;
+    res.json({ categories: list });
+  } catch (e) {
+    if (mongoose.connection.readyState !== 1) return res.json({ categories: DEFAULT_CATEGORY_DEFINITIONS });
+    res.status(500).json({ categories: [] });
   }
 });
 
