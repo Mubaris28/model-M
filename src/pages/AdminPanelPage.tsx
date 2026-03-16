@@ -2181,7 +2181,11 @@ const AdminPanelPage = () => {
                               onChange={(e) => {
                                 setSelectedAppIds((prev) => {
                                   const n = new Set(prev);
-                                  e.target.checked ? n.add(app._id) : n.delete(app._id);
+                                  if (e.target.checked) {
+                                    n.add(app._id);
+                                  } else {
+                                    n.delete(app._id);
+                                  }
                                   return n;
                                 });
                               }}
