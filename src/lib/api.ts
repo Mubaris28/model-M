@@ -1,7 +1,5 @@
-// Next.js rewrites /api to backend (3001). Set NEXT_PUBLIC_API_URL in prod if API is on another origin.
-// Must be full URL with protocol (e.g. https://your-api.onrender.com) or browser will treat it as a path.
-const raw = (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) || "";
-const API_URL = raw && !/^https?:\/\//i.test(raw) ? `https://${raw.replace(/^\/+/, "")}` : raw;
+// All /api requests go to same origin; Next.js rewrites to backend (see next.config.js).
+// Set NEXT_PUBLIC_API_URL in production (e.g. https://model-m.onrender.com) so rewrites target your API.
 
 export class ApiError extends Error {
   status: number;
@@ -31,17 +29,11 @@ export async function api<T>(
   const token = getToken();
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
+  const url = path.startsWith("/") ? path : `/${path}`;
+
   let res: Response;
   try {
-    // Normalize base URL + path so we don't accidentally end up with
-    // `/api/api/...` when NEXT_PUBLIC_API_URL already contains `/api`.
-    const base = (API_URL || "").replace(/\/$/, "");
-    const normalizedPath =
-      base.endsWith("/api") && path.startsWith("/api")
-        ? path.replace(/^\/api/, "") // avoid duplicate /api prefix
-        : path;
-
-    res = await fetch(`${base}${normalizedPath}`, {
+    res = await fetch(url, {
       ...rest,
       headers,
       ...(body && { body: JSON.stringify(body) }),
@@ -148,12 +140,8 @@ export const contactApi = {
 };
 
 function getUploadBaseUrl(): string {
-  if (typeof window !== "undefined") {
-    const raw = (process.env?.NEXT_PUBLIC_API_URL as string) || "";
-    const base = raw && !/^https?:\/\//i.test(raw) ? `https://${raw.replace(/^\/+/, "")}` : raw;
-    return base;
-  }
-  return (process.env?.NEXT_PUBLIC_API_URL as string) || "";
+  // Use same-origin so Next.js rewrite proxies to backend (no CORS, works in prod).
+  return "";
 }
 
 export async function uploadFile(file: File, folder: "profile" | "portfolio" | "id" | "selfie" | "casting"): Promise<string> {

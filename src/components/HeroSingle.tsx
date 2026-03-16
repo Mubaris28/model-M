@@ -72,6 +72,7 @@ export default function HeroSingle() {
               loop
               muted
               playsInline
+              preload="metadata"
               className="absolute inset-0 w-full h-full object-cover md:hidden"
               src="/images/hero-video/mobile.mp4"
             />
@@ -80,6 +81,7 @@ export default function HeroSingle() {
               loop
               muted
               playsInline
+              preload="metadata"
               className="absolute inset-0 w-full h-full object-cover hidden md:block"
               src="/images/hero-video/main-vid.mp4"
             />
@@ -108,6 +110,7 @@ export default function HeroSingle() {
               controls
               autoPlay
               playsInline
+              preload="metadata"
               poster={HERO_IMG}
               src="/images/hero-video/main-vid.mp4"
             >

@@ -6,6 +6,8 @@ import { Link, useLocation, useNavigate } from "@/lib/router-next";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 
+const SCROLL_THRESHOLD = 10; // px past which navbar gets solid white background (on home)
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -16,10 +18,14 @@ const Navbar = () => {
   const isHome = location.pathname === "/";
   const isLoggedIn = !!user;
 
+  // Transparent at top (home only), white/solid background after scroll
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    const updateScrolled = () => {
+      setScrolled(window.scrollY > SCROLL_THRESHOLD);
+    };
+    updateScrolled(); // set correct state on mount (handles hydration / initial scroll)
+    window.addEventListener("scroll", updateScrolled, { passive: true });
+    return () => window.removeEventListener("scroll", updateScrolled);
   }, []);
 
   useEffect(() => {
@@ -44,20 +50,24 @@ const Navbar = () => {
     { label: "Contact", path: "/contact" },
   ];
 
+  // On home: transparent at top, white background once user scrolls. Other pages: always solid.
   const isTransparent = isHome && !scrolled;
+  const navBgClass = isTransparent
+    ? "bg-transparent"
+    : "bg-white/95 backdrop-blur-md shadow-[0_1px_0_0_hsla(0,0%,0%,0.06)]";
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isTransparent ? "bg-transparent" : "glass-dark shadow-[0_1px_0_0_hsla(0,0%,0%,0.06)]"}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navBgClass}`}>
       <div className="container mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
-        <div className="shrink-0" aria-hidden="true" />
-
-        {/* Mobile: Log In + Join Us (or Dashboard / Sign out) next to menu */}
-        <div className="flex lg:hidden items-center gap-2">
+        {/* Mobile: primary actions + menu */}
+        <div className="flex lg:hidden items-center justify-between w-full gap-3">
           {isLoggedIn ? (
             <>
               <Link
                 to="/dashboard"
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-body font-medium tracking-wider uppercase ${isTransparent ? "text-white/90 hover:bg-white/10" : "text-foreground hover:bg-secondary"}`}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-body font-medium tracking-[0.18em] uppercase ${
+                  isTransparent ? "border-white/40 text-white hover:bg-white/10" : "border-border text-foreground hover:border-primary hover:text-primary"
+                }`}
                 aria-label="Dashboard"
               >
                 <LayoutDashboard className="w-4 h-4 shrink-0" />
@@ -66,7 +76,9 @@ const Navbar = () => {
               <button
                 type="button"
                 onClick={() => { logout(); navigate("/"); }}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-body font-medium tracking-wider uppercase ${isTransparent ? "text-white/90 hover:bg-white/10" : "text-foreground hover:bg-secondary"}`}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-body font-medium tracking-[0.18em] uppercase ${
+                  isTransparent ? "border-white/40 text-white hover:bg-white/10" : "border-border text-foreground hover:border-primary hover:text-primary"
+                }`}
                 aria-label="Sign out"
               >
                 <LogOut className="w-4 h-4 shrink-0" />
@@ -77,20 +89,24 @@ const Navbar = () => {
             <>
               <Link
                 to="/login"
-                className={`px-3 py-2 rounded-md text-xs font-body font-medium tracking-[0.15em] uppercase ${isTransparent ? "text-white/90 hover:bg-white/10" : "text-muted-foreground hover:text-primary"}`}
+                className={`rounded-full px-3 py-1.5 text-[11px] font-body font-medium tracking-[0.18em] uppercase ${
+                  isTransparent ? "text-white hover:bg-white/10" : "text-muted-foreground hover:text-primary"
+                }`}
               >
                 Log In
               </Link>
               <Link
                 to="/signup"
-                className="bg-gradient-red text-primary-foreground px-3 py-2 rounded-md text-xs font-body font-medium tracking-[0.15em] uppercase hover:opacity-90 transition-opacity"
+                className="rounded-full bg-gradient-red px-4 py-1.5 text-[11px] font-body font-medium tracking-[0.18em] uppercase text-primary-foreground hover:opacity-90 transition-opacity"
               >
                 Join Us
               </Link>
             </>
           )}
           <button
-            className={`p-2.5 rounded-md -mr-1 ${isTransparent ? "text-white" : "text-foreground"} hover:bg-white/10 transition-colors`}
+            className={`inline-flex h-9 w-9 items-center justify-center rounded-full border ${
+              isTransparent ? "border-white/40 text-white hover:bg-white/10" : "border-border text-foreground hover:border-primary hover:bg-primary/5"
+            } transition-colors`}
             onClick={() => setIsOpen(!isOpen)}
             aria-expanded={isOpen}
             aria-label={isOpen ? "Close menu" : "Open menu"}
