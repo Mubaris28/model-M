@@ -46,7 +46,7 @@ export default function AdSlider({ ads = DEFAULT_ADS, autoAdvanceMs = 12000 }: A
   return (
     <section className="w-full overflow-hidden bg-muted/30">
       <div className="relative w-full">
-        <div className="overflow-hidden bg-background py-0 md:py-4" aria-label="Advertisement slider">
+        <div className="overflow-hidden bg-background" aria-label="Advertisement slider">
           <div
             className="flex transition-transform duration-500 ease-out"
             style={{ transform: `translateX(-${index * 100}%)` }}
