@@ -72,7 +72,7 @@ const CategoryDetail = () => {
           <BackButton label="Back to Categories" className="mb-6" />
           <h1 className="font-display text-6xl md:text-8xl line-accent">{category.name}</h1>
           <div className="flex items-center gap-4 mt-3">
-            <span className="text-primary text-xs font-body tracking-[0.3em] uppercase">{category.count} Models</span>
+            <span className="text-primary text-xs font-body tracking-[0.3em] uppercase">{models.length} Models</span>
             <span className="text-muted-foreground text-xs font-body">{category.description}</span>
           </div>
         </div>

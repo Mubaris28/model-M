@@ -21,14 +21,11 @@ import {
   Tag,
   ImageIcon,
   Menu,
-<<<<<<< HEAD
   ChevronUp,
   ChevronDown,
-=======
   Calendar,
   MapPin,
   Clock,
->>>>>>> 2567bd29980296e1790235cb57b1ca5263122cc4
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";

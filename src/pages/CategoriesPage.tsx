@@ -67,7 +67,7 @@ const CategoriesPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {categories.map((cat, i) => {
               const cardImage = imageBySlug[cat.slug];
-              const modelCount = countBySlug[cat.slug] ?? cat.count;
+              const modelCount = countBySlug[cat.slug] ?? 0;
               return (
                 <motion.div
                   key={cat.slug}
