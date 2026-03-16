@@ -20,19 +20,34 @@ import {
   LayoutGrid,
   Tag,
   ImageIcon,
+  Mail,
   Menu,
   Calendar,
   MapPin,
   Clock,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { adminApi, publicApi, User, AdminStats, ContactMessage, Casting, type PublicModel, type PublicCasting } from "@/lib/api";
+import {
+  adminApi,
+  applicationApi,
+  publicApi,
+  User,
+  AdminStats,
+  ContactMessage,
+  Casting,
+  type Application,
+  type PublicModel,
+  type PublicCasting,
+  type AdminEmailCapabilities,
+  type AdminEmailCampaign,
+} from "@/lib/api";
 import { imgSrc } from "@/lib/utils";
 
 const USERS_PAGE_SIZE = 20;
 
-type TabId = "dashboard" | "users" | "castings" | "marketplace" | "bookings" | "homepage" | "categories" | "latest";
+type TabId = "dashboard" | "users" | "castings" | "marketplace" | "bookings" | "email" | "homepage" | "categories" | "latest";
 
 const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -40,6 +55,7 @@ const tabs: { id: TabId; label: string; icon: typeof Users }[] = [
   { id: "castings", label: "Casting Management", icon: Briefcase },
   { id: "marketplace", label: "Marketplace Offers", icon: ShoppingBag },
   { id: "bookings", label: "Bookings & Applications", icon: CreditCard },
+  { id: "email", label: "Email Campaigns", icon: Mail },
   { id: "homepage", label: "New Faces & Trending", icon: LayoutGrid },
   { id: "categories", label: "Category Pages", icon: Tag },
   { id: "latest", label: "Latest Models", icon: ImageIcon },
@@ -127,6 +143,107 @@ const AdminPanelPage = () => {
   const [contactsLoading, setContactsLoading] = useState(false);
   const [contactTypeFilter, setContactTypeFilter] = useState<"all" | "booking" | "application" | "partner">("all");
 
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailMessage, setEmailMessage] = useState("");
+  const [useFilterTargeting, setUseFilterTargeting] = useState(true);
+  const [useSpecificTargeting, setUseSpecificTargeting] = useState(false);
+  const [emailRoleFilters, setEmailRoleFilters] = useState<Array<"model" | "professional">>([]);
+  const [emailStatusFilters, setEmailStatusFilters] = useState<Array<"approved" | "rejected" | "pending">>([]);
+  const [emailProfileCompleteOnly, setEmailProfileCompleteOnly] = useState(false);
+  const [emailGenderFilters, setEmailGenderFilters] = useState<Array<"male" | "female">>([]);
+  const [specificEmailsText, setSpecificEmailsText] = useState("");
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailResultMessage, setEmailResultMessage] = useState<string | null>(null);
+  const [emailCapabilities, setEmailCapabilities] = useState<AdminEmailCapabilities | null>(null);
+  const [emailCapabilitiesLoading, setEmailCapabilitiesLoading] = useState(false);
+  const [emailHistory, setEmailHistory] = useState<AdminEmailCampaign[]>([]);
+  const [emailHistoryLoading, setEmailHistoryLoading] = useState(false);
+  const [showEmailHistory, setShowEmailHistory] = useState(false);
+
+  const toggleFilterValue = <T extends string,>(value: T, list: T[], setList: (next: T[]) => void) => {
+    setList(list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
+  };
+
+  const parseSpecificEmails = (text: string) =>
+    Array.from(
+      new Set(
+        text
+          .split(/[\n,;]+/)
+          .map((x) => x.trim().toLowerCase())
+          .filter((x) => x.includes("@"))
+      )
+    );
+
+  const loadEmailCapabilities = async () => {
+    setEmailCapabilitiesLoading(true);
+    try {
+      const data = await adminApi.emailCapabilities();
+      setEmailCapabilities(data);
+    } catch {
+      setAuthError("Failed to check email provider capabilities.");
+    } finally {
+      setEmailCapabilitiesLoading(false);
+    }
+  };
+
+  const loadEmailHistory = async () => {
+    setEmailHistoryLoading(true);
+    try {
+      const data = await adminApi.emailHistory(40);
+      setEmailHistory(data);
+    } catch {
+      setAuthError("Failed to load email history.");
+    } finally {
+      setEmailHistoryLoading(false);
+    }
+  };
+
+  const sendEmailCampaign = async () => {
+    const subject = emailSubject.trim();
+    const message = emailMessage.trim();
+    const specificEmails = parseSpecificEmails(specificEmailsText);
+
+    if (!subject || !message) {
+      setEmailResultMessage("Subject and message are required.");
+      return;
+    }
+    if (!useFilterTargeting && !useSpecificTargeting) {
+      setEmailResultMessage("Enable at least one target mode: filters or specific users.");
+      return;
+    }
+    if (useSpecificTargeting && specificEmails.length === 0) {
+      setEmailResultMessage("Add at least one specific user email.");
+      return;
+    }
+
+    setEmailSending(true);
+    setEmailResultMessage(null);
+    try {
+      const result = await adminApi.sendEmailCampaign({
+        subject,
+        message,
+        useFilters: useFilterTargeting,
+        useSpecific: useSpecificTargeting,
+        specificEmails,
+        filters: {
+          roles: emailRoleFilters,
+          statuses: emailStatusFilters,
+          profileCompleteOnly: emailProfileCompleteOnly,
+          genders: emailGenderFilters,
+        },
+      });
+      setEmailResultMessage(
+        `Sent to ${result.successCount}/${result.recipientCount} recipients (${result.failedCount} failed). ${result.usedBulkApi ? "Resend bulk API used." : "Single-send mode used."}`
+      );
+      setShowEmailHistory(true);
+      loadEmailHistory();
+    } catch (err) {
+      setEmailResultMessage((err as Error).message || "Failed to send emails.");
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
   const loadContacts = async (type?: "booking" | "application" | "partner" | "all") => {
     setContactsLoading(true);
     try {
@@ -136,6 +253,112 @@ const AdminPanelPage = () => {
       setAuthError("Failed to load contacts.");
     } finally {
       setContactsLoading(false);
+    }
+  };
+
+  const [castingApps, setCastingApps] = useState<Application[]>([]);
+  const [castingAppsLoading, setCastingAppsLoading] = useState(false);
+  const [castingAppsFor, setCastingAppsFor] = useState<Casting | null>(null);
+  const [castingAppActionLoading, setCastingAppActionLoading] = useState<string | null>(null);
+  const [selectedAppIds, setSelectedAppIds] = useState<Set<string>>(new Set());
+  const [batchSuggestLoading, setBatchSuggestLoading] = useState(false);
+  const [adminSuggestionFor, setAdminSuggestionFor] = useState<Casting | null>(null);
+  const [adminSuggestModels, setAdminSuggestModels] = useState<PublicModel[]>([]);
+  const [adminSuggestLoading, setAdminSuggestLoading] = useState(false);
+  const [adminSuggestSending, setAdminSuggestSending] = useState(false);
+  const [adminSuggestSearch, setAdminSuggestSearch] = useState("");
+  const [selectedSuggestModelIds, setSelectedSuggestModelIds] = useState<Set<string>>(new Set());
+  const [adminSuggestMessage, setAdminSuggestMessage] = useState<string | null>(null);
+
+  const loadCastingApplications = async (castingId: string) => {
+    setCastingAppsLoading(true);
+    try {
+      const data = await applicationApi.adminCastingApplications(castingId);
+      setCastingApps(data);
+    } catch {
+      setAuthError("Failed to load applications.");
+    } finally {
+      setCastingAppsLoading(false);
+    }
+  };
+
+  const handleSuggest = async (id: string) => {
+    setCastingAppActionLoading(id);
+    try {
+      await applicationApi.adminSuggest(id);
+      setCastingApps((prev) => prev.map((a) => a._id === id ? { ...a, status: "suggested" as const } : a));
+    } catch {
+      setAuthError("Failed to suggest model.");
+    } finally {
+      setCastingAppActionLoading(null);
+    }
+  };
+
+  const handleRejectApp = async (id: string) => {
+    setCastingAppActionLoading(id);
+    try {
+      await applicationApi.adminReject(id);
+      setCastingApps((prev) => prev.map((a) => a._id === id ? { ...a, status: "rejected" as const } : a));
+      setSelectedAppIds((prev) => { const n = new Set(prev); n.delete(id); return n; });
+    } catch {
+      setAuthError("Failed to reject application.");
+    } finally {
+      setCastingAppActionLoading(null);
+    }
+  };
+
+  const handleBatchSuggest = async () => {
+    if (selectedAppIds.size === 0) return;
+    setBatchSuggestLoading(true);
+    try {
+      await Promise.all([...selectedAppIds].map((id) => applicationApi.adminSuggest(id)));
+      setCastingApps((prev) =>
+        prev.map((a) => selectedAppIds.has(a._id) ? { ...a, status: "suggested" as const } : a)
+      );
+      setSelectedAppIds(new Set());
+    } catch {
+      setAuthError("Failed to suggest selected models.");
+    } finally {
+      setBatchSuggestLoading(false);
+    }
+  };
+
+  const openAdminSuggestions = async (casting: Casting) => {
+    setAdminSuggestionFor(casting);
+    setAdminSuggestSearch("");
+    setSelectedSuggestModelIds(new Set());
+    setAdminSuggestMessage(null);
+    if (adminSuggestModels.length > 0) return;
+
+    setAdminSuggestLoading(true);
+    try {
+      const models = await publicApi.models();
+      setAdminSuggestModels(models);
+    } catch {
+      setAuthError("Failed to load models for suggestions.");
+    } finally {
+      setAdminSuggestLoading(false);
+    }
+  };
+
+  const handleAdminSuggestToCasting = async () => {
+    if (!adminSuggestionFor || selectedSuggestModelIds.size === 0) return;
+    setAdminSuggestSending(true);
+    setAdminSuggestMessage(null);
+    try {
+      const result = await applicationApi.adminSuggestToCasting({
+        castingId: adminSuggestionFor._id,
+        modelIds: [...selectedSuggestModelIds],
+      });
+      setAdminSuggestMessage(`Suggestions sent: ${result.total} (${result.created} new, ${result.updated} updated).`);
+      setSelectedSuggestModelIds(new Set());
+      if (castingAppsFor?._id === adminSuggestionFor._id) {
+        await loadCastingApplications(adminSuggestionFor._id);
+      }
+    } catch {
+      setAdminSuggestMessage("Failed to send admin suggestions.");
+    } finally {
+      setAdminSuggestSending(false);
     }
   };
 
@@ -274,6 +497,7 @@ const AdminPanelPage = () => {
       loadStats();
       if (activeTab === "castings") loadCastings(castingStatusFilter);
       if (activeTab === "bookings") loadContacts(contactTypeFilter === "all" ? "all" : contactTypeFilter);
+      if (activeTab === "email") loadEmailCapabilities();
       if (activeTab === "homepage") loadHomepageSections();
       if (activeTab === "categories") loadCategoriesData();
       if (activeTab === "latest") loadLatestData();
@@ -285,6 +509,10 @@ const AdminPanelPage = () => {
     if (activeTab === "users") loadUsers();
     if (activeTab === "castings") loadCastings(castingStatusFilter);
     if (activeTab === "bookings") loadContacts(contactTypeFilter === "all" ? "all" : contactTypeFilter);
+    if (activeTab === "email") {
+      loadEmailCapabilities();
+      if (showEmailHistory) loadEmailHistory();
+    }
     if (activeTab === "homepage") loadHomepageSections();
     if (activeTab === "categories") loadCategoriesData();
     if (activeTab === "latest") loadLatestData();
@@ -803,6 +1031,18 @@ const AdminPanelPage = () => {
                             >
                               View
                             </button>
+                            <button
+                              onClick={() => { setCastingAppsFor(c); loadCastingApplications(c._id); setSelectedAppIds(new Set()); }}
+                              className="text-xs px-2 py-1 bg-primary/10 text-primary hover:bg-primary/20"
+                            >
+                              Applications
+                            </button>
+                            <button
+                              onClick={() => openAdminSuggestions(c)}
+                              className="text-xs px-2 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200"
+                            >
+                              Admin Suggestions
+                            </button>
                             {c.approvalStatus !== "approved" && (
                               <button
                                 onClick={() => handleCastingAction(c._id, "approved")}
@@ -902,6 +1142,242 @@ const AdminPanelPage = () => {
                       </div>
                     );
                   })}
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === "email" && (
+            <>
+              <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
+                <div>
+                  <h2 className="font-display text-xl text-foreground">Email Campaigns</h2>
+                  <p className="text-muted-foreground text-sm font-body mt-1">
+                    Send campaign emails by filters, specific users, or both.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !showEmailHistory;
+                    setShowEmailHistory(next);
+                    if (next) loadEmailHistory();
+                  }}
+                  className="px-3 py-2 border border-border text-xs font-body uppercase tracking-wider hover:border-primary text-primary"
+                >
+                  {showEmailHistory ? "Hide message history" : "Read message history"}
+                </button>
+              </div>
+
+              <div className="border border-border bg-card p-4 mb-5">
+                <h3 className="font-display text-base text-primary mb-2">Resend bulk capability</h3>
+                {emailCapabilitiesLoading ? (
+                  <p className="text-muted-foreground text-sm font-body">Checking provider settings...</p>
+                ) : emailCapabilities ? (
+                  <div className="space-y-1 text-sm font-body">
+                    <p className="text-foreground">Provider: {emailCapabilities.provider}</p>
+                    <p className={emailCapabilities.configured ? "text-green-700" : "text-red-700"}>
+                      {emailCapabilities.configured ? "Configured" : "Not configured"}
+                    </p>
+                    <p className={emailCapabilities.supportsBulkApi ? "text-green-700" : "text-amber-700"}>
+                      {emailCapabilities.supportsBulkApi
+                        ? `Bulk API supported (max batch ${emailCapabilities.maxBatchSize}).`
+                        : "Bulk API not available; server will send one by one."}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm font-body">No provider details available.</p>
+                )}
+              </div>
+
+              <div className="border border-border bg-card p-5 mb-5 space-y-5">
+                <div className="space-y-2">
+                  <label className="block text-xs font-body text-muted-foreground uppercase tracking-wider">Subject</label>
+                  <input
+                    type="text"
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
+                    placeholder="Campaign subject"
+                    className="w-full border border-border bg-background px-3 py-2 text-sm font-body focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-xs font-body text-muted-foreground uppercase tracking-wider">Message</label>
+                  <textarea
+                    value={emailMessage}
+                    onChange={(e) => setEmailMessage(e.target.value)}
+                    placeholder="Write email message"
+                    className="w-full border border-border bg-background px-3 py-2 text-sm font-body focus:outline-none focus:border-primary min-h-[180px]"
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <input
+                        id="email-use-filters"
+                        type="checkbox"
+                        checked={useFilterTargeting}
+                        onChange={(e) => setUseFilterTargeting(e.target.checked)}
+                      />
+                      <label htmlFor="email-use-filters" className="text-sm font-body text-foreground">Use filter targeting</label>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-xs font-body uppercase tracking-wider text-muted-foreground">Role</p>
+                      <div className="flex flex-wrap gap-2">
+                        {(["model", "professional"] as const).map((role) => (
+                          <button
+                            key={role}
+                            type="button"
+                            onClick={() => toggleFilterValue(role, emailRoleFilters, setEmailRoleFilters)}
+                            className={`px-3 py-1.5 text-xs font-body uppercase tracking-wider border ${
+                              emailRoleFilters.includes(role)
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "border-border text-muted-foreground hover:border-primary/50"
+                            }`}
+                          >
+                            {role === "model" ? "Models only" : "Professionals only"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-xs font-body uppercase tracking-wider text-muted-foreground">Status</p>
+                      <div className="flex flex-wrap gap-2">
+                        {(["approved", "rejected", "pending"] as const).map((status) => (
+                          <button
+                            key={status}
+                            type="button"
+                            onClick={() => toggleFilterValue(status, emailStatusFilters, setEmailStatusFilters)}
+                            className={`px-3 py-1.5 text-xs font-body uppercase tracking-wider border ${
+                              emailStatusFilters.includes(status)
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "border-border text-muted-foreground hover:border-primary/50"
+                            }`}
+                          >
+                            {status}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-xs font-body uppercase tracking-wider text-muted-foreground">Gender</p>
+                      <div className="flex flex-wrap gap-2">
+                        {(["male", "female"] as const).map((g) => (
+                          <button
+                            key={g}
+                            type="button"
+                            onClick={() => toggleFilterValue(g, emailGenderFilters, setEmailGenderFilters)}
+                            className={`px-3 py-1.5 text-xs font-body uppercase tracking-wider border ${
+                              emailGenderFilters.includes(g)
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "border-border text-muted-foreground hover:border-primary/50"
+                            }`}
+                          >
+                            {g}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        id="email-profile-complete"
+                        type="checkbox"
+                        checked={emailProfileCompleteOnly}
+                        onChange={(e) => setEmailProfileCompleteOnly(e.target.checked)}
+                      />
+                      <label htmlFor="email-profile-complete" className="text-sm font-body text-foreground">Profile completed only</label>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <input
+                        id="email-use-specific"
+                        type="checkbox"
+                        checked={useSpecificTargeting}
+                        onChange={(e) => setUseSpecificTargeting(e.target.checked)}
+                      />
+                      <label htmlFor="email-use-specific" className="text-sm font-body text-foreground">Use specific users only/also</label>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-xs font-body text-muted-foreground uppercase tracking-wider">
+                        Specific user emails (comma or newline separated)
+                      </label>
+                      <textarea
+                        value={specificEmailsText}
+                        onChange={(e) => setSpecificEmailsText(e.target.value)}
+                        placeholder="user1@example.com\nuser2@example.com"
+                        className="w-full border border-border bg-background px-3 py-2 text-sm font-body focus:outline-none focus:border-primary min-h-[180px]"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground font-body">
+                      Tip: disable &quot;Use filter targeting&quot; and enable this block to send to specific users only.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={sendEmailCampaign}
+                    disabled={emailSending}
+                    className="px-5 py-2.5 bg-primary text-primary-foreground text-sm font-body uppercase tracking-wider disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {emailSending ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : "Send email"}
+                  </button>
+                  {emailResultMessage && (
+                    <p className="text-sm font-body text-muted-foreground">{emailResultMessage}</p>
+                  )}
+                </div>
+              </div>
+
+              {showEmailHistory && (
+                <div className="border border-border bg-card p-5">
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <h3 className="font-display text-base text-primary">Message history</h3>
+                    <button
+                      type="button"
+                      onClick={loadEmailHistory}
+                      className="text-xs font-body uppercase tracking-wider text-primary hover:underline"
+                    >
+                      Refresh history
+                    </button>
+                  </div>
+
+                  {emailHistoryLoading ? (
+                    <p className="text-muted-foreground text-sm font-body">Loading history...</p>
+                  ) : emailHistory.length === 0 ? (
+                    <p className="text-muted-foreground text-sm font-body">No campaign messages yet.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {emailHistory.map((item) => (
+                        <div key={item._id} className="border border-border bg-background p-3">
+                          <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
+                            <div>
+                              <p className="text-sm font-body font-medium text-foreground">{item.subject}</p>
+                              <p className="text-xs text-muted-foreground font-body">
+                                {item.createdAt ? new Date(item.createdAt).toLocaleString() : "—"}
+                                {item.createdBy?.email ? ` · by ${item.createdBy.fullName || item.createdBy.email}` : ""}
+                              </p>
+                            </div>
+                            <div className="text-right text-xs font-body text-muted-foreground">
+                              <p>Recipients: {item.recipientCount ?? 0}</p>
+                              <p>Success: {item.successCount ?? 0} · Failed: {item.failedCount ?? 0}</p>
+                              <p>{item.usedBulkApi ? "Bulk API used" : "Single-send mode"}</p>
+                            </div>
+                          </div>
+                          <pre className="text-xs font-body text-muted-foreground whitespace-pre-wrap bg-secondary/40 px-2 py-2 max-h-36 overflow-y-auto">
+                            {item.message}
+                          </pre>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </>
@@ -1430,6 +1906,256 @@ const AdminPanelPage = () => {
                   </button>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Casting Applications modal */}
+      {castingAppsFor && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setCastingAppsFor(null)}>
+          <div className="bg-background border border-border w-full max-w-xl rounded-sm shadow-xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+
+            {/* Header */}
+            <div className="p-4 border-b border-border flex items-center justify-between flex-shrink-0">
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Applications received for</p>
+                <h3 className="font-display text-lg text-primary">{castingAppsFor.title}</h3>
+              </div>
+              <button type="button" onClick={() => setCastingAppsFor(null)} className="text-muted-foreground hover:text-foreground flex-shrink-0 ml-4">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Batch action bar */}
+            {!castingAppsLoading && castingApps.some((a) => a.status === "pending") && (
+              <div className="px-4 py-3 border-b border-border bg-secondary/30 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 text-xs font-body text-muted-foreground cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4"
+                      checked={
+                        castingApps.filter((a) => a.status === "pending").length > 0 &&
+                        castingApps.filter((a) => a.status === "pending").every((a) => selectedAppIds.has(a._id))
+                      }
+                      onChange={(e) => {
+                        const pendingIds = castingApps.filter((a) => a.status === "pending").map((a) => a._id);
+                        if (e.target.checked) {
+                          setSelectedAppIds(new Set(pendingIds));
+                        } else {
+                          setSelectedAppIds(new Set());
+                        }
+                      }}
+                    />
+                    Select all pending
+                  </label>
+                  {selectedAppIds.size > 0 && (
+                    <span className="text-xs font-body text-primary">{selectedAppIds.size} selected</span>
+                  )}
+                </div>
+                {selectedAppIds.size > 0 && (
+                  <button
+                    onClick={handleBatchSuggest}
+                    disabled={batchSuggestLoading}
+                    className="px-4 py-1.5 bg-green-600 text-white text-xs font-body uppercase tracking-wider hover:bg-green-700 disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    {batchSuggestLoading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Suggesting...</> : `Send ${selectedAppIds.size} to Professional`}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Application list */}
+            <div className="p-4 overflow-y-auto flex-1">
+              {castingAppsLoading ? (
+                <p className="text-muted-foreground font-body text-sm py-6 text-center">Loading applications...</p>
+              ) : castingApps.length === 0 ? (
+                <p className="text-muted-foreground font-body text-sm py-6 text-center">No applications yet for this casting.</p>
+              ) : (
+                <div className="space-y-3">
+                  {castingApps.map((app) => {
+                    const model = typeof app.modelId === "object" ? app.modelId : null;
+                    const isPending = app.status === "pending";
+                    const isSuggested = app.status === "suggested";
+                    const isBooked = app.status === "booked";
+                    const isRejected = app.status === "rejected";
+                    const isChecked = selectedAppIds.has(app._id);
+                    return (
+                      <div
+                        key={app._id}
+                        className={`border bg-card p-4 transition-colors ${isChecked ? "border-green-400 bg-green-50/30" : "border-border"}`}
+                      >
+                        <div className="flex items-start gap-3">
+                          {/* Checkbox for pending only */}
+                          {isPending && (
+                            <input
+                              type="checkbox"
+                              className="w-4 h-4 mt-1 shrink-0 accent-green-600"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                setSelectedAppIds((prev) => {
+                                  const n = new Set(prev);
+                                  e.target.checked ? n.add(app._id) : n.delete(app._id);
+                                  return n;
+                                });
+                              }}
+                            />
+                          )}
+                          {model?.profilePhoto ? (
+                            <img src={imgSrc(model.profilePhoto)} alt="" className="w-12 h-12 object-cover border border-border shrink-0" />
+                          ) : (
+                            <div className="w-12 h-12 bg-secondary flex items-center justify-center shrink-0 border border-border">
+                              <Camera className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 flex-wrap">
+                              <div>
+                                <p className="font-body font-medium text-foreground text-sm">{model?.fullName || model?.username || "Model"}</p>
+                                {(model as { email?: string })?.email && (
+                                  <p className="text-muted-foreground text-xs font-body">{(model as { email?: string }).email}</p>
+                                )}
+                                {model?.city && model?.country && (
+                                  <p className="text-muted-foreground text-xs font-body">{model.city}, {model.country}</p>
+                                )}
+                                {model?.height && (
+                                  <p className="text-muted-foreground text-xs font-body">
+                                    Height: {model.height}{model?.dressSize ? ` · Dress: ${model.dressSize}` : ""}
+                                  </p>
+                                )}
+                              </div>
+                              <span className={`text-[10px] font-body font-bold tracking-[0.15em] uppercase px-2 py-0.5 shrink-0 ${
+                                isSuggested ? "bg-green-100 text-green-700" :
+                                isBooked ? "bg-primary/10 text-primary" :
+                                isRejected ? "bg-red-100 text-red-700" :
+                                "bg-yellow-100 text-yellow-700"
+                              }`}>
+                                {app.status}
+                              </span>
+                            </div>
+                            {app.message && (
+                              <p className="text-muted-foreground text-xs font-body mt-1 italic">"{app.message}"</p>
+                            )}
+                            {isPending && (
+                              <div className="flex gap-2 mt-2">
+                                <button
+                                  onClick={() => handleSuggest(app._id)}
+                                  disabled={castingAppActionLoading === app._id || batchSuggestLoading}
+                                  className="px-3 py-1 bg-green-600 text-white text-xs font-body uppercase tracking-wider hover:bg-green-700 disabled:opacity-50"
+                                >
+                                  {castingAppActionLoading === app._id ? "..." : "Send to Professional"}
+                                </button>
+                                <button
+                                  onClick={() => handleRejectApp(app._id)}
+                                  disabled={castingAppActionLoading === app._id || batchSuggestLoading}
+                                  className="px-3 py-1 bg-red-100 text-red-700 text-xs font-body uppercase tracking-wider hover:bg-red-200 disabled:opacity-50"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Suggestions modal */}
+      {adminSuggestionFor && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setAdminSuggestionFor(null)}>
+          <div className="bg-background border border-border w-full max-w-2xl rounded-sm shadow-xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b border-border flex items-center justify-between flex-shrink-0">
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Admin suggestions for</p>
+                <h3 className="font-display text-lg text-primary">{adminSuggestionFor.title}</h3>
+              </div>
+              <button type="button" onClick={() => setAdminSuggestionFor(null)} className="text-muted-foreground hover:text-foreground flex-shrink-0 ml-4">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 border-b border-border space-y-3">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={adminSuggestSearch}
+                  onChange={(e) => setAdminSuggestSearch(e.target.value)}
+                  placeholder="Search approved models..."
+                  className="w-full pl-9 pr-3 py-2 border border-border bg-background text-sm font-body outline-none focus:border-primary"
+                />
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs text-muted-foreground font-body">{selectedSuggestModelIds.size} selected</span>
+                <button
+                  type="button"
+                  onClick={handleAdminSuggestToCasting}
+                  disabled={adminSuggestSending || selectedSuggestModelIds.size === 0}
+                  className="px-4 py-1.5 bg-blue-600 text-white text-xs font-body uppercase tracking-wider hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {adminSuggestSending ? "Sending..." : `Send ${selectedSuggestModelIds.size || ""} Suggestions`}
+                </button>
+              </div>
+              {adminSuggestMessage && (
+                <p className="text-xs font-body text-primary">{adminSuggestMessage}</p>
+              )}
+            </div>
+
+            <div className="p-4 overflow-y-auto flex-1">
+              {adminSuggestLoading ? (
+                <p className="text-muted-foreground text-sm font-body text-center py-6">Loading approved models...</p>
+              ) : (
+                <div className="space-y-2">
+                  {adminSuggestModels
+                    .filter((m) => {
+                      const q = adminSuggestSearch.trim().toLowerCase();
+                      if (!q) return true;
+                      return (
+                        (m.fullName || "").toLowerCase().includes(q) ||
+                        (m.username || "").toLowerCase().includes(q) ||
+                        (m.city || "").toLowerCase().includes(q) ||
+                        (m.country || "").toLowerCase().includes(q)
+                      );
+                    })
+                    .map((m) => {
+                      const checked = selectedSuggestModelIds.has(m._id);
+                      return (
+                        <label key={m._id} className={`flex items-center gap-3 p-3 border cursor-pointer ${checked ? "border-blue-400 bg-blue-50/40" : "border-border hover:border-primary/40"}`}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              setSelectedSuggestModelIds((prev) => {
+                                const next = new Set(prev);
+                                if (e.target.checked) next.add(m._id);
+                                else next.delete(m._id);
+                                return next;
+                              });
+                            }}
+                          />
+                          {m.profilePhoto ? (
+                            <img src={imgSrc(m.profilePhoto)} alt="" className="w-10 h-10 object-cover border border-border" />
+                          ) : (
+                            <div className="w-10 h-10 bg-secondary border border-border" />
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-sm font-body text-foreground truncate">{m.fullName || m.username || "Model"}</p>
+                            {(m.city || m.country) && (
+                              <p className="text-xs text-muted-foreground">{[m.city, m.country].filter(Boolean).join(", ")}</p>
+                            )}
+                          </div>
+                        </label>
+                      );
+                    })}
+                </div>
+              )}
             </div>
           </div>
         </div>

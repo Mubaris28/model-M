@@ -279,7 +279,74 @@ export const adminApi = {
     api<{ ids: string[]; count: number; latestModels: PublicModel[]; approvedModels: PublicModel[] }>("/api/admin/homepage-latest"),
   updateHomepageLatest: (body: { ids: string[]; count?: number }) =>
     api<{ ok: boolean; ids: string[]; count: number }>("/api/admin/homepage-latest", { method: "PUT", body }),
+  emailCapabilities: () =>
+    api<AdminEmailCapabilities>("/api/admin/email/capabilities"),
+  emailHistory: (limit = 30) =>
+    api<AdminEmailCampaign[]>(`/api/admin/email/history?limit=${encodeURIComponent(String(limit))}`),
+  sendEmailCampaign: (body: AdminEmailSendRequest) =>
+    api<AdminEmailSendResponse>("/api/admin/email/send", { method: "POST", body }),
 };
+
+export interface AdminEmailCapabilities {
+  provider: "resend" | string;
+  configured: boolean;
+  fromEmail: string;
+  supportsBulkApi: boolean;
+  maxBatchSize: number;
+}
+
+export interface AdminEmailSendRequest {
+  subject: string;
+  message: string;
+  useFilters: boolean;
+  useSpecific: boolean;
+  filters: {
+    roles?: Array<"model" | "professional">;
+    statuses?: Array<"approved" | "rejected" | "pending">;
+    profileCompleteOnly?: boolean;
+    genders?: Array<"male" | "female">;
+  };
+  specificEmails?: string[];
+}
+
+export interface AdminEmailSendResponse {
+  ok: boolean;
+  id: string;
+  recipientCount: number;
+  successCount: number;
+  failedCount: number;
+  matchedSpecific: number;
+  usedBulkApi: boolean;
+  filters: {
+    roles: string[];
+    statuses: string[];
+    profileCompleteOnly: boolean;
+    genders: string[];
+  };
+}
+
+export interface AdminEmailCampaign {
+  _id: string;
+  subject: string;
+  message: string;
+  filters: {
+    roles?: string[];
+    statuses?: string[];
+    profileCompleteOnly?: boolean;
+    genders?: string[];
+  };
+  specificEmails?: string[];
+  useFilters?: boolean;
+  useSpecific?: boolean;
+  provider?: string;
+  usedBulkApi?: boolean;
+  recipientCount?: number;
+  successCount?: number;
+  failedCount?: number;
+  recipientSample?: string[];
+  createdBy?: Pick<User, "_id" | "email" | "fullName">;
+  createdAt?: string;
+}
 
 export interface HomepageSectionsResponse {
   config: { newFacesIds: string[]; trendingIds: string[]; trendingCastingIds: string[] };
@@ -464,3 +531,58 @@ export interface PublicCasting {
   approvalStatus?: string;
   createdAt?: string;
 }
+
+export type ApplicationStatus =
+  | "pending"
+  | "suggested"
+  | "booked"
+  | "rejected";
+
+export interface Application {
+  _id: string;
+  castingId: string | PublicCasting;
+  modelId: string | PublicModel;
+  message?: string;
+  status: ApplicationStatus;
+  adminSuggested?: boolean;
+  suggestedAt?: string;
+  createdAt?: string;
+}
+
+export interface Booking {
+  _id: string;
+  castingId: string | PublicCasting;
+  modelId: string | PublicModel;
+  professionalId: string | User;
+  applicationId?: string;
+  status: "active" | "completed" | "cancelled";
+  notes?: string;
+  createdAt?: string;
+}
+
+export const applicationApi = {
+  apply: (body: { castingId: string; message?: string }) =>
+    api<Application>("/api/applications", { method: "POST", body }),
+  mine: () => api<Application[]>("/api/applications/mine"),
+  suggested: () => api<Application[]>("/api/applications/suggested"),
+  professionalApplied: () => api<Application[]>("/api/applications/professional?source=applied"),
+  professionalAdminSuggestions: () => api<Application[]>("/api/applications/professional?source=admin"),
+  professionalAll: () => api<Application[]>("/api/applications/professional?source=all"),
+  adminCastingApplications: (castingId: string) =>
+    api<Application[]>(`/api/applications/admin/casting/${castingId}`),
+  adminSuggestToCasting: (body: { castingId: string; modelIds: string[] }) =>
+    api<{ message: string; created: number; updated: number; total: number }>("/api/applications/admin/suggest", {
+      method: "POST",
+      body,
+    }),
+  adminSuggest: (id: string) =>
+    api<Application>(`/api/applications/${id}/suggest`, { method: "PATCH" }),
+  adminReject: (id: string) =>
+    api<Application>(`/api/applications/${id}/reject`, { method: "PATCH" }),
+};
+
+export const bookingApi = {
+  create: (body: { applicationId: string; notes?: string }) =>
+    api<Booking>("/api/bookings", { method: "POST", body }),
+  mine: () => api<Booking[]>("/api/bookings/mine"),
+};

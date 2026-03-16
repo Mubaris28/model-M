@@ -13,6 +13,8 @@ import adminRoutes from "./routes/admin.js";
 import uploadRoutes from "./routes/upload.js";
 import publicRoutes from "./routes/public.js";
 import castingRoutes from "./routes/casting.js";
+import applicationRoutes from "./routes/application.js";
+import bookingRoutes from "./routes/booking.js";
 
 validateEnv();
 
@@ -43,6 +45,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadLimiter, uploadRoutes);
 app.use("/api/public", publicRoutes);
 app.use("/api/castings", castingRoutes);
+app.use("/api/applications", applicationRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 app.get("/api/health", async (_req, res) => {
   try {

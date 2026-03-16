@@ -10,7 +10,7 @@ import {
   forgotPasswordValidation,
   resetPasswordValidation,
 } from "../middleware/validate.js";
-import { sendPasswordResetEmail } from "../lib/email.js";
+import { sendPasswordResetEmail, sendNewUserNotification } from "../lib/email.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
@@ -47,6 +47,7 @@ router.post("/signup", signupValidation, async (req, res, next) => {
     });
     const token = signToken(user);
     const u = await User.findById(user._id).select("-password");
+    sendNewUserNotification({ fullName: u.fullName, email: u.email, role: u.role }).catch(() => {});
     res.status(201).json({ user: u, token });
   } catch (e) {
     e.statusCode = e.statusCode || 500;

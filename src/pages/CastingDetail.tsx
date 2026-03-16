@@ -8,7 +8,7 @@ import { Calendar, MapPin, Users, Share2, CheckCircle, Loader2, Lock, Banknote, 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import PageLoader from "@/components/PageLoader";
-import { publicApi, type PublicCasting, contactApi } from "@/lib/api";
+import { publicApi, type PublicCasting, applicationApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
@@ -94,11 +94,7 @@ const CastingDetailPage = () => {
     setApplyStatus("submitting");
     setApplyError("");
     try {
-      await contactApi.send({
-        name: applyForm.name,
-        email: applyForm.email,
-        message: `[CASTING APPLICATION]\nCasting: ${casting?.title}\nBrand: ${casting?.brand}\nCasting ID: ${id}\nUser ID: ${user?._id || "—"}\n\n${applyForm.message}`,
-      });
+      await applicationApi.apply({ castingId: id!, message: applyForm.message });
       setApplyStatus("success");
     } catch (err) {
       setApplyError((err as Error).message || "Failed to submit. Please try again.");

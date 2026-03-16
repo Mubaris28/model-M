@@ -1,11 +1,13 @@
 import express from "express";
 import crypto from "node:crypto";
 import mongoose from "mongoose";
+import { Resend } from "resend";
 import { auth, adminOnly } from "../middleware/auth.js";
 import User from "../models/User.js";
 import Casting from "../models/Casting.js";
 import Contact from "../models/Contact.js";
 import HomepageConfig from "../models/HomepageConfig.js";
+import EmailCampaign from "../models/EmailCampaign.js";
 import {
   resolveNewFacesDefault,
   resolveTrendingDefault,
@@ -14,8 +16,142 @@ import {
   MODEL_BASE,
   CATEGORY_USERNAMES,
 } from "../lib/homepageSectionResolve.js";
+import {
+  sendUserApprovedEmail,
+  sendUserRejectedEmail,
+  sendCastingApprovedEmail,
+  sendCastingRejectedEmail,
+} from "../lib/email.js";
 
 const router = express.Router();
+
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "admin@modelmanagement.mu";
+const RESEND_BATCH_SIZE = 100;
+
+let _resend = null;
+function getResendClient() {
+  if (!process.env.RESEND_API_KEY) return null;
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY);
+  return _resend;
+}
+
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function normalizeEmailList(input) {
+  if (!input) return [];
+  const values = Array.isArray(input)
+    ? input
+    : String(input)
+        .split(/[\n,;]+/)
+        .map((x) => x.trim());
+  const dedup = new Set();
+  for (const v of values) {
+    const e = String(v || "").trim().toLowerCase();
+    if (!e || !e.includes("@")) continue;
+    dedup.add(e);
+  }
+  return [...dedup];
+}
+
+function buildUserFilter(filters = {}) {
+  const roleSet = new Set(["model", "professional"]);
+  const statusSet = new Set(["approved", "rejected", "pending"]);
+  const genderSet = new Set(["male", "female"]);
+
+  const roles = (Array.isArray(filters.roles) ? filters.roles : [])
+    .map((x) => String(x).toLowerCase().trim())
+    .filter((x) => roleSet.has(x));
+
+  const statuses = (Array.isArray(filters.statuses) ? filters.statuses : [])
+    .map((x) => String(x).toLowerCase().trim())
+    .filter((x) => statusSet.has(x));
+
+  const genders = (Array.isArray(filters.genders) ? filters.genders : [])
+    .map((x) => String(x).toLowerCase().trim())
+    .filter((x) => genderSet.has(x));
+
+  const query = {};
+  if (roles.length > 0) query.role = { $in: roles };
+  if (statuses.length > 0) query.status = { $in: statuses };
+  if (filters.profileCompleteOnly === true) query.profileComplete = true;
+  if (genders.length > 0) {
+    query.gender = {
+      $in: genders.map((g) => new RegExp(`^${escapeRegex(g)}$`, "i")),
+    };
+  }
+
+  return {
+    query,
+    normalized: {
+      roles,
+      statuses,
+      profileCompleteOnly: filters.profileCompleteOnly === true,
+      genders,
+    },
+  };
+}
+
+async function sendSingleEmail(resend, { to, subject, message }) {
+  try {
+    await resend.emails.send({
+      from: RESEND_FROM_EMAIL,
+      to,
+      subject,
+      text: message,
+    });
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err?.message || "Send failed" };
+  }
+}
+
+async function sendCampaignEmails(resend, recipients, subject, message) {
+  const supportsBulkApi = !!(resend?.batch && typeof resend.batch.send === "function");
+  let usedBulkApi = false;
+  let successCount = 0;
+  const failedRecipients = [];
+
+  if (supportsBulkApi && recipients.length > 1) {
+    usedBulkApi = true;
+    for (let i = 0; i < recipients.length; i += RESEND_BATCH_SIZE) {
+      const chunk = recipients.slice(i, i + RESEND_BATCH_SIZE);
+      const payload = chunk.map((to) => ({
+        from: RESEND_FROM_EMAIL,
+        to,
+        subject,
+        text: message,
+      }));
+
+      try {
+        await resend.batch.send(payload);
+        successCount += chunk.length;
+      } catch (batchError) {
+        for (const to of chunk) {
+          const single = await sendSingleEmail(resend, { to, subject, message });
+          if (single.ok) successCount += 1;
+          else failedRecipients.push({ email: to, error: single.error });
+        }
+        if (chunk.length > 0 && failedRecipients.length === 0) {
+          failedRecipients.push({ email: chunk[0], error: batchError?.message || "Batch send failed" });
+        }
+      }
+    }
+  } else {
+    for (const to of recipients) {
+      const single = await sendSingleEmail(resend, { to, subject, message });
+      if (single.ok) successCount += 1;
+      else failedRecipients.push({ email: to, error: single.error });
+    }
+  }
+
+  return {
+    usedBulkApi,
+    successCount,
+    failedRecipients,
+  };
+}
 
 // Public: check if email is admin (no auth required)
 router.get("/check-email", async (req, res) => {
@@ -109,6 +245,13 @@ router.patch("/users/:id", async (req, res) => {
     if (rejectionReason !== undefined) update.rejectionReason = rejectionReason || "";
     const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select("-password");
     if (!user) return res.status(404).json({ error: "User not found" });
+
+    if (status === "approved") {
+      sendUserApprovedEmail({ to: user.email, fullName: user.fullName }).catch(() => {});
+    } else if (status === "rejected") {
+      sendUserRejectedEmail({ to: user.email, fullName: user.fullName, reason: rejectionReason }).catch(() => {});
+    }
+
     res.json(user);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -181,8 +324,20 @@ router.patch("/castings/:id", async (req, res) => {
     const update = {};
     if (approvalStatus) update.approvalStatus = approvalStatus;
     if (rejectionReason !== undefined) update.rejectionReason = rejectionReason || "";
-    const casting = await Casting.findByIdAndUpdate(req.params.id, update, { new: true }).lean();
+    const casting = await Casting.findByIdAndUpdate(req.params.id, update, { new: true })
+      .populate("creatorId", "email fullName")
+      .lean();
     if (!casting) return res.status(404).json({ error: "Casting not found" });
+
+    const creator = casting.creatorId;
+    if (creator?.email) {
+      if (approvalStatus === "approved") {
+        sendCastingApprovedEmail({ to: creator.email, fullName: creator.fullName, castingTitle: casting.title }).catch(() => {});
+      } else if (approvalStatus === "rejected") {
+        sendCastingRejectedEmail({ to: creator.email, fullName: creator.fullName, castingTitle: casting.title, reason: rejectionReason }).catch(() => {});
+      }
+    }
+
     res.json(casting);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -395,6 +550,118 @@ router.post("/seed-categories", async (req, res) => {
       }
     }
     res.json({ message: "Categories assigned", categoryAssigned: assigned });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/admin/email/capabilities — check provider setup and bulk support
+router.get("/email/capabilities", async (_req, res) => {
+  try {
+    const resend = getResendClient();
+    const supportsBulkApi = !!(resend?.batch && typeof resend.batch.send === "function");
+    res.json({
+      provider: "resend",
+      configured: !!resend,
+      fromEmail: RESEND_FROM_EMAIL,
+      supportsBulkApi,
+      maxBatchSize: RESEND_BATCH_SIZE,
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /api/admin/email/history — latest sent email campaigns
+router.get("/email/history", async (req, res) => {
+  try {
+    const rawLimit = Number(req.query.limit || 30);
+    const limit = Number.isFinite(rawLimit) ? Math.max(1, Math.min(100, rawLimit)) : 30;
+    const history = await EmailCampaign.find()
+      .populate("createdBy", "email fullName")
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
+    res.json(history);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/admin/email/send — send filtered and/or specific user emails
+router.post("/email/send", async (req, res) => {
+  try {
+    const subject = String(req.body.subject || "").trim();
+    const message = String(req.body.message || "").trim();
+    const filters = req.body.filters || {};
+    const useFilters = req.body.useFilters !== false;
+    const useSpecific = req.body.useSpecific === true;
+    const specificEmailsInput = normalizeEmailList(req.body.specificEmails);
+
+    if (!subject) return res.status(400).json({ error: "Subject is required" });
+    if (!message) return res.status(400).json({ error: "Message is required" });
+    if (!useFilters && !useSpecific) {
+      return res.status(400).json({ error: "Select at least one target mode (filters or specific users)" });
+    }
+
+    const resend = getResendClient();
+    if (!resend) return res.status(400).json({ error: "Resend is not configured on server" });
+
+    const { query: filterQuery, normalized } = buildUserFilter(filters);
+    const recipientSet = new Set();
+
+    if (useFilters) {
+      const filteredUsers = await User.find(filterQuery).select("email").lean();
+      for (const u of filteredUsers) {
+        if (u.email) recipientSet.add(String(u.email).toLowerCase());
+      }
+    }
+
+    let matchedSpecific = 0;
+    if (useSpecific && specificEmailsInput.length > 0) {
+      const existing = await User.find({ email: { $in: specificEmailsInput } }).select("email").lean();
+      matchedSpecific = existing.length;
+      for (const u of existing) {
+        if (u.email) recipientSet.add(String(u.email).toLowerCase());
+      }
+    }
+
+    const recipients = [...recipientSet];
+    if (recipients.length === 0) {
+      return res.status(400).json({ error: "No recipients found for selected filters/specific users" });
+    }
+
+    const result = await sendCampaignEmails(resend, recipients, subject, message);
+    const failedCount = result.failedRecipients.length;
+    const successCount = result.successCount;
+
+    const history = await EmailCampaign.create({
+      subject,
+      message,
+      filters: normalized,
+      specificEmails: specificEmailsInput,
+      useFilters,
+      useSpecific,
+      provider: "resend",
+      usedBulkApi: result.usedBulkApi,
+      recipientCount: recipients.length,
+      successCount,
+      failedCount,
+      recipientSample: recipients.slice(0, 20),
+      failedRecipients: result.failedRecipients.slice(0, 50),
+      createdBy: req.user._id,
+    });
+
+    res.json({
+      ok: true,
+      id: history._id,
+      recipientCount: recipients.length,
+      successCount,
+      failedCount,
+      matchedSpecific,
+      usedBulkApi: result.usedBulkApi,
+      filters: normalized,
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

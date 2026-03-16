@@ -1,6 +1,7 @@
 import express from "express";
 import { auth } from "../middleware/auth.js";
 import Casting from "../models/Casting.js";
+import { sendCastingSubmittedNotification } from "../lib/email.js";
 
 const router = express.Router();
 
@@ -30,6 +31,11 @@ router.post("/", async (req, res) => {
       creatorId: req.user._id,
       approvalStatus: "pending",
     });
+    sendCastingSubmittedNotification({
+      creatorName: req.user.fullName,
+      creatorEmail: req.user.email,
+      castingTitle: casting.title,
+    }).catch(() => {});
     res.status(201).json(casting);
   } catch (e) {
     res.status(500).json({ error: e.message });
