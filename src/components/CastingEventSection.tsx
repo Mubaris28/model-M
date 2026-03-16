@@ -2,31 +2,24 @@
 
 import { Link } from "@/lib/router-next";
 import { Calendar, MapPin, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
 
 const EVENT_DATE = "18 April 2026";
 const EVENT_VENUE = "Labourdonnais Waterfront Hotel";
 
 export default function CastingEventSection() {
   return (
-    <section id="casting-event" className="relative py-12 md:py-16 overflow-hidden scroll-mt-20 bg-white">
+    <section id="casting-event" className="relative py-12 md:py-16 overflow-hidden scroll-mt-20 bg-background">
       <div className="container mx-auto px-4 md:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5 }}
-          className="relative border border-primary/30 border-t-4 border-t-primary bg-white p-6 md:p-10 lg:p-12 shadow-sm"
-        >
+        <div className="relative bg-white border border-border border-t-4 border-t-primary p-6 md:p-10 lg:p-12 shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
             <div className="space-y-4">
               <p className="font-body text-xs tracking-[0.4em] uppercase text-primary">
                 Upcoming Event
               </p>
-              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-[0.95] uppercase text-primary">
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-[0.95] uppercase text-foreground">
                 Casting Event
               </h2>
-              <p className="font-body text-foreground/80 text-sm md:text-base max-w-lg leading-relaxed">
+              <p className="font-body text-foreground/80 text-sm md:text-base max-w-xl leading-relaxed">
                 Meet industry professionals, get discovered, and take the next step in your modeling career. Open call for models and talent.
               </p>
               <div className="flex flex-wrap gap-6 pt-2">
@@ -60,7 +53,7 @@ export default function CastingEventSection() {
               </Link>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

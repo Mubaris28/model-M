@@ -3,6 +3,7 @@ import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { publicApi, type PublicCasting } from "@/lib/api";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { imgSrc } from "@/lib/utils";
 
 // Card image display: 300px (mobile) or 340px (md+) wide, aspect 16:9. Recommended upload size: 680×383 px (or 1280×720 for high-DPI).
@@ -25,9 +26,15 @@ function toCastingCard(c: PublicCasting): CastingCard {
   };
 }
 
+const CARD_WIDTH_MOBILE = 300;
+const CARD_WIDTH_DESKTOP = 340;
+const GAP_MOBILE = 16;
+const GAP_DESKTOP = 24;
+
 const TrendingCastings = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [castings, setCastings] = useState<CastingCard[]>([]);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     publicApi
@@ -42,9 +49,11 @@ const TrendingCastings = () => {
       });
   }, []);
 
+  const scrollStep = isMobile ? CARD_WIDTH_MOBILE + GAP_MOBILE : CARD_WIDTH_DESKTOP + GAP_DESKTOP;
   const scroll = (dir: "left" | "right") => {
     if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: dir === "left" ? -360 : 360, behavior: "smooth" });
+      const amount = dir === "left" ? -scrollStep : scrollStep;
+      scrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
     }
   };
 
@@ -69,7 +78,11 @@ const TrendingCastings = () => {
           </div>
         </div>
 
-        <div ref={scrollRef} className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 snap-x snap-mandatory">
+        <div
+          ref={scrollRef}
+          className="flex gap-4 md:gap-6 overflow-x-auto overflow-y-hidden scrollbar-hide pb-4 -mx-4 px-4 snap-x snap-mandatory touch-pan-x"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
           {castings.length === 0 ? (
             <p className="text-muted-foreground font-body text-sm py-4">No castings to show yet.</p>
           ) : (

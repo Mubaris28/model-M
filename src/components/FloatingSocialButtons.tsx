@@ -38,7 +38,7 @@ const links = [
 export default function FloatingSocialButtons() {
   return (
     <div
-      className="fixed right-3 bottom-28 z-40 flex flex-col gap-2 md:right-4 md:bottom-32"
+      className="fixed right-3 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 md:right-4 md:top-auto md:translate-y-0 md:bottom-32"
       aria-label="Social links"
     >
       {links.map(({ href, label, icon: Icon, color }) => (

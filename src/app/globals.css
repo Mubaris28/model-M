@@ -84,6 +84,14 @@
     font-family: var(--font-display);
     letter-spacing: 0.05em;
   }
+
+  /* Reduce section vertical padding on mobile across all pages */
+  @media (max-width: 767px) {
+    section {
+      padding-top: 2rem !important;
+      padding-bottom: 2rem !important;
+    }
+  }
 }
 
 @layer components {
