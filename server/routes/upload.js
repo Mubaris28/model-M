@@ -93,6 +93,36 @@ function safeFilename(original, forcedExt) {
   return `${base}.${ext}`;
 }
 
+function randomSegment() {
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+}
+
+// POST /api/upload/public — single file for public forms (field: file). Query: folder=event|public
+router.post("/public", upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded. Use field name 'file'." });
+    }
+    if (!BUNNY_API_KEY) {
+      return res.status(503).json({ error: "Storage is not configured. Please try again later or contact support." });
+    }
+
+    const rawFolder = (req.query.folder || "public").toString().toLowerCase();
+    const folder = rawFolder === "event" ? "event" : "public";
+
+    const { buffer, contentType, ext } = await processImage(req.file.buffer, req.file.mimetype);
+    const path = `${UPLOAD_PATH_PREFIX}/${folder}/${randomSegment()}/${safeFilename(req.file.originalname, ext)}`;
+    const url = await uploadToBunny(buffer, contentType, path);
+    res.json({ url });
+  } catch (e) {
+    if (e.code === "STORAGE_NOT_CONFIGURED") {
+      return res.status(503).json({ error: e.message });
+    }
+    console.error("[upload] public error:", e.message || e);
+    res.status(500).json({ error: e.message || "Upload failed" });
+  }
+});
+
 // POST /api/upload — single file (field: file). Query: folder=profile|portfolio|id|selfie
 router.post("/", auth, upload.single("file"), async (req, res) => {
   try {

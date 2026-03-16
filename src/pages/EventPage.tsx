@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import BackButton from "@/components/BackButton";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
+import { contactApi, uploadPublicFile } from "@/lib/api";
 import { Calendar, MapPin, FileImage, IdCard, Smile, Upload } from "lucide-react";
 
 const EVENT_IMAGE = "/images/events/15250.jpg";
@@ -19,11 +20,41 @@ const EventPage = () => {
   const [occupation, setOccupation] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const photoInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    if (submitting) return;
+    setSubmitError("");
+    setSubmitting(true);
+    try {
+      if (!photoFile) {
+        throw new Error("Please upload a photo before submitting.");
+      }
+
+      const photoUrl = await uploadPublicFile(photoFile, "event");
+
+      await contactApi.send({
+        name,
+        email,
+        message: [
+          "[EVENT REGISTRATION]",
+          `Tel: ${tel}`,
+          `Nationality: ${nationality}`,
+          `Age: ${age}`,
+          `Occupation: ${occupation}`,
+          `Photo: ${photoFile.name}`,
+          `Photo URL: ${photoUrl}`,
+        ].join("\n"),
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setSubmitError((err as Error).message || "Failed to submit registration. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -131,6 +162,9 @@ const EventPage = () => {
                 </p>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {submitError && (
+                    <p className="text-destructive text-sm font-body">{submitError}</p>
+                  )}
                   <div>
                     <label htmlFor="event-name" className="form-label">Name</label>
                     <input
@@ -226,8 +260,8 @@ const EventPage = () => {
                       </span>
                     </label>
                   </div>
-                  <button type="submit" className="btn-primary">
-                    Submit
+                  <button type="submit" className="btn-primary" disabled={submitting}>
+                    {submitting ? "Submitting..." : "Submit"}
                   </button>
                 </form>
               )}

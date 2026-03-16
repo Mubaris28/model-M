@@ -208,6 +208,31 @@ export async function uploadFiles(files: File[], folder: "portfolio" | "casting"
   return (data as { urls: string[] }).urls;
 }
 
+export async function uploadPublicFile(file: File, folder: "event" | "public" = "public"): Promise<string> {
+  const base = getUploadBaseUrl();
+  const url = `${base ? base.replace(/\/$/, "") : ""}/api/upload/public?folder=${folder}`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      body: (() => {
+        const form = new FormData();
+        form.append("file", file);
+        return form;
+      })(),
+    });
+  } catch (e) {
+    const msg = (e as Error).message?.toLowerCase() || "";
+    if (msg.includes("fetch") || msg.includes("network") || msg.includes("failed")) {
+      throw new Error("Cannot reach server. Check your connection and try again.");
+    }
+    throw e;
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as { error?: string }).error || "Upload failed. Please try again.");
+  return (data as { url: string }).url;
+}
+
 export function uploadFilesWithProgress(
   files: File[],
   folder: "portfolio" | "casting",
