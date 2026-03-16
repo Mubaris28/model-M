@@ -10,7 +10,7 @@ import { ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { publicApi } from "@/lib/api";
 
-type CategoryItem = { slug: string; name: string; description: string };
+type CategoryItem = { slug: string; name: string; description: string; count?: number };
 
 function getFirstModelImage(first: { profilePhoto?: unknown; portfolio?: unknown[] } | null): string {
   if (!first) return "";
@@ -67,7 +67,7 @@ const CategoriesPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {categories.map((cat, i) => {
               const cardImage = imageBySlug[cat.slug];
-              const modelCount = countBySlug[cat.slug] ?? 0;
+              const modelCount = countBySlug[cat.slug] ?? cat.count ?? 0;
               return (
                 <motion.div
                   key={cat.slug}
