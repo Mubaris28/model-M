@@ -236,9 +236,18 @@ export const adminApi = {
       body,
     }),
   homepageCategories: () =>
-    api<{ categorySlots: Record<string, { ids: string[]; models: PublicModel[] }>; approvedModels: PublicModel[] }>("/api/admin/homepage-categories"),
+    api<{
+      mainCategories: { slug: string; name: string; description: string }[];
+      categorySlots: Record<string, { ids: string[]; models: PublicModel[] }>;
+      approvedModels: PublicModel[];
+    }>("/api/admin/homepage-categories"),
   updateHomepageCategory: (slug: string, ids: string[]) =>
     api<{ ok: boolean }>(`/api/admin/homepage-categories/${encodeURIComponent(slug)}`, { method: "PUT", body: { ids } }),
+  updateHomepageCategoriesMain: (categories: { slug: string; name: string; description: string }[]) =>
+    api<{ ok: boolean; mainCategories: { slug: string; name: string; description: string }[] }>(
+      "/api/admin/homepage-categories/main",
+      { method: "PUT", body: { categories } }
+    ),
   homepageLatest: () =>
     api<{ ids: string[]; count: number; latestModels: PublicModel[]; approvedModels: PublicModel[] }>("/api/admin/homepage-latest"),
   updateHomepageLatest: (body: { ids: string[]; count?: number }) =>
@@ -367,6 +376,8 @@ export const publicApi = {
   sectionsNewFaces: () => api<PublicModel[]>("/api/public/sections/new-faces"),
   sectionsTrending: () => api<PublicModel[]>("/api/public/sections/trending"),
   sectionsLatest: () => api<PublicModel[]>("/api/public/sections/latest"),
+  categories: () =>
+    api<{ categories: { slug: string; name: string; description: string }[] }>("/api/public/categories"),
   categoryModels: (slug: string) => api<PublicModel[]>(`/api/public/categories/${encodeURIComponent(slug)}/models`),
   castings: () => api<PublicCasting[]>("/api/public/castings"),
   sectionsTrendingCastings: () => api<PublicCasting[]>("/api/public/sections/trending-castings"),

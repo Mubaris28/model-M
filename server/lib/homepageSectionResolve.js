@@ -57,6 +57,15 @@ export const CATEGORY_USERNAMES = {
   fitness:    ["Johanna Boyer"],
 };
 
+export const DEFAULT_CATEGORY_DEFINITIONS = [
+  { slug: "bold",       name: "Bold",       description: "Fearless & striking editorial" },
+  { slug: "bikini",     name: "Bikini",     description: "Beach & swimwear looks" },
+  { slug: "mature",     name: "Mature",     description: "Timeless sophistication" },
+  { slug: "glamour",    name: "Glamour",    description: "Red carpet elegance" },
+  { slug: "commercial", name: "Commercial", description: "Brand campaigns" },
+  { slug: "fitness",    name: "Fitness",   description: "Athletic & powerful" },
+];
+
 export function resolveWithVariants(all, nameOrVariantsList) {
   const result = [];
   const usedIds = new Set();

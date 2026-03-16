@@ -1,20 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackButton from "@/components/BackButton";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
-import { Calendar, MapPin, FileImage, IdCard, Smile } from "lucide-react";
+import { Calendar, MapPin, FileImage, IdCard, Smile, Upload } from "lucide-react";
 
 const EVENT_IMAGE = "/images/events/15250.jpg";
 
 const EventPage = () => {
   const [name, setName] = useState("");
+  const [tel, setTel] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [age, setAge] = useState("");
+  const [occupation, setOccupation] = useState("");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,143 +30,214 @@ const EventPage = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <header className="pt-24 pb-8 md:pt-28 md:pb-12">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="max-w-3xl mx-auto">
-            <BackButton className="mb-8" />
-            <p className="font-body text-primary text-xs tracking-[0.4em] uppercase mb-4">
-              Upcoming Event
-            </p>
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground leading-[0.95] uppercase tracking-tight mb-4">
-              Official Model Casting
-            </h1>
-            <p className="font-display text-2xl md:text-3xl text-muted-foreground tracking-wide">
-              Mauritius
-            </p>
-          </div>
+      {/* Hero: split layout — image one side, content the other; no top padding */}
+      <section className="relative grid grid-cols-1 lg:grid-cols-2 min-h-[70vh] lg:min-h-[85vh]">
+        {/* Content side (right on desktop, first on mobile) */}
+        <div className="relative order-2 lg:order-2 flex flex-col bg-foreground text-white px-4 md:px-6 lg:px-10 xl:px-14 py-10 md:py-14 lg:py-16 justify-center">
+          <BackButton className="mb-6 md:mb-8 text-white border-white/40 hover:border-white hover:bg-white/10" />
+          <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-3 md:mb-4">
+            Upcoming Event
+          </p>
+          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl 2xl:text-[80px] leading-[0.95] text-white uppercase tracking-tight">
+            <span className="block">Official Model</span>
+            <span className="block">Casting</span>
+          </h1>
+          <p className="font-body text-white/90 text-base md:text-lg lg:text-xl tracking-wide mt-4 md:mt-5">
+            Mauritius
+          </p>
+          <p className="font-body text-white/70 text-sm md:text-base mt-4 max-w-md leading-relaxed">
+            Join our exclusive casting session. Meet industry professionals and take the next step in your career.
+          </p>
         </div>
-      </header>
+        {/* Image side (left on desktop, second on mobile) */}
+        <div className="relative order-1 lg:order-1 min-h-[40vh] lg:min-h-0 overflow-hidden">
+          <img
+            src={imgSrc(EVENT_IMAGE)}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-foreground/20 via-transparent to-transparent lg:from-foreground/40 pointer-events-none" />
+        </div>
+      </section>
 
-      <article className="container mx-auto px-4 md:px-6 pb-20 md:pb-28">
-        <div className="max-w-2xl mx-auto">
-          <figure className="mb-12 md:mb-16">
-            <img
-              src={imgSrc(EVENT_IMAGE)}
-              alt="Official Model Casting in Mauritius"
-              className="w-full aspect-[16/10] md:aspect-[2/1] object-cover"
-            />
-          </figure>
+      <article className="container mx-auto px-4 md:px-6 pb-20 md:pb-28 pt-12 md:pt-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 xl:gap-20 items-start">
+          {/* Left column: intro, event details, what to bring */}
+          <div>
+            <div className="mb-10 md:mb-12">
+              <p className="font-body text-foreground text-xl md:text-2xl leading-[1.65] tracking-[0.01em] font-medium">
+                We are thrilled to announce that Model Management is now officially in Mauritius.
+              </p>
+              <p className="font-body text-muted-foreground text-lg md:text-xl leading-[1.75] tracking-[0.02em] mt-6">
+                To celebrate, we invite all aspiring models, new faces, and talent to join us for an exclusive casting session. Meet industry professionals, get discovered, and take the next step in your career.
+              </p>
+            </div>
 
-          <div className="mb-12 md:mb-16">
-            <p className="font-body text-foreground text-xl md:text-2xl leading-[1.65] tracking-[0.01em] font-medium">
-              We are thrilled to announce that Model Management is now officially in Mauritius.
-            </p>
-            <p className="font-body text-muted-foreground text-lg md:text-xl leading-[1.75] tracking-[0.02em] mt-6">
-              To celebrate, we invite all aspiring models, new faces, and talent to join us for an exclusive casting session. Meet industry professionals, get discovered, and take the next step in your career.
-            </p>
+            <section className="mb-10 md:mb-12">
+              <h2 className="font-display text-foreground text-xl md:text-2xl tracking-[0.12em] uppercase mb-6">
+                Event details
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <Calendar className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-body text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-1">Date & time</p>
+                    <p className="font-display text-lg text-foreground">18 April 2026</p>
+                    <p className="font-body text-muted-foreground">10:00 AM – 1:00 PM</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-body text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-1">Venue</p>
+                    <p className="font-display text-lg text-foreground">Labourdonnais Waterfront Hotel</p>
+                    <p className="font-body text-muted-foreground">Port Louis, Mauritius</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="font-display text-foreground text-xl md:text-2xl tracking-[0.12em] uppercase mb-6">
+                What to bring
+              </h2>
+              <ul className="space-y-3">
+                {[
+                  { icon: FileImage, title: "Your best photos", desc: "Professional or high-quality snapshots" },
+                  { icon: IdCard, title: "Valid ID", desc: "Passport or national ID" },
+                  { icon: Smile, title: "Confidence", desc: "And a big smile!" },
+                ].map(({ icon: Icon, title, desc }) => (
+                  <li key={title} className="flex items-start gap-3">
+                    <Icon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-display text-base text-foreground">{title}</p>
+                      <p className="font-body text-sm text-muted-foreground mt-0.5">{desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
           </div>
 
-          <section className="mb-12 md:mb-14">
-            <h2 className="font-display text-foreground text-xl md:text-2xl tracking-[0.12em] uppercase mb-6">
-              Event details
-            </h2>
-            <div className="space-y-4">
-              <div className="flex items-start gap-4">
-                <Calendar className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-body text-[10px] tracking-[0.25em] uppercase text-muted-foreground mb-1">Date & time</p>
-                  <p className="font-display text-lg text-foreground">18 April 2026</p>
-                  <p className="font-body text-muted-foreground">10:00 AM – 1:00 PM</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-body text-[10px] tracking-[0.25em] uppercase text-muted-foreground mb-1">Venue</p>
-                  <p className="font-display text-lg text-foreground">Labourdonnais Waterfront Hotel</p>
-                  <p className="font-body text-muted-foreground">Port Louis, Mauritius</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="mb-12 md:mb-14">
-            <h2 className="font-display text-foreground text-xl md:text-2xl tracking-[0.12em] uppercase mb-6">
-              What to bring
-            </h2>
-            <ul className="space-y-3">
-              {[
-                { icon: FileImage, title: "Your best photos", desc: "Professional or high-quality snapshots" },
-                { icon: IdCard, title: "Valid ID", desc: "Passport or national ID" },
-                { icon: Smile, title: "Confidence", desc: "And a big smile!" },
-              ].map(({ icon: Icon, title, desc }) => (
-                <li key={title} className="flex items-start gap-3">
-                  <Icon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+          {/* Right column: register form + back link */}
+          <div className="lg:sticky lg:top-24">
+            <section className="mb-10">
+              <h2 className="font-display text-foreground text-xl md:text-2xl tracking-[0.12em] uppercase mb-6">
+                Register your interest
+              </h2>
+              {submitted ? (
+                <p className="font-body text-foreground">
+                  Thank you. We&apos;ve received your details and will be in touch.
+                </p>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <p className="font-display text-base text-foreground">{title}</p>
-                    <p className="font-body text-sm text-muted-foreground mt-0.5">{desc}</p>
+                    <label htmlFor="event-name" className="form-label">Name</label>
+                    <input
+                      id="event-name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="form-input"
+                      placeholder="Your full name"
+                      required
+                    />
                   </div>
-                </li>
-              ))}
-            </ul>
-          </section>
+                  <div>
+                    <label htmlFor="event-tel" className="form-label">Tel</label>
+                    <input
+                      id="event-tel"
+                      type="tel"
+                      value={tel}
+                      onChange={(e) => setTel(e.target.value)}
+                      className="form-input"
+                      placeholder="+230..."
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="event-email" className="form-label">Email</label>
+                    <input
+                      id="event-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="form-input"
+                      placeholder="your@email.com"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="event-nationality" className="form-label">Nationality</label>
+                    <input
+                      id="event-nationality"
+                      type="text"
+                      value={nationality}
+                      onChange={(e) => setNationality(e.target.value)}
+                      className="form-input"
+                      placeholder="e.g. Mauritian"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="event-age" className="form-label">Age</label>
+                    <input
+                      id="event-age"
+                      type="number"
+                      min={1}
+                      max={120}
+                      value={age}
+                      onChange={(e) => setAge(e.target.value)}
+                      className="form-input"
+                      placeholder="e.g. 25"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="event-occupation" className="form-label">Occupation</label>
+                    <input
+                      id="event-occupation"
+                      type="text"
+                      value={occupation}
+                      onChange={(e) => setOccupation(e.target.value)}
+                      className="form-input"
+                      placeholder="e.g. Student, Photographer"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="event-photo" className="form-label">1 photo</label>
+                    <input
+                      id="event-photo"
+                      ref={photoInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="sr-only"
+                      onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
+                      required
+                    />
+                    <label
+                      htmlFor="event-photo"
+                      className="flex items-center gap-3 border-2 border-dashed border-border p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                    >
+                      <Upload className="w-5 h-5 text-muted-foreground shrink-0" />
+                      <span className="font-body text-sm text-muted-foreground">
+                        {photoFile ? photoFile.name : "Upload one photo (JPG, PNG, WebP)"}
+                      </span>
+                    </label>
+                  </div>
+                  <button type="submit" className="btn-primary">
+                    Submit
+                  </button>
+                </form>
+              )}
+            </section>
 
-          <section className="mb-16 md:mb-20">
-            <h2 className="font-display text-foreground text-xl md:text-2xl tracking-[0.12em] uppercase mb-6">
-              Register your interest
-            </h2>
-            {submitted ? (
-              <p className="font-body text-foreground">
-                Thank you. We&apos;ve received your details and will be in touch.
-              </p>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-                <div>
-                  <label htmlFor="event-name" className="form-label">Name</label>
-                  <input
-                    id="event-name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="form-input"
-                    placeholder="Your name"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="event-email" className="form-label">Email</label>
-                  <input
-                    id="event-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="form-input"
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="event-phone" className="form-label">Phone (optional)</label>
-                  <input
-                    id="event-phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="form-input"
-                    placeholder="+230..."
-                  />
-                </div>
-                <button type="submit" className="btn-primary">
-                  Submit
-                </button>
-              </form>
-            )}
-          </section>
-
-          <hr className="border-border mb-8" />
-          <Link to="/" className="inline-flex items-center gap-2 font-body text-primary text-xs tracking-[0.2em] uppercase hover:underline">
-            ← Back to Home
-          </Link>
+            <hr className="border-border mb-6" />
+            <Link to="/" className="inline-flex items-center gap-2 font-body text-primary text-xs tracking-[0.2em] uppercase hover:underline">
+              ← Back to Home
+            </Link>
+          </div>
         </div>
       </article>
 

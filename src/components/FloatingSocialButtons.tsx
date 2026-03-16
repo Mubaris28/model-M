@@ -1,11 +1,9 @@
 "use client";
 
-const FACEBOOK_URL = process.env.NEXT_PUBLIC_FACEBOOK_URL || "https://www.facebook.com/";
-const INSTAGRAM_URL = process.env.NEXT_PUBLIC_INSTAGRAM_URL || "https://www.instagram.com/";
-const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
-const WHATSAPP_URL = WHATSAPP_NUMBER
-  ? `https://wa.me/${WHATSAPP_NUMBER.replace(/\D/g, "")}`
-  : "https://wa.me/";
+const INSTAGRAM_URL = "https://www.instagram.com/modelmanagement.mu";
+const FACEBOOK_URL = "https://www.facebook.com/people/ModelManagementmu/61583295135727/";
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "23052566333";
+const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER.replace(/\D/g, "")}`;
 
 function FacebookIcon({ className }: { className?: string }) {
   return (
@@ -32,8 +30,8 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 const links = [
-  { href: FACEBOOK_URL, label: "Facebook", icon: FacebookIcon, color: "bg-[#1877F2] border-[#1877F2] hover:bg-[#166FE5] hover:border-[#166FE5] text-white" },
   { href: INSTAGRAM_URL, label: "Instagram", icon: InstagramIcon, color: "bg-gradient-to-br from-[#f09433] via-[#dc2743] to-[#bc1888] border-transparent hover:opacity-90 text-white" },
+  { href: FACEBOOK_URL, label: "Facebook", icon: FacebookIcon, color: "bg-[#1877F2] border-[#1877F2] hover:bg-[#166FE5] hover:border-[#166FE5] text-white" },
   { href: WHATSAPP_URL, label: "WhatsApp", icon: WhatsAppIcon, color: "bg-[#25D366] border-[#25D366] hover:bg-[#20BD5A] hover:border-[#20BD5A] text-white" },
 ];
 

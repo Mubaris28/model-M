@@ -13,6 +13,7 @@ import {
   MODEL_FIELDS,
   MODEL_BASE,
   CATEGORY_USERNAMES,
+  DEFAULT_CATEGORY_DEFINITIONS,
 } from "../lib/homepageSectionResolve.js";
 
 const router = express.Router();
@@ -287,13 +288,17 @@ router.put("/homepage-sections", async (req, res) => {
   }
 });
 
-// GET /api/admin/homepage-categories — per-category model lists + approved models for picker
+// GET /api/admin/homepage-categories — main categories + per-category model lists + approved models
 router.get("/homepage-categories", async (req, res) => {
   try {
     const config = await HomepageConfig.findOne().lean();
     const approvedModels = await User.find(MODEL_BASE).select(MODEL_FIELDS).sort({ fullName: 1, username: 1 }).limit(500).lean();
+    const mainCategories = config?.categoryDefinitions?.length
+      ? config.categoryDefinitions.filter((c) => c && c.slug && String(c.slug).trim())
+      : [...DEFAULT_CATEGORY_DEFINITIONS];
+    const slugs = mainCategories.map((c) => String(c.slug).toLowerCase().trim());
     const categorySlots = {};
-    for (const slug of Object.keys(CATEGORY_USERNAMES)) {
+    for (const slug of slugs) {
       const catMap = config?.categoryIds;
       const savedIds = catMap && catMap.get ? catMap.get(slug) : (catMap?.[slug] || null);
       const ids = savedIds?.length ? savedIds.map((id) => id.toString()) : [];
@@ -301,12 +306,42 @@ router.get("/homepage-categories", async (req, res) => {
         const users = await User.find({ _id: { $in: ids }, ...MODEL_BASE }).select(MODEL_FIELDS).lean();
         const byId = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
         categorySlots[slug] = { ids, models: ids.map((id) => byId[id]).filter(Boolean) };
-      } else {
+      } else if (CATEGORY_USERNAMES[slug]) {
         const defaultModels = await resolveCategoryDefault(slug);
         categorySlots[slug] = { ids: defaultModels.map((u) => u._id.toString()), models: defaultModels };
+      } else {
+        categorySlots[slug] = { ids: [], models: [] };
       }
     }
-    res.json({ categorySlots, approvedModels });
+    res.json({ mainCategories, categorySlots, approvedModels });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// PUT /api/admin/homepage-categories/main — set main category cards (add/remove/reorder)
+router.put("/homepage-categories/main", async (req, res) => {
+  try {
+    const { categories: raw = [] } = req.body;
+    const slugify = (s) => String(s || "").toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") || "category";
+    const list = raw
+      .filter((c) => c && (c.slug || c.name))
+      .map((c) => ({
+        slug: slugify(c.slug || c.name),
+        name: String(c.name || c.slug || "Category").trim() || "Category",
+        description: String(c.description || "").trim(),
+      }));
+    const seen = new Set();
+    const unique = list.filter((c) => {
+      if (seen.has(c.slug)) return false;
+      seen.add(c.slug);
+      return true;
+    });
+    let config = await HomepageConfig.findOne();
+    if (!config) config = new HomepageConfig({});
+    config.categoryDefinitions = unique;
+    await config.save();
+    res.json({ ok: true, mainCategories: config.categoryDefinitions });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

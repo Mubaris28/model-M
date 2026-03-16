@@ -8,6 +8,11 @@ const homepageConfigSchema = new mongoose.Schema(
     latestIds:           { type: [mongoose.Schema.Types.ObjectId], default: [] },
     latestCount:         { type: Number, default: 0 },
     categoryIds:         { type: Map, of: [mongoose.Schema.Types.ObjectId], default: {} },
+    categorySlugs:       { type: [String], default: [] },
+    categoryDefinitions: {
+      type: [{ slug: String, name: String, description: String }],
+      default: undefined,
+    },
   },
   { timestamps: true }
 );

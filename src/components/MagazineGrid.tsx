@@ -1,20 +1,22 @@
-import { ArrowUpRight } from "lucide-react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Link } from "@/lib/router-next";
-import { imgSrc } from "@/lib/utils";
-import { motion } from "framer-motion";
+import CategoryCardsGrid from "@/components/CategoryCardsGrid";
+import { publicApi } from "@/lib/api";
 
-const CATEGORIES_IMG = "/images/Categories";
-
-export const categories = [
-  { name: "Bold", slug: "bold", image: `${CATEGORIES_IMG}/cat-bold.jpg`, count: 248, description: "Fearless & striking editorial" },
-  { name: "Bikini", slug: "bikini", image: `${CATEGORIES_IMG}/cat-bikini.jpg`, count: 186, description: "Beach & swimwear looks" },
-  { name: "Mature", slug: "mature", image: `${CATEGORIES_IMG}/cat-glamour.jpg`, count: 124, description: "Timeless sophistication" },
-  { name: "Glamour", slug: "glamour", image: `${CATEGORIES_IMG}/cat-glamour.jpg`, count: 312, description: "Red carpet elegance" },
-  { name: "Commercial", slug: "commercial", image: `${CATEGORIES_IMG}/cat-commercial.jpg`, count: 428, description: "Brand campaigns" },
-  { name: "Fitness", slug: "fitness", image: `${CATEGORIES_IMG}/cat-fitness.jpg`, count: 156, description: "Athletic & powerful" },
-];
+export type CategoryItem = { slug: string; name: string; description: string };
 
 const MagazineGrid = () => {
+  const [categories, setCategories] = useState<CategoryItem[] | null>(null);
+
+  useEffect(() => {
+    publicApi
+      .categories()
+      .then((data) => setCategories(data.categories?.length ? data.categories : []))
+      .catch(() => setCategories([]));
+  }, []);
+
   return (
     <section id="categories" className="py-24 bg-background">
       <div className="container mx-auto px-4 md:px-6">
@@ -28,30 +30,7 @@ const MagazineGrid = () => {
           </Link>
         </div>
 
-        <div className="mobile-slider gap-4 md:gap-6" style={{ gridTemplateColumns: "repeat(3,minmax(0,1fr))" }}>
-          {categories.map((cat, i) => (
-            <motion.div
-              key={cat.slug}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.08 }}
-            >
-              <Link to={`/category/${cat.slug}`} className="group relative block aspect-square overflow-hidden magazine-border">
-                <img src={imgSrc(cat.image)} alt={cat.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 cinematic-overlay" />
-                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
-                  <span className="bg-primary text-primary-foreground text-[10px] font-body tracking-[0.2em] uppercase px-2 py-0.5 mb-2 inline-block">{cat.count} Models</span>
-                  <h3 className="font-display text-2xl md:text-3xl text-white">{cat.name}</h3>
-                  <p className="text-white/60 text-xs font-body mt-1">{cat.description}</p>
-                </div>
-                <div className="absolute top-3 right-3 w-8 h-8 border border-white/20 flex items-center justify-center group-hover:bg-primary group-hover:border-primary transition-all">
-                  <ArrowUpRight className="w-3 h-3 text-white/60 group-hover:text-primary-foreground transition-colors" />
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
+        <CategoryCardsGrid categories={categories ?? []} />
       </div>
     </section>
   );

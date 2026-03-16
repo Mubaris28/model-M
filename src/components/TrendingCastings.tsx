@@ -82,47 +82,46 @@ const TrendingCastings = () => {
               transition={{ duration: 0.5, delay: i * 0.1 }}
               className="flex-shrink-0 w-[300px] md:w-[340px] snap-start"
             >
-              <Link to={`/casting/${casting.id}`} className="group block bg-background magazine-border overflow-hidden hover:border-primary/30 transition-all duration-300 h-full">
-                {/* Casting image or gradient placeholder */}
-                <div className="relative w-full aspect-video overflow-hidden">
-                  {casting.imageUrl ? (
-                    <img
-                      src={imgSrc(casting.imageUrl)}
-                      alt={casting.title}
-                      width={CASTING_CARD_IMAGE_WIDTH}
-                      height={CASTING_CARD_IMAGE_HEIGHT}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                      <span className="font-display text-4xl text-primary/30 uppercase truncate px-4">{casting.brand !== "—" ? casting.brand : casting.title.charAt(0)}</span>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  {casting.urgent && (
-                    <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-body font-medium px-2.5 py-1 tracking-[0.2em] uppercase">
-                      Urgent
-                    </span>
-                  )}
-                  <div className="absolute top-3 right-3 w-8 h-8 border border-white/20 flex items-center justify-center bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                    <ArrowRight className="w-3 h-3 text-white" />
+              <Link to={`/casting/${casting.id}`} className="group block magazine-border overflow-hidden hover:border-primary/50 transition-all duration-300 h-full relative aspect-[3/4] md:aspect-[4/5]">
+                {/* Full-size image fills card */}
+                {casting.imageUrl ? (
+                  <img
+                    src={imgSrc(casting.imageUrl)}
+                    alt={casting.title}
+                    width={CASTING_CARD_IMAGE_WIDTH}
+                    height={CASTING_CARD_IMAGE_HEIGHT}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/25 to-primary/5 flex items-center justify-center">
+                    <span className="font-display text-5xl text-primary/40 uppercase truncate px-4">{casting.brand !== "—" ? casting.brand : casting.title.charAt(0)}</span>
                   </div>
+                )}
+                {/* Gradient overlay so content is readable */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
+                {casting.urgent && (
+                  <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-body font-medium px-2.5 py-1 tracking-[0.2em] uppercase z-10">
+                    Urgent
+                  </span>
+                )}
+                <div className="absolute top-3 right-3 w-9 h-9 border border-white/30 flex items-center justify-center bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <ArrowRight className="w-4 h-4 text-white" />
                 </div>
-
-                <div className="p-5">
-                  <p className="text-primary text-xs font-body tracking-wider uppercase mb-1">{casting.brand}</p>
-                  <h3 className="font-display text-lg text-foreground group-hover:text-primary transition-colors leading-tight mb-3">
+                {/* Content overlaid at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5 z-10">
+                  <p className="text-primary text-xs font-body tracking-wider uppercase mb-1.5">{casting.brand}</p>
+                  <h3 className="font-display text-lg md:text-xl text-white leading-tight mb-3 group-hover:text-primary transition-colors">
                     {casting.title}
                   </h3>
-
-                  <div className="flex flex-wrap gap-3 text-muted-foreground text-xs font-body mb-3">
-                    <span className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {casting.date}</span>
-                    <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {casting.location}</span>
+                  <div className="flex flex-wrap gap-3 text-white/80 text-xs font-body mb-3">
+                    <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 shrink-0" /> {casting.date}</span>
+                    <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> {casting.location}</span>
                   </div>
-
                   <div className="flex flex-wrap gap-1.5">
                     {casting.categories.map((cat) => (
-                      <span key={cat} className="bg-secondary text-secondary-foreground text-[10px] font-body px-2.5 py-0.5 tracking-[0.15em] uppercase">{cat}</span>
+                      <span key={cat} className="bg-white/20 text-white text-[10px] font-body px-2.5 py-1 tracking-[0.15em] uppercase backdrop-blur-sm">
+                        {cat}
+                      </span>
                     ))}
                   </div>
                 </div>

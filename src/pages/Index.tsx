@@ -6,6 +6,7 @@ import MagazineGrid from "@/components/MagazineGrid";
 import NewFaces from "@/components/NewFaces";
 import FeaturedModels from "@/components/FeaturedModels";
 import AdBanner from "@/components/AdBanner";
+import AdSlider from "@/components/AdSlider";
 import TrendingCastings from "@/components/TrendingCastings";
 import CaseStudies from "@/components/CaseStudies";
 import GetDiscovered from "@/components/GetDiscovered";
@@ -20,22 +21,22 @@ const Index = () => {
       <Navbar />
       <HeroSingle />
       <CastingEventSection />
-      <LatestModelsSlider />
 
       <MagazineGrid />
       <NewFaces homePreview />
 
-      <FeaturedModels />
-
-      <div className="container mx-auto px-4 md:px-6 py-8">
+      <div className="container mx-auto px-4 md:px-6 py-6">
         <AdBanner />
       </div>
+
+      <FeaturedModels />
+      <LatestModelsSlider />
+
+      <AdSlider />
 
       <QuickActions />
 
       <TrendingCastings />
-
-      <AdBanner variant="cosmetics" />
 
       <CaseStudies />
       <GetDiscovered />
