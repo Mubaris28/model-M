@@ -121,7 +121,7 @@ const DashboardBookingsPage = () => {
                         {model.profilePhoto && (
                           <img
                             src={imgSrc(model.profilePhoto)}
-                            alt={model.fullName || ""}
+                            alt={model.username || "Model"}
                             className="w-10 h-10 object-cover border border-border shrink-0"
                           />
                         )}
@@ -130,7 +130,7 @@ const DashboardBookingsPage = () => {
                             Model
                           </p>
                           <p className="font-body text-sm text-foreground">
-                            {model.fullName || model.username || "Model"}
+                            {model.username || "Model"}
                           </p>
                         </div>
                       </div>

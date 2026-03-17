@@ -9,6 +9,7 @@ import FlowStepper from "@/components/FlowStepper";
 const DRAFT_KEY = "become-model-draft";
 
 const defaultStep1 = {
+  username: "",
   dateOfBirth: "",
   gender: "",
   country: "",
@@ -111,6 +112,15 @@ const BecomeModelPage = () => {
 
   const handleContinueToVerification = () => {
     setError(null);
+    const username = step1.username.trim();
+    if (!username) {
+      setError("Please add a username before continuing.");
+      return;
+    }
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) {
+      setError("Username cannot be an email address.");
+      return;
+    }
     if (!step1.dateOfBirth?.trim() || !step1.gender?.trim()) {
       setError("Please fill in Date of birth and Gender before continuing.");
       return;
@@ -188,6 +198,7 @@ const BecomeModelPage = () => {
       await authApi.updateProfile({
         profileComplete: true,
         status: "pending",
+        username: step1.username.trim(),
         portfolio: portfolioUrls,
         idPhotoUrl: step2.idPhotoUrl,
         selfieWithIdUrl: step2.selfieWithIdUrl,
@@ -248,6 +259,16 @@ const BecomeModelPage = () => {
               <section className="space-y-4">
                 <h4 className="text-xs font-body text-muted-foreground tracking-[0.2em] uppercase border-b border-border pb-2">Personal details</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="form-label">Username</label>
+                    <input
+                      type="text"
+                      value={step1.username}
+                      onChange={(e) => setStep1((s) => ({ ...s, username: e.target.value }))}
+                      className="form-input"
+                      placeholder="Public username"
+                    />
+                  </div>
                   <div>
                     <label className="form-label">Date of birth</label>
                     <input type="date" value={step1.dateOfBirth} onChange={(e) => setStep1((s) => ({ ...s, dateOfBirth: e.target.value }))} className="form-input" />

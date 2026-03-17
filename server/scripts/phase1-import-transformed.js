@@ -113,6 +113,7 @@ async function main() {
       firebaseUid: u.firebaseUid,
       email: safeEmail,
       fullName: u.fullName || "Migrated User",
+      username: u.username || "",
       phone: u.phone || "",
       role: u.role || "user",
       status: u.status || "pending",

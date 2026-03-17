@@ -136,7 +136,7 @@ export default function NewFeaturePopup() {
                         New talent
                       </p>
                       <h2 id="feature-popup-title" className="font-display text-2xl text-white">
-                        {latestModel.username || latestModel.fullName || "New talent"}
+                        {latestModel.username || "New talent"}
                       </h2>
                     </div>
                   </div>

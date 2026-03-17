@@ -37,7 +37,7 @@ function toCard(m: PublicModel): ModelCard {
   const age = m.dateOfBirth ? new Date().getFullYear() - new Date(m.dateOfBirth).getFullYear() : undefined;
   return {
     id: m._id,
-    name: m.username || m.fullName || "Model",
+    name: m.username || "Model",
     image: photo,
     category: m.categories?.[0] || "Model",
     location: [m.city, m.country].filter(Boolean).join(", ") || "—",

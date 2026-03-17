@@ -53,7 +53,7 @@ const DashboardPage = () => {
   const { user } = useAuth();
   const isProfessional = user?.role === "professional";
   const isModel = user?.role === "model";
-  const displayName = user?.fullName || user?.email?.split("@")[0] || "User";
+  const displayName = user?.username || user?.email?.split("@")[0] || "User";
   const menuItems = isProfessional ? PROFESSIONAL_MENU : MODEL_MENU;
   const [recentCastings, setRecentCastings] = useState<PublicCasting[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);

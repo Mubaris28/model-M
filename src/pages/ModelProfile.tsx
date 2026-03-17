@@ -38,7 +38,7 @@ const ModelProfile = () => {
 
   useEffect(() => {
     if (user) {
-      setBookForm((f) => ({ ...f, name: user.fullName || f.name, email: user.email || f.email }));
+      setBookForm((f) => ({ ...f, name: user.username || user.email?.split("@")[0] || f.name, email: user.email || f.email }));
     }
   }, [user]);
 
@@ -68,7 +68,7 @@ const ModelProfile = () => {
         const age = m.dateOfBirth ? new Date().getFullYear() - new Date(m.dateOfBirth).getFullYear() : 0;
         setModel({
           id: m._id,
-          name: m.username || m.fullName || "Model",
+          name: m.username || "Model",
           image: photo,
           category: m.categories?.[0] || "Model",
           location: [m.city, m.country].filter(Boolean).join(", ") || "—",
