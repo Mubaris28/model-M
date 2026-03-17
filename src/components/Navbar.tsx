@@ -126,7 +126,7 @@ const Navbar = () => {
               >
                 <User className="w-4 h-4" />
                 <span className="text-xs font-body uppercase tracking-wider truncate max-w-[100px]">
-                  {user?.fullName || user?.email?.split("@")[0]}
+                  {user?.username || user?.email?.split("@")[0]}
                 </span>
               </button>
               {userMenuOpen && (

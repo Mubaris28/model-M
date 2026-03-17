@@ -1,0 +1,13 @@
+{
+  "mode": "sync-model-usernames-from-export",
+  "dryRun": false,
+  "inputDir": "C:\\Projects\\model-M\\server\\migrations\\phase1\\2026-03-13T11-09-28-297Z",
+  "scannedModelDocs": 119,
+  "modelsWithUsername": 119,
+  "updatedByUid": 0,
+  "updatedByEmail": 0,
+  "skippedNoUsername": 0,
+  "skippedNoMatch": 1,
+  "skippedSameValue": 118,
+  "completedAt": "2026-03-17T06:03:16.715Z"
+}

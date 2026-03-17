@@ -360,7 +360,7 @@ const DashboardMyCastingsPage = () => {
                       {model?.profilePhoto ? (
                         <img
                           src={imgSrc(model.profilePhoto)}
-                          alt={model.fullName || ""}
+                          alt={model.username || "Model"}
                           className="w-14 h-14 object-cover border border-border shrink-0"
                         />
                       ) : (
@@ -370,7 +370,7 @@ const DashboardMyCastingsPage = () => {
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="font-display text-base text-foreground">
-                          {model?.fullName || model?.username || "Model"}
+                          {model?.username || "Model"}
                         </p>
                         {model?.city && model?.country && (
                           <p className="text-muted-foreground text-xs font-body">{model.city}, {model.country}</p>

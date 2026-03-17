@@ -10,6 +10,7 @@
     "migrate:phase1:transform": "node scripts/phase1-transform-only.js",
     "migrate:phase1:import": "node scripts/phase1-transform-import.js",
     "migrate:phase1:import:transformed": "node scripts/phase1-import-transformed.js",
+    "migrate:phase1:sync:usernames": "node scripts/sync-model-usernames-from-export.js",
     "auth:force-reset:migrated": "node scripts/force-password-reset-migrated.js",
     "auth:force-reset:all-non-admin": "node scripts/force-password-reset-migrated.js --allUsers=true --includeAdmins=false"
   },

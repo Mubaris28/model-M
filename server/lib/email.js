@@ -10,6 +10,82 @@ function getResend() {
 const FROM = process.env.RESEND_FROM_EMAIL || "admin@modelmanagement.mu";
 const ADMIN_EMAIL = "info@modelmanagement.mu";
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function linkifySafeHtml(safeText) {
+  const urlRegex = /(https?:\/\/[^\s<]+)/gi;
+  return safeText.replace(urlRegex, (url) => {
+    const escapedUrl = escapeHtml(url);
+    return `<a href="${escapedUrl}" style="color:#ff1f3d;text-decoration:underline;word-break:break-all">${escapedUrl}</a>`;
+  });
+}
+
+function firstUrl(text) {
+  const m = String(text || "").match(/https?:\/\/[^\s]+/i);
+  return m ? m[0] : "";
+}
+
+function textToHtmlBlocks(text) {
+  const blocks = String(text || "").trim().split(/\n{2,}/).filter(Boolean);
+  return blocks
+    .map((block) => {
+      const safe = linkifySafeHtml(escapeHtml(block)).replace(/\n/g, "<br />");
+      return `<p style="margin:0 0 14px 0;color:#222;line-height:1.65;font-size:15px;font-family:Arial,Helvetica,sans-serif">${safe}</p>`;
+    })
+    .join("");
+}
+
+function buildBrandEmailHtml({ subject, text }) {
+  const bodyBlocks = textToHtmlBlocks(text);
+  const ctaUrl = firstUrl(text);
+  const cta = ctaUrl
+    ? `<tr>
+        <td style="padding:6px 0 22px 0">
+          <a href="${escapeHtml(ctaUrl)}" style="display:inline-block;background:#ff1f3d;border:1px solid #ff1f3d;color:#ffffff;text-decoration:none;padding:11px 20px;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-family:Arial,Helvetica,sans-serif;border-radius:999px">Open Link</a>
+        </td>
+      </tr>`
+    : "";
+
+  return `<!doctype html>
+<html>
+  <body style="margin:0;padding:0;background:#fff3f5">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:radial-gradient(circle at top,#ffd9df 0%,#fff3f5 46%,#f7f8fa 100%);padding:28px 12px">
+      <tr>
+        <td align="center">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="width:100%;max-width:640px;background:#ffffff;border:1px solid #ffd7dd;border-radius:20px;overflow:hidden;box-shadow:0 12px 34px rgba(178,0,32,0.12)">
+            <tr>
+              <td style="background:linear-gradient(135deg,#b30020 0%,#ff1f3d 55%,#ff6b82 100%);padding:22px 24px 20px 24px;border-radius:20px 20px 0 0">
+                <div style="display:inline-block;color:#ffffff;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.35);border-radius:999px;padding:4px 10px;font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:0.2em;text-transform:uppercase">Model Management</div>
+                <div style="color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:700;line-height:1.35;margin-top:10px">${escapeHtml(subject)}</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:26px 24px 14px 24px">${bodyBlocks}</td>
+            </tr>
+            ${cta}
+            <tr>
+              <td style="padding:18px 24px 24px 24px;border-top:1px solid #ffe6ea">
+                <p style="margin:0;color:#777;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6">
+                  This email was sent by Model Management.<br />
+                  For support, contact <a href="mailto:info@modelmanagement.mu" style="color:#ff1f3d;text-decoration:underline">info@modelmanagement.mu</a>.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
 function buildPasswordResetUrl(token) {
   const template = process.env.PASSWORD_RESET_URL_TEMPLATE || "";
   const fallbackBase = process.env.PASSWORD_RESET_URL_BASE || "";
@@ -31,7 +107,13 @@ async function send({ to, subject, text }) {
     return false;
   }
   try {
-    await resend.emails.send({ from: FROM, to, subject, text });
+    await resend.emails.send({
+      from: FROM,
+      to,
+      subject,
+      text,
+      html: buildBrandEmailHtml({ subject, text }),
+    });
     return true;
   } catch (err) {
     console.error(`Email send failed [${subject}]:`, err.message);
@@ -312,6 +394,28 @@ export async function sendContactEmail({ name, email, message }) {
       "",
       "Message:",
       message,
+      "",
+      "———",
+      "Model Management",
+      "info@modelmanagement.mu",
+    ].join("\n"),
+  });
+}
+
+export async function sendContactConfirmationEmail({ to, name }) {
+  const person = name?.trim() || "there";
+  return send({
+    to,
+    subject: "We received your message — Model Management",
+    text: [
+      `Hi ${person},`,
+      "",
+      "Thank you for contacting Model Management.",
+      "",
+      "This is a confirmation that we have received your form submission.",
+      "Our team will review it and get back to you within 48 hours.",
+      "",
+      "If your request is urgent, you can also reach us at info@modelmanagement.mu.",
       "",
       "———",
       "Model Management",

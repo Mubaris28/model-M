@@ -37,7 +37,7 @@ const CastingDetailPage = () => {
   const [loading, setLoading] = useState(!!id);
 
   const [showApplyModal, setShowApplyModal] = useState(false);
-  const [applyForm, setApplyForm] = useState({ name: user?.fullName || "", email: user?.email || "", message: "" });
+  const [applyForm, setApplyForm] = useState({ name: user?.username || user?.email?.split("@")[0] || "", email: user?.email || "", message: "" });
   const [applyStatus, setApplyStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [applyError, setApplyError] = useState("");
 
@@ -79,7 +79,7 @@ const CastingDetailPage = () => {
     if (user) {
       setApplyForm((f) => ({
         ...f,
-        name: user.fullName || f.name,
+        name: user.username || user.email?.split("@")[0] || f.name,
         email: user.email || f.email,
       }));
     }

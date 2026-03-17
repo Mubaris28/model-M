@@ -15,6 +15,12 @@ import {
 
 const router = express.Router();
 
+function toPublicModel(user) {
+  if (!user) return user;
+  const { fullName, ...safeUser } = user;
+  return safeUser;
+}
+
 router.get("/sections/new-faces", async (_req, res) => {
   try {
     const config = await HomepageConfig.findOne().lean();
@@ -24,11 +30,11 @@ router.get("/sections/new-faces", async (_req, res) => {
       const byId = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
       const ordered = ids.map((id) => byId[id]).filter(Boolean);
       ordered.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-      return res.json(ordered);
+      return res.json(ordered.map(toPublicModel));
     }
     const users = await resolveNewFacesDefault();
     users.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-    res.json(users);
+    res.json(users.map(toPublicModel));
   } catch (e) {
     if (mongoose.connection.readyState !== 1) return res.json([]);
     res.status(500).json({ error: e.message });
@@ -42,9 +48,10 @@ router.get("/sections/trending", async (_req, res) => {
     if (ids.length > 0) {
       const users = await User.find({ _id: { $in: ids }, ...MODEL_BASE }).select(MODEL_FIELDS).lean();
       const byId = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
-      return res.json(ids.map((id) => byId[id]).filter(Boolean));
+      return res.json(ids.map((id) => byId[id]).filter(Boolean).map(toPublicModel));
     }
-    res.json(await resolveTrendingDefault());
+    const users = await resolveTrendingDefault();
+    res.json(users.map(toPublicModel));
   } catch (e) {
     if (mongoose.connection.readyState !== 1) return res.json([]);
     res.status(500).json({ error: e.message });
@@ -59,11 +66,11 @@ router.get("/sections/latest", async (_req, res) => {
     if (ids.length > 0) {
       const users = await User.find({ _id: { $in: ids }, ...MODEL_BASE }).select(MODEL_FIELDS).lean();
       const byId = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
-      return res.json(ids.map((id) => byId[id]).filter(Boolean));
+      return res.json(ids.map((id) => byId[id]).filter(Boolean).map(toPublicModel));
     }
     const count = config?.latestCount > 0 ? config.latestCount : 16;
     const users = await User.find({ ...MODEL_BASE }).select(MODEL_FIELDS).sort({ updatedAt: -1 }).limit(count).lean();
-    res.json(users);
+    res.json(users.map(toPublicModel));
   } catch (e) {
     if (mongoose.connection.readyState !== 1) return res.json([]);
     res.status(500).json({ error: e.message });
@@ -95,9 +102,10 @@ router.get("/categories/:slug/models", async (req, res) => {
     if (ids.length > 0) {
       const users = await User.find({ _id: { $in: ids }, ...MODEL_BASE }).select(MODEL_FIELDS).lean();
       const byId = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
-      return res.json(ids.map((id) => byId[id]).filter(Boolean));
+      return res.json(ids.map((id) => byId[id]).filter(Boolean).map(toPublicModel));
     }
-    res.json(await resolveCategoryDefault(slug));
+    const users = await resolveCategoryDefault(slug);
+    res.json(users.map(toPublicModel));
   } catch (e) {
     if (mongoose.connection.readyState !== 1) return res.json([]);
     res.status(500).json({ error: e.message });
@@ -121,7 +129,7 @@ router.get("/models", async (_req, res) => {
       .sort({ createdAt: -1 })
       .limit(100)
       .lean();
-    res.json(users);
+    res.json(users.map(toPublicModel));
   } catch (e) {
     if (mongoose.connection.readyState !== 1) return res.json([]);
     res.status(500).json({ error: e.message });
@@ -135,7 +143,7 @@ router.get("/models/:id", async (req, res) => {
       .select(MODEL_FIELDS)
       .lean();
     if (!user) return res.status(404).json({ error: "Model not found" });
-    res.json(user);
+    res.json(toPublicModel(user));
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

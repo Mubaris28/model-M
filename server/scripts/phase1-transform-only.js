@@ -82,6 +82,7 @@ function mapUserDoc(uid, userDoc, modelDoc, syntheticEmailDomain) {
     firebaseUid: uid,
     email,
     fullName,
+    username: modelDoc?.username || userDoc?.username || "",
     phone: userDoc?.phone || modelDoc?.phone || "",
     role,
     status: mapStatus(userDoc?.status || modelDoc?.approvalStatus),

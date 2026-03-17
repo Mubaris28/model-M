@@ -19,7 +19,7 @@ function toFaceCard(m: PublicModel): FaceCard {
   const age = m.dateOfBirth ? new Date().getFullYear() - new Date(m.dateOfBirth).getFullYear() : 0;
   return {
     id: m._id,
-    name: m.username || m.fullName || "Model",
+    name: m.username || "Model",
     image: photo,
     age: age || 20,
     location: m.city || "",
