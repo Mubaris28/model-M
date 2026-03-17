@@ -6,10 +6,16 @@ import { X, Calendar, MapPin } from "lucide-react";
 import { Link } from "@/lib/router-next";
 import { usePathname } from "next/navigation";
 import { publicApi, type PublicModel, type PublicCasting } from "@/lib/api";
+import { imgSrc } from "@/lib/utils";
 
 const POPUP_DISMISSED_KEY = "featured-popup-dismissed";
 const POPUP_DELAY_MS = 2000;
 const CASTING_POPUP_DELAY_MS = 4000;
+
+function pickRandom<T>(arr: T[]): T | undefined {
+  if (!arr?.length) return undefined;
+  return arr[Math.floor(Math.random() * arr.length)];
+}
 
 type PopupPhase = "model" | "casting" | null;
 
@@ -28,8 +34,8 @@ export default function NewFeaturePopup() {
     const modelTimer = setTimeout(() => {
       Promise.all([publicApi.models(), publicApi.castings()])
         .then(([models, castings]) => {
-          const model = models?.[0];
-          const casting = castings?.[0];
+          const model = pickRandom(models || []);
+          const casting = pickRandom(castings || []);
           if (model) {
             setLatestModel(model);
             setPhase("model");
@@ -101,7 +107,7 @@ export default function NewFeaturePopup() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="w-full max-w-md overflow-hidden rounded-xl border border-border bg-card shadow-2xl pointer-events-auto"
+              className="w-full max-w-lg max-h-[90vh] overflow-y-auto overflow-x-hidden rounded-xl border border-border bg-card shadow-2xl pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -115,22 +121,22 @@ export default function NewFeaturePopup() {
 
               {isModel && (
                 <>
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                  <div className="relative w-full overflow-hidden bg-muted aspect-[3/4] max-h-[280px] sm:max-h-[320px]">
                     {(() => {
                       const imageUrl = latestModel.profilePhoto || latestModel.portfolio?.[0];
                       return imageUrl ? (
                         <img
-                          src={imageUrl}
+                          src={imgSrc(imageUrl)}
                           alt=""
-                          className="h-full w-full object-cover object-center"
+                          className="w-full h-full max-w-full object-cover object-center"
                         />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-muted-foreground font-body text-sm">
+                        <div className="flex min-h-[200px] items-center justify-center text-muted-foreground font-body text-sm">
                           No image
                         </div>
                       );
                     })()}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute bottom-0 left-0 right-0 p-4">
                       <p className="text-xs font-body uppercase tracking-widest text-white/90">
                         New talent
@@ -166,6 +172,16 @@ export default function NewFeaturePopup() {
 
               {isCasting && latestCasting && (
                 <>
+                  {(latestCasting.imageUrls?.length ?? 0) > 0 && (
+                    <div className="relative aspect-video w-full overflow-hidden bg-muted">
+                      <img
+                        src={imgSrc(latestCasting.imageUrls![0])}
+                        alt=""
+                        className="h-full w-full object-cover object-center"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    </div>
+                  )}
                   <div className="p-6 pt-10">
                     <p className="text-xs font-body uppercase tracking-widest text-primary mb-1">
                       Latest casting

@@ -67,13 +67,23 @@ app.get("/api/health", async (_req, res) => {
 
 app.use(errorHandler);
 
-// Start HTTP server first so the app is reachable even if DB is slow or temporarily down
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+// Bind to 0.0.0.0 so the server is reachable on all interfaces:
+// - locally: accessible on 127.0.0.1 and any local IP
+// - on Render/Railway/Fly: required so the platform can route public traffic in
+const HOST = "0.0.0.0";
+app.listen(PORT, HOST, () => {
+  console.log(`Server running on http://${HOST}:${PORT}`);
 });
 
 // Connect to MongoDB in the background (do not exit if it fails — server stays up for health checks)
-mongoose.connect(MONGODB_URI).then(() => {
+mongoose.connect(MONGODB_URI, {
+  serverSelectionTimeoutMS: 10000,   // give up selecting a server after 10s (not 30s default)
+  connectTimeoutMS: 10000,           // TCP connection timeout
+  socketTimeoutMS: 30000,            // individual operation timeout
+  maxPoolSize: 10,                   // keep up to 10 connections in pool (reuse instead of re-open)
+  minPoolSize: 2,                    // keep at least 2 warm connections alive
+  heartbeatFrequencyMS: 10000,       // ping Atlas every 10s to keep connections alive
+}).then(() => {
   console.log("MongoDB connected");
 }).catch((err) => {
   console.error("MongoDB connection error:", err.message);

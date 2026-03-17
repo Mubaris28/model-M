@@ -11,6 +11,11 @@ export default {
       screens: { "2xl": "1400px" },
     },
     extend: {
+      fontSize: {
+        xs: ["0.8125rem", { lineHeight: "1.5" }],   /* 13px — was 12px, match Contact secondary */
+        sm: ["1rem", { lineHeight: "1.6" }],        /* 16px — was 14px, match Contact body */
+        base: ["1.0625rem", { lineHeight: "1.6" }], /* 17px — was 16px */
+      },
       fontFamily: {
         display: ["Bebas Neue", "sans-serif"],
         body: ["Space Grotesk", "sans-serif"],

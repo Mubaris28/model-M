@@ -8,7 +8,7 @@ const EVENT_VENUE = "Labourdonnais Waterfront Hotel";
 
 export default function CastingEventSection() {
   return (
-    <section id="casting-event" className="relative py-12 md:py-16 overflow-hidden scroll-mt-20 bg-background">
+    <section id="casting-event" className="relative py-8 md:py-12 overflow-hidden scroll-mt-20 bg-background">
       <div className="container mx-auto px-4 md:px-6">
         <div className="relative bg-white border border-border border-t-4 border-t-primary p-6 md:p-10 lg:p-12 shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-8">

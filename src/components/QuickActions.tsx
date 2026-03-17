@@ -15,7 +15,7 @@ const actions = [
 
 const QuickActions = () => {
   return (
-    <section className="py-16 bg-background">
+    <section className="py-12 md:py-14 bg-background">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-10">
           <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Get Started</p>

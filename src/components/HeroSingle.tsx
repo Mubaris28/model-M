@@ -69,14 +69,14 @@ export default function HeroSingle() {
             className="group relative block w-full aspect-[9/16] rounded-sm border-2 border-white/50 bg-black/60 overflow-hidden hover:border-white hover:bg-black/80 transition-all"
             aria-label="Watch Reels"
           >
-            {/* Looping mobile reels preview video */}
+            {/* Looping mobile reels preview video — preload auto so local video plays fast */}
             <video
               src={MOBILE_VIDEO}
               autoPlay
               loop
               muted
               playsInline
-              preload="metadata"
+              preload="auto"
               className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0 flex items-center justify-center">

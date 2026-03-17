@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const GetDiscovered = () => {
   return (
-    <section className="dark-section py-24">
+    <section className="dark-section py-14 md:py-16">
       <div className="container mx-auto px-4 md:px-6">
         <motion.div
           initial={{ opacity: 0, y: 40 }}

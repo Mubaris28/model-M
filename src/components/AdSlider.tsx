@@ -44,9 +44,9 @@ export default function AdSlider({ ads = DEFAULT_ADS, autoAdvanceMs = 12000 }: A
   const go = (dir: number) => setIndex((i) => (i + dir + total) % total);
 
   return (
-    <section className="w-full overflow-hidden bg-muted/30">
+    <section className="w-full overflow-hidden bg-muted/30" aria-label="Advertisement slider">
       <div className="relative w-full">
-        <div className="overflow-hidden bg-background" aria-label="Advertisement slider">
+        <div className="overflow-hidden bg-background">
           <div
             className="flex transition-transform duration-500 ease-out"
             style={{ transform: `translateX(-${index * 100}%)` }}
@@ -54,37 +54,37 @@ export default function AdSlider({ ads = DEFAULT_ADS, autoAdvanceMs = 12000 }: A
             {ads.map((ad, i) => (
               <div key={i} className="w-full flex-shrink-0">
                 {ad.href ? (
-                    <a
-                      href={ad.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    >
-                      <img
-                        src={ad.imageMobile ?? ad.imageDesktop}
-                        alt={ad.alt}
-                        className="w-full h-auto object-contain object-center block md:hidden"
-                      />
-                      <img
-                        src={ad.imageDesktop}
-                        alt={ad.alt}
-                        className="w-full h-auto object-contain object-center hidden md:block"
-                      />
-                    </a>
-                  ) : (
-                    <div className="block">
-                      <img
-                        src={ad.imageMobile ?? ad.imageDesktop}
-                        alt={ad.alt}
-                        className="w-full h-auto object-contain object-center block md:hidden"
-                      />
-                      <img
-                        src={ad.imageDesktop}
-                        alt={ad.alt}
-                        className="w-full h-auto object-contain object-center hidden md:block"
-                      />
-                    </div>
-                  )}
+                  <a
+                    href={ad.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  >
+                    <img
+                      src={ad.imageMobile ?? ad.imageDesktop}
+                      alt={ad.alt}
+                      className="w-full h-auto object-contain object-center block md:hidden"
+                    />
+                    <img
+                      src={ad.imageDesktop}
+                      alt={ad.alt}
+                      className="w-full h-auto object-contain object-center hidden md:block"
+                    />
+                  </a>
+                ) : (
+                  <div className="block">
+                    <img
+                      src={ad.imageMobile ?? ad.imageDesktop}
+                      alt={ad.alt}
+                      className="w-full h-auto object-contain object-center block md:hidden"
+                    />
+                    <img
+                      src={ad.imageDesktop}
+                      alt={ad.alt}
+                      className="w-full h-auto object-contain object-center hidden md:block"
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>

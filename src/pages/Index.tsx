@@ -25,7 +25,7 @@ const Index = () => {
       <MagazineGrid />
       <NewFaces homePreview />
 
-      <div className="container mx-auto px-4 md:px-6 py-6">
+      <div className="container mx-auto px-4 md:px-6 py-4">
         <AdBanner />
       </div>
 

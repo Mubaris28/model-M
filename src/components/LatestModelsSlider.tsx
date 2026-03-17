@@ -39,7 +39,12 @@ export default function LatestModelsSlider() {
             setLoading(false);
             return;
           }
-          setCards(list.map(toCard));
+          const byNewest = [...list].sort(
+            (a, b) =>
+              new Date(b.updatedAt || b.createdAt || 0).getTime() -
+              new Date(a.updatedAt || a.createdAt || 0).getTime()
+          );
+          setCards(byNewest.map(toCard));
           setLoading(false);
         })
         .catch((err) => {
@@ -47,7 +52,13 @@ export default function LatestModelsSlider() {
           if ((err as ApiError)?.status === 404) {
             publicApi.models().then((list) => {
               if (cancelled) return;
-              setCards((list || []).map(toCard).slice(0, 16));
+              const raw = list || [];
+              const byNewest = [...raw].sort(
+                (a, b) =>
+                  new Date(b.updatedAt || b.createdAt || 0).getTime() -
+                  new Date(a.updatedAt || a.createdAt || 0).getTime()
+              );
+              setCards(byNewest.map(toCard).slice(0, 16));
               setLoading(false);
             }).catch(() => { if (cancelled) return; setLoading(false); });
             return;
@@ -65,7 +76,7 @@ export default function LatestModelsSlider() {
   const duplicated = cards.length > 0 ? [...cards, ...cards] : [];
 
   return (
-    <section className="bg-foreground text-background py-8 md:py-10 overflow-hidden" aria-label="Latest models">
+    <section className="bg-foreground text-background py-6 md:py-8 overflow-hidden" aria-label="Latest models">
       <div className="container mx-auto px-4 md:px-6 text-center mb-5 md:mb-6">
         <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-1">Discover</p>
         <h2 className="font-display text-3xl md:text-4xl text-primary-foreground uppercase">Latest Models</h2>
