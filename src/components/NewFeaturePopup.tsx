@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, MapPin } from "lucide-react";
 import { Link } from "@/lib/router-next";
@@ -36,18 +36,13 @@ export default function NewFeaturePopup() {
           const casting = pickRandom(castings || []);
           setLatestModel(model ?? null);
           setLatestCasting(casting ?? null);
-          // Show one popup only: randomly model or casting when both exist
+          // One card only: randomly one model or one casting (different each visit)
           if (model && casting) {
             setPhase(Math.random() < 0.5 ? "model" : "casting");
           } else if (model) {
             setPhase("model");
           } else if (casting) {
             setPhase("casting");
-          }
-          try {
-            sessionStorage.setItem(POPUP_DISMISSED_KEY, "1");
-          } catch {
-            // ignore
           }
         })
         .catch(() => {});
@@ -65,8 +60,6 @@ export default function NewFeaturePopup() {
     }
   };
 
-  const dismissBackdrop = () => dismissPopup();
-
   const visible = phase !== null;
   const isModel = phase === "model" && latestModel;
   const isCasting = phase === "casting" && latestCasting;
@@ -81,7 +74,7 @@ export default function NewFeaturePopup() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm"
-            onClick={dismissBackdrop}
+            onClick={dismissPopup}
             aria-hidden
           />
           <motion.div
