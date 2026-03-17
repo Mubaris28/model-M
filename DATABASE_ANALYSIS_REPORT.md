@@ -3,7 +3,7 @@
 Generated: 2026-03-14 (from live Firestore audit)
 Source data: db-analysis-report.json
 
-## Executive Summary
+## Executive Summa
 
 1. Total users in the platform: 239
 2. Total model users (role = model): 211
