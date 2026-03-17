@@ -147,6 +147,29 @@ export async function sendPasswordResetEmail({ to, fullName, token }) {
   });
 }
 
+export async function sendEmailOtpEmail({ to, fullName, otp }) {
+  const name = fullName?.trim() || "there";
+  return send({
+    to,
+    subject: "Your verification code — Model Management",
+    text: [
+      `Hi ${name},`,
+      "",
+      "Use the following 6-digit code to verify your email address:",
+      "",
+      `  ${otp}`,
+      "",
+      "This code expires in 10 minutes.",
+      "",
+      "If you did not request this, you can safely ignore this email.",
+      "",
+      "———",
+      "Model Management",
+      "info@modelmanagement.mu",
+    ].join("\n"),
+  });
+}
+
 export async function sendNewUserNotification({ fullName, email, role }) {
   const roleLabel = role === "model" ? "Model" : role === "professional" ? "Professional" : "User";
   return send({

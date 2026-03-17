@@ -9,6 +9,7 @@ type AuthContextType = {
   adminLogin: (email: string, password: string) => Promise<void>;
   adminSignup: (email: string, password: string, fullName?: string) => Promise<void>;
   signup: (email: string, password: string, fullName?: string, phone?: string) => Promise<void>;
+  verifySignupOtp: (email: string, otp: string) => Promise<void>;
   logout: () => void;
   setUser: (u: User | null) => void;
   refreshUser: () => Promise<void>;
@@ -69,7 +70,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = useCallback(
     async (email: string, password: string, fullName?: string, phone?: string) => {
-      const { user: u, token: t } = await authApi.signup({ email, password, fullName, phone });
+      await authApi.signup({ email, password, fullName, phone });
+      // OTP sent — auth state is set after verifySignupOtp
+    },
+    []
+  );
+
+  const verifySignupOtp = useCallback(
+    async (email: string, otp: string) => {
+      const { user: u, token: t } = await authApi.verifySignupOtp({ email, otp });
       setAuthToken(t, u);
       setToken(t);
       setUserState(u);
@@ -112,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, adminLogin, adminSignup, signup, logout, setUser, refreshUser }}>
+    <AuthContext.Provider value={{ user, token, loading, login, adminLogin, adminSignup, signup, verifySignupOtp, logout, setUser, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
@@ -130,6 +139,7 @@ const defaultAuth: AuthContextType = {
   adminLogin: noopAsync,
   adminSignup: noopAsync,
   signup: noopAsync,
+  verifySignupOtp: noopAsync,
   logout: noop,
   setUser: noop,
   refreshUser: noopAsync,

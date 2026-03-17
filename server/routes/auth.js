@@ -10,7 +10,7 @@ import {
   forgotPasswordValidation,
   resetPasswordValidation,
 } from "../middleware/validate.js";
-import { sendPasswordResetEmail, sendNewUserNotification } from "../lib/email.js";
+import { sendPasswordResetEmail, sendNewUserNotification, sendEmailOtpEmail } from "../lib/email.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
@@ -27,24 +27,84 @@ function signToken(user) {
   );
 }
 
-// POST /api/auth/signup
+// POST /api/auth/signup — step 1: validate and send OTP (user not created until verified)
 router.post("/signup", signupValidation, async (req, res, next) => {
   try {
     const { email, password, fullName, phone } = req.body;
-    const existing = await User.findOne({ email: email.toLowerCase() });
-    if (existing) return res.status(400).json({ error: "Email already registered" });
+    const emailLower = email.toLowerCase();
 
-    const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
-    const user = await User.create({
-      email: email.toLowerCase(),
-      password,
-      fullName: fullName || "",
-      phone: phone || "",
-      role: "user",
-      status: "pending",
-      profileComplete: false,
-      isAdmin,
-    });
+    // Block if a verified account already exists
+    const existing = await User.findOne({ email: emailLower }).select("+emailOtpHash +emailOtpExpiresAt");
+    if (existing && existing.emailVerified !== false) {
+      return res.status(400).json({ error: "Email already registered" });
+    }
+
+    const rawOtp = String(Math.floor(100000 + Math.random() * 900000));
+    const otpHash = crypto.createHash("sha256").update(rawOtp).digest("hex");
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    if (existing) {
+      // Resend OTP for an unverified user — also update credentials in case they changed
+      existing.password = password;
+      existing.fullName = fullName || "";
+      existing.phone = phone || "";
+      existing.emailOtpHash = otpHash;
+      existing.emailOtpExpiresAt = otpExpiresAt;
+      await existing.save();
+    } else {
+      await User.create({
+        email: emailLower,
+        password,
+        fullName: fullName || "",
+        phone: phone || "",
+        role: "user",
+        status: "pending",
+        profileComplete: false,
+        isAdmin: false,
+        emailVerified: false,
+        emailOtpHash: otpHash,
+        emailOtpExpiresAt: otpExpiresAt,
+      });
+    }
+
+    await sendEmailOtpEmail({ to: emailLower, fullName: fullName || "", otp: rawOtp });
+    res.json({ ok: true });
+  } catch (e) {
+    e.statusCode = e.statusCode || 500;
+    next(e);
+  }
+});
+
+// POST /api/auth/signup/verify — step 2: verify OTP and complete registration
+router.post("/signup/verify", async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ error: "Email and verification code are required" });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase(), emailVerified: false })
+      .select("+emailOtpHash +emailOtpExpiresAt");
+
+    if (!user) {
+      return res.status(400).json({ error: "No pending verification found for this email" });
+    }
+
+    if (!user.emailOtpExpiresAt || user.emailOtpExpiresAt < new Date()) {
+      return res.status(400).json({ error: "Verification code has expired. Please request a new one." });
+    }
+
+    const otpHash = crypto.createHash("sha256").update(String(otp)).digest("hex");
+    if (otpHash !== user.emailOtpHash) {
+      return res.status(400).json({ error: "Invalid verification code" });
+    }
+
+    user.emailVerified = true;
+    user.emailOtpHash = "";
+    user.emailOtpExpiresAt = null;
+    if (ADMIN_EMAILS.includes(user.email)) user.isAdmin = true;
+    await user.save();
+
     const token = signToken(user);
     const u = await User.findById(user._id).select("-password");
     sendNewUserNotification({ fullName: u.fullName, email: u.email, role: u.role }).catch(() => {});
@@ -61,6 +121,12 @@ router.post("/login", loginValidation, async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
     if (!user) return res.status(401).json({ error: "Invalid email or password" });
+    if (user.emailVerified === false) {
+      return res.status(403).json({
+        error: "Please verify your email address before logging in.",
+        code: "EMAIL_NOT_VERIFIED",
+      });
+    }
     if (user.passwordResetRequired) {
       return res.status(403).json({
         error: "Password reset required",

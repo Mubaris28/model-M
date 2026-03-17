@@ -88,7 +88,9 @@ export async function api<T>(
 
 export const authApi = {
   signup: (body: { email: string; password: string; fullName?: string; phone?: string }) =>
-    api<{ user: User; token: string }>("/api/auth/signup", { method: "POST", body }),
+    api<{ ok: boolean }>("/api/auth/signup", { method: "POST", body }),
+  verifySignupOtp: (body: { email: string; otp: string }) =>
+    api<{ user: User; token: string }>("/api/auth/signup/verify", { method: "POST", body }),
   login: (body: { email: string; password: string }) =>
     api<{ user: User; token: string }>("/api/auth/login", { method: "POST", body }),
   forgotPassword: (body: { email: string }) =>
