@@ -153,7 +153,7 @@ const DashboardPostCastingPage = () => {
           <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
           <h1 className="font-display text-4xl mb-2">Casting Submitted!</h1>
           <p className="text-muted-foreground font-body text-sm mb-8">
-            Your casting call has been submitted for review. It will appear publicly once our team approves it — usually within 24 hours.
+            Your casting call has been submitted for review. It will appear publicly once our team approves it, usually within 24 hours.
           </p>
           <div className="flex gap-3 justify-center">
             <button
@@ -361,7 +361,7 @@ const DashboardPostCastingPage = () => {
               value={form.description}
               onChange={set("description")}
               className="form-input resize-none"
-              placeholder="Describe the casting — what you're looking for, experience required, pay, schedule, dress code, etc."
+              placeholder="Describe the casting: what you're looking for, experience required, pay, schedule, dress code, etc."
               maxLength={1000}
             />
             <p className="text-muted-foreground text-xs font-body mt-1">{form.description.length}/1000</p>

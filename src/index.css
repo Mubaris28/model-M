@@ -183,7 +183,7 @@
     margin-bottom: 1.5rem;
   }
 
-  /* Form fields — modern, functional */
+  /* Form fields: modern, functional */
   .form-input {
     @apply w-full rounded-md border border-input bg-background px-4 py-3 text-sm font-body transition-colors;
     @apply placeholder:text-muted-foreground/70;

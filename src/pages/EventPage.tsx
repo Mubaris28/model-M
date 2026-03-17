@@ -135,7 +135,7 @@ const EventPage = () => {
               <ul className="space-y-3">
                 {[
                   { icon: FileImage, title: "Your best photos", desc: "Professional or high-quality snapshots" },
-                  { icon: Smartphone, title: "Your digital photos", desc: "We want to see your digital portfolio—bring your device (phone or tablet) or a USB drive with your best digital photos so we can review your work on the spot." },
+                  { icon: Smartphone, title: "Your digital photos", desc: "We want to see your digital portfolio: bring your device (phone or tablet) or a USB drive with your best digital photos so we can review your work on the spot." },
                   { icon: IdCard, title: "Valid ID", desc: "Passport or national ID" },
                   { icon: Smile, title: "Confidence", desc: "And a big smile!" },
                 ].map(({ icon: Icon, title, desc }) => (

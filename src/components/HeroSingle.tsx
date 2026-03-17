@@ -69,7 +69,7 @@ export default function HeroSingle() {
             className="group relative block w-full aspect-[9/16] rounded-sm border-2 border-white/50 bg-black/60 overflow-hidden hover:border-white hover:bg-black/80 transition-all"
             aria-label="Watch Reels"
           >
-            {/* Looping mobile reels preview video — preload auto so local video plays fast */}
+            {/* Looping mobile reels preview video: preload auto so local video plays fast */}
             <video
               src={MOBILE_VIDEO}
               autoPlay
@@ -130,7 +130,7 @@ export default function HeroSingle() {
         </p>
       </div>
 
-      {/* Center bottom: Casting Event scroll cue — highlighted; smaller on mobile */}
+      {/* Center bottom: Casting Event scroll cue, highlighted; smaller on mobile */}
       <a
         href="#casting-event"
         className="absolute bottom-12 sm:bottom-16 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 sm:gap-3 font-body text-[10px] sm:text-sm md:text-base tracking-[0.2em] sm:tracking-[0.3em] uppercase transition-colors group/event"

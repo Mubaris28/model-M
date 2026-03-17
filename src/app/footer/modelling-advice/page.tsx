@@ -3,11 +3,11 @@ import Footer from "@/components/Footer";
 import { Link } from "@/lib/router-next";
 
 const adviceCards = [
-  { to: "/footer/modelling-advice/practical-tips", title: "Practical Tips for Models", desc: "Our best advice for aspiring models in Mauritius—from professionalism to self-care" },
+  { to: "/footer/modelling-advice/practical-tips", title: "Practical Tips for Models", desc: "Our best advice for aspiring models in Mauritius: from professionalism to self-care" },
   { to: "/footer/modelling-advice/best-shoots", title: "Tips for the Best Shoots", desc: "What every model should know before stepping in front of the camera" },
   { to: "/footer/modelling-advice/model-academies", title: "Model Academies & Training", desc: "Learn, grow, and gain confidence through professional training programs" },
   { to: "/footer/modelling-advice/modeling-workshops", title: "Modeling Workshops", desc: "Discover workshops that help you refine your skills and build confidence" },
-  { to: "/footer/modelling-advice/real-model", title: "How is a Real Model", desc: "What to expect from a real modeling journey—the dedication and rewards" },
+  { to: "/footer/modelling-advice/real-model", title: "How is a Real Model", desc: "What to expect from a real modeling journey: the dedication and rewards" },
   { to: "/footer/modelling-advice/aspiring-models", title: "Aspiring Models", desc: "Your first confident steps into the world of modeling" },
   { to: "/footer/modelling-advice/glossary", title: "Glossary of Modeling Terms", desc: "Learn the key modeling terms you'll hear every day in the industry" },
   { to: "/footer/modelling-advice/build-portfolio", title: "Build the Right Portfolio", desc: "Show your best self with a professional, authentic portfolio" },
@@ -24,7 +24,7 @@ export default function ModellingAdvicePage() {
           <h1 className="font-display text-6xl md:text-8xl line-accent">Modelling Advice</h1>
           <p className="font-body text-lg text-muted-foreground mt-4">Explore our expert modelling tips and guidance to help you succeed in your career</p>
           <p className="text-muted-foreground font-body text-sm mt-6 leading-relaxed">
-            Every model—whether just starting out or already established—needs guidance at some point. Our collection of advice articles is designed to help you save time, avoid common mistakes, and make confident decisions throughout your modelling journey in Mauritius and beyond.
+            Every model, whether just starting out or already established, needs guidance at some point. Our collection of advice articles is designed to help you save time, avoid common mistakes, and make confident decisions throughout your modelling journey in Mauritius and beyond.
           </p>
           <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
             {adviceCards.map((item) => (

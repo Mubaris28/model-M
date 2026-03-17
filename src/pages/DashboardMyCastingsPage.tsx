@@ -246,7 +246,7 @@ const DashboardMyCastingsPage = () => {
                         <p className="text-muted-foreground text-xs font-body mt-2 line-clamp-2">{c.description}</p>
                       )}
                       <p className="text-muted-foreground text-[10px] font-body mt-2">
-                        Posted {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}
+                        Posted {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ""}
                       </p>
                     </div>
 
@@ -310,7 +310,7 @@ const DashboardMyCastingsPage = () => {
                   )}
                   {c.approvalStatus === "pending" && (
                     <div className="mt-3 pt-3 border-t border-border text-xs text-yellow-700 font-body">
-                      Under review — will go live once approved by our team.
+                      Under review; will go live once approved by our team.
                     </div>
                   )}
                 </div>

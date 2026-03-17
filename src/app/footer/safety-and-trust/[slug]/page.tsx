@@ -51,7 +51,7 @@ function WhatYouShouldKnow() {
             <li>The model receives and signs the contract.</li>
             <li>Once both have signed, the professional receives a copy by email.</li>
           </ol>
-          <p className="mt-4 text-xs">Model agreements are available for all models applying to castings or booked directly on ModelManagement.mu. Models must be over 18 or have a legal guardian to sign. ModelManagement.mu only provides the platform — the contract is between the users.</p>
+          <p className="mt-4 text-xs">Model agreements are available for all models applying to castings or booked directly on ModelManagement.mu. Models must be over 18 or have a legal guardian to sign. ModelManagement.mu only provides the platform; the contract is between the users.</p>
         </div>
       </section>
 
@@ -93,7 +93,7 @@ function WhatYouShouldKnow() {
 
       <section>
         <h2 className="font-display text-2xl text-foreground mb-4">Professional Authentication</h2>
-        <p>Every professional or casting provider is manually verified by our team. We check their website or social media to confirm authenticity and ownership. If you have doubts about a member or an offer, contact <a href="mailto:info@modelmanagement.mu" className="text-primary hover:underline">info@modelmanagement.mu</a> — our team will recheck the account.</p>
+        <p>Every professional or casting provider is manually verified by our team. We check their website or social media to confirm authenticity and ownership. If you have doubts about a member or an offer, contact <a href="mailto:info@modelmanagement.mu" className="text-primary hover:underline">info@modelmanagement.mu</a>; our team will recheck the account.</p>
       </section>
     </div>
   );

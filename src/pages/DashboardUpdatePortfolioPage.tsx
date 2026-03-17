@@ -102,7 +102,7 @@ const DashboardUpdatePortfolioPage = () => {
               <>
                 <ImagePlus className="w-12 h-12 text-muted-foreground mx-auto mb-3" aria-hidden />
                 <p className="text-muted-foreground font-body text-sm">
-                  {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — tap to add more` : "Tap to upload — JPG, PNG, WebP. Min 4, max 6."}
+                  {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 - tap to add more` : "Tap to upload - JPG, PNG, WebP. Min 4, max 6."}
                 </p>
               </>
             )}

@@ -14,8 +14,8 @@ function toCard(m: PublicModel): ModelCard {
     name: m.username || "Model",
     image: photo,
     category: m.categories?.[0] || "Model",
-    location: [m.city, m.country].filter(Boolean).join(", ") || "—",
-    height: m.height || "—",
+    location: [m.city, m.country].filter(Boolean).join(", ") || "",
+    height: m.height || "",
   };
 }
 

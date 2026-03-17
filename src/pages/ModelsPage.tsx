@@ -40,8 +40,8 @@ function toCard(m: PublicModel): ModelCard {
     name: m.username || "Model",
     image: photo,
     category: m.categories?.[0] || "Model",
-    location: [m.city, m.country].filter(Boolean).join(", ") || "—",
-    height: m.height || "—",
+    location: [m.city, m.country].filter(Boolean).join(", ") || "",
+    height: m.height || "",
     dressSize: m.dressSize,
     gender: m.gender,
     country: m.country,
@@ -185,7 +185,7 @@ const ModelsPage = () => {
 
           {/* Filter panel */}
           <div className="mb-8 bg-card magazine-border p-4 space-y-4">
-            {/* Row 1 — Discipline */}
+            {/* Row 1: Discipline */}
             <div>
               <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-2">Discipline</span>
               <div className="tabs-slider -mx-1 px-1 md:mx-0 md:px-0 gap-1.5 md:flex-wrap">
@@ -198,7 +198,7 @@ const ModelsPage = () => {
               </div>
             </div>
 
-            {/* Row 2 — Category */}
+            {/* Row 2: Category */}
             <div>
               <span className="text-[10px] text-muted-foreground font-body tracking-[0.2em] uppercase block mb-2">Category</span>
               <div className="tabs-slider -mx-1 px-1 md:mx-0 md:px-0 gap-1.5 md:flex-wrap">
@@ -211,7 +211,7 @@ const ModelsPage = () => {
               </div>
             </div>
 
-            {/* Row 3 — Dropdown filters (custom UI) */}
+            {/* Row 3: Dropdown filters (custom UI) */}
             <div className="flex flex-wrap gap-3 items-end pt-1">
               <FilterSelect label="Gender" value={gender} onValueChange={(v) => { setGender(v); setShowCount(INITIAL_SHOW); }} options={GENDER_OPTIONS} minWidth="130px" />
               <FilterSelect label="Ethnicity" value={ethnicity} onValueChange={(v) => { setEthnicity(v); setShowCount(INITIAL_SHOW); }} options={ETHNICITY_OPTIONS} minWidth="150px" />

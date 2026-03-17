@@ -14,13 +14,13 @@ const DEFAULT_ADS: AdSlide[] = [
   {
     imageDesktop: "/images/ad/main-ADS-web.png",
     imageMobile: "/images/ad/main-ADS-mobile.png",
-    alt: "Model Management Indian Ocean — Advertise here",
+    alt: "Model Management Indian Ocean Advertise here",
   },
   {
     href: "https://bodyography.com",
     imageDesktop: "/images/ad/Bodyography-Web-ADS.png",
     imageMobile: "/images/ad/Bodyography-Mobile-ADS.png",
-    alt: "Bodyography Professional Cosmetics — 30% off for ModelManagement.mu members",
+    alt: "Bodyography Professional Cosmetics 30% off for ModelManagement.mu members",
   },
 ];
 

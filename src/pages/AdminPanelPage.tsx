@@ -934,7 +934,7 @@ const AdminPanelPage = () => {
                                 </div>
                               )}
                               <div>
-                                <span className="font-medium text-sm">{u.fullName || "—"}</span>
+                                <span className="font-medium text-sm">{u.fullName || ""}</span>
                                 <span className="text-muted-foreground text-xs block">ID: {u._id.slice(-6)}</span>
                               </div>
                             </div>
@@ -945,14 +945,14 @@ const AdminPanelPage = () => {
                               u.role === "model" ? "bg-primary/10 text-primary" : "bg-secondary text-secondary-foreground"
                             }`}>
                               {u.role === "model" ? <Camera className="w-3 h-3" /> : <Building2 className="w-3 h-3" />}
-                              {u.role || "—"}
+                              {u.role || ""}
                             </span>
                           </td>
                           <td className="p-3">
                             <span className="px-2 py-0.5 text-xs bg-secondary">{u.status || "pending"}</span>
                           </td>
                           <td className="p-3 text-muted-foreground">
-                            {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}
+                            {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : ""}
                           </td>
                           <td className="p-3 flex flex-wrap gap-1">
                             {(u.status === "pending" || u.status === "updated") && (
@@ -1040,9 +1040,9 @@ const AdminPanelPage = () => {
                         <tr key={c._id} className="border-t border-border hover:bg-secondary/30">
                           <td className="p-3">
                             <span className="font-medium text-foreground">{c.title}</span>
-                            <span className="text-muted-foreground text-xs block">{c.location || "—"}</span>
+                            <span className="text-muted-foreground text-xs block">{c.location || ""}</span>
                           </td>
-                          <td className="p-3 text-muted-foreground">{c.brand || "—"}</td>
+                          <td className="p-3 text-muted-foreground">{c.brand || ""}</td>
                           <td className="p-3">
                             {c.creatorId ? (
                               <div className="flex items-center gap-2">
@@ -1058,14 +1058,14 @@ const AdminPanelPage = () => {
                                   </div>
                                 )}
                                 <span className="text-xs text-muted-foreground">
-                                  {(c.creatorId as unknown as User).fullName || (c.creatorId as unknown as User).email || "—"}
+                                  {(c.creatorId as unknown as User).fullName || (c.creatorId as unknown as User).email || ""}
                                 </span>
                               </div>
                             ) : (
-                              <span className="text-muted-foreground text-xs">—</span>
+                              <span className="text-muted-foreground text-xs"></span>
                             )}
                           </td>
-                          <td className="p-3 text-muted-foreground text-xs">{c.castingType || "—"}</td>
+                          <td className="p-3 text-muted-foreground text-xs">{c.castingType || ""}</td>
                           <td className="p-3">
                             <span className={`px-2 py-0.5 text-xs font-medium uppercase tracking-wider ${
                               c.approvalStatus === "approved" ? "bg-green-100 text-green-700" :
@@ -1076,7 +1076,7 @@ const AdminPanelPage = () => {
                             </span>
                           </td>
                           <td className="p-3 text-muted-foreground text-xs">
-                            {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}
+                            {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ""}
                           </td>
                           <td className="p-3 flex gap-1.5 flex-wrap">
                             <button
@@ -1131,7 +1131,7 @@ const AdminPanelPage = () => {
           {activeTab === "marketplace" && (
             <>
               <h2 className="font-display text-xl text-foreground mb-4">Marketplace Offers</h2>
-              <p className="text-muted-foreground font-body">Marketplace offers — approve/reject from this tab when connected.</p>
+              <p className="text-muted-foreground font-body">Marketplace offers: approve/reject from this tab when connected.</p>
             </>
           )}
 
@@ -1187,7 +1187,7 @@ const AdminPanelPage = () => {
                             <span className="text-muted-foreground text-xs font-body">&lt;{c.email}&gt;</span>
                           </div>
                           <span className="text-muted-foreground text-xs font-body">
-                            {c.createdAt ? new Date(c.createdAt).toLocaleString() : "—"}
+                            {c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}
                           </span>
                         </div>
                         <pre className="text-muted-foreground text-xs font-body whitespace-pre-wrap leading-relaxed bg-secondary/50 px-3 py-2 max-h-40 overflow-y-auto">
@@ -1415,7 +1415,7 @@ const AdminPanelPage = () => {
                             <div>
                               <p className="text-sm font-body font-medium text-foreground">{item.subject}</p>
                               <p className="text-xs text-muted-foreground font-body">
-                                {item.createdAt ? new Date(item.createdAt).toLocaleString() : "—"}
+                                {item.createdAt ? new Date(item.createdAt).toLocaleString() : ""}
                                 {item.createdBy?.email ? ` · by ${item.createdBy.fullName || item.createdBy.email}` : ""}
                               </p>
                             </div>
@@ -1562,7 +1562,7 @@ const AdminPanelPage = () => {
                             )}
                             <div className="min-w-0 flex-1">
                               <p className="text-sm font-body truncate text-foreground">{c.title}</p>
-                              <p className="text-xs text-muted-foreground truncate">{c.brand || "—"}</p>
+                              <p className="text-xs text-muted-foreground truncate">{c.brand || ""}</p>
                               <button
                                 type="button"
                                 onClick={() => removeCastingFromTrending(c._id)}
@@ -1603,7 +1603,7 @@ const AdminPanelPage = () => {
             <>
               <h2 className="font-display text-xl text-foreground mb-2">Categories section</h2>
               <p className="text-muted-foreground text-sm font-body mb-6">
-                <strong>Main cards</strong> are the category cards on the homepage. Add, remove, or reorder them below and edit name/description. <strong>Sub cards</strong> are the models shown on each category page—assign models per category; the first model&apos;s photo is the category card image.
+                <strong>Main cards</strong> are the category cards on the homepage. Add, remove, or reorder them below and edit name/description. <strong>Sub cards</strong> are the models shown on each category page: assign models per category; the first model&apos;s photo is the category card image.
               </p>
               {categoriesLoading ? (
                 <p className="text-muted-foreground font-body">Loading...</p>
@@ -1707,7 +1707,7 @@ const AdminPanelPage = () => {
                     </div>
                   )}
 
-                  {/* Sub cards: models per category — first model = category card image on homepage */}
+                  {/* Sub cards: models per category; first model = category card image on homepage */}
                   <h3 className="font-display text-lg text-primary">Sub cards (models per category)</h3>
                   <p className="text-muted-foreground text-sm font-body mb-4">The <strong>first model</strong> in each list is used as that category&apos;s card image on the homepage. Use the arrows to reorder, then Save.</p>
                   {mainCategoriesLocal.map((cat) => {
@@ -1910,7 +1910,7 @@ const AdminPanelPage = () => {
               {actionModal.action === "reject" ? "Reject application" : "Request changes"}
             </h3>
             <p className="text-muted-foreground text-sm font-body mb-4">
-              {actionModal.user.fullName || actionModal.user.email} — add a reason (user will see this):
+              {actionModal.user.fullName || actionModal.user.email}: add a reason (user will see this):
             </p>
             <textarea
               value={rejectionReason}
@@ -2026,31 +2026,31 @@ const AdminPanelPage = () => {
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm font-body">
                 <div>
                   <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Brand</dt>
-                  <dd className="text-foreground">{selectedCasting.brand || "—"}</dd>
+                  <dd className="text-foreground">{selectedCasting.brand || ""}</dd>
                 </div>
                 <div>
                   <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Type</dt>
-                  <dd className="text-foreground">{selectedCasting.castingType || "—"}</dd>
+                  <dd className="text-foreground">{selectedCasting.castingType || ""}</dd>
                 </div>
                 <div>
                   <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" />Location</dt>
-                  <dd className="text-foreground">{selectedCasting.location || "—"}</dd>
+                  <dd className="text-foreground">{selectedCasting.location || ""}</dd>
                 </div>
                 <div>
                   <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5 flex items-center gap-1"><Calendar className="w-3 h-3" />Casting Date</dt>
-                  <dd className="text-foreground">{selectedCasting.date ? new Date(selectedCasting.date).toLocaleDateString() : "—"}</dd>
+                  <dd className="text-foreground">{selectedCasting.date ? new Date(selectedCasting.date).toLocaleDateString() : ""}</dd>
                 </div>
                 <div>
                   <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5 flex items-center gap-1"><Banknote className="w-3 h-3" />Price</dt>
-                  <dd className="text-foreground">{selectedCasting.price || "—"}</dd>
+                  <dd className="text-foreground">{selectedCasting.price || ""}</dd>
                 </div>
                 <div>
                   <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5 flex items-center gap-1"><Clock className="w-3 h-3" />Application Deadline</dt>
-                  <dd className="text-foreground">{selectedCasting.applicationDeadline ? new Date(selectedCasting.applicationDeadline).toLocaleDateString() : "—"}</dd>
+                  <dd className="text-foreground">{selectedCasting.applicationDeadline ? new Date(selectedCasting.applicationDeadline).toLocaleDateString() : ""}</dd>
                 </div>
                 <div>
                   <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Positions</dt>
-                  <dd className="text-foreground">{selectedCasting.slots ?? "—"}</dd>
+                  <dd className="text-foreground">{selectedCasting.slots ?? ""}</dd>
                 </div>
                 <div>
                   <dt className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Status</dt>
@@ -2394,7 +2394,7 @@ const AdminPanelPage = () => {
                         )}
                         <div className="min-w-0 flex-1">
                           <span className="text-sm font-body text-foreground block truncate">{c.title}</span>
-                          <span className="text-xs text-muted-foreground block truncate">{c.brand || "—"}</span>
+                          <span className="text-xs text-muted-foreground block truncate">{c.brand || ""}</span>
                         </div>
                       </button>
                     </li>
@@ -2518,10 +2518,10 @@ const AdminPanelPage = () => {
                       No photo
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-display text-lg text-foreground">{viewUser.fullName || "—"}</p>
+                      <p className="font-display text-lg text-foreground">{viewUser.fullName || ""}</p>
                       <p className="text-muted-foreground text-sm font-body">{viewUser.email}</p>
-                      <p className="text-sm font-body">Role: {viewUser.role || "—"} · Status: {viewUser.status || "—"}</p>
-                      <p className="text-muted-foreground text-xs font-body">Joined: {viewUser.createdAt ? new Date(viewUser.createdAt).toLocaleString() : "—"}</p>
+                      <p className="text-sm font-body">Role: {viewUser.role || ""} · Status: {viewUser.status || ""}</p>
+                      <p className="text-muted-foreground text-xs font-body">Joined: {viewUser.createdAt ? new Date(viewUser.createdAt).toLocaleString() : ""}</p>
                       {viewUser.phone && <p className="text-sm font-body">Phone: {viewUser.phone}</p>}
                       {viewUser.company && <p className="text-sm font-body">Company: {viewUser.company}</p>}
                       {viewUser.rejectionReason && (

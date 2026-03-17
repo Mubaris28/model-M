@@ -143,7 +143,7 @@ const DashboardBookingsPage = () => {
                     )}
 
                     <p className="text-[11px] font-body text-muted-foreground mt-2">
-                      Booked on {b.createdAt ? new Date(b.createdAt).toLocaleDateString() : "—"}
+                      Booked on {b.createdAt ? new Date(b.createdAt).toLocaleDateString() : ""}
                     </p>
                   </div>
                 );

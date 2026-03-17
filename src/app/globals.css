@@ -86,7 +86,7 @@
   }
 
   p {
-    font-size: 1.0625rem;   /* 17px — slightly larger than default 16px */
+    font-size: 1.0625rem;   /* 17px, slightly larger than default 16px */
     line-height: 1.6;
   }
 
@@ -236,7 +236,7 @@
     @apply rounded-xl border border-border bg-card p-6 md:p-8 shadow-sm;
   }
 
-  /* Filter dropdowns — custom UI (Models, Casting, Marketplace, etc.) */
+  /* Filter dropdowns: custom UI (Models, Casting, Marketplace, etc.) */
   .filter-select-trigger {
     @apply h-9 min-w-[7rem] rounded-md border border-border bg-background px-3 py-2 text-xs font-body text-foreground text-left;
     @apply transition-[border-color,box-shadow] duration-150;

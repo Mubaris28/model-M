@@ -12,7 +12,7 @@ export default function PrivacyPolicyPage() {
             <p>This privacy policy applies to the website <strong className="text-foreground">MODELMANAGEMENT.MU</strong></p>
             <section>
               <h2 className="font-display text-xl text-foreground mb-2">How do we process the information you give us?</h2>
-              <p>When you join the MODELMANAGEMENT.MU website, we want you to be informed and confident about how we process your information. We collect them in order to enhance your experience, helping you get the most out of your membership and to connect and collaborate with other professionals in a business-to-business environment. Do not worry—your data is always treated with care and respect and we never share it with third parties.</p>
+              <p>When you join the MODELMANAGEMENT.MU website, we want you to be informed and confident about how we process your information. We collect them in order to enhance your experience, helping you get the most out of your membership and to connect and collaborate with other professionals in a business-to-business environment. Do not worry: your data is always treated with care and respect and we never share it with third parties.</p>
             </section>
             <section>
               <h2 className="font-display text-xl text-foreground mb-2">What data do we collect? (Applicable only for Models)</h2>
@@ -48,7 +48,7 @@ export default function PrivacyPolicyPage() {
             </section>
             <section>
               <h2 className="font-display text-xl text-foreground mb-2">How to manage your personal data?</h2>
-              <p>Data is used to give you and other users the best experience. You have the right to edit or erase certain information (may make the site less useful). You have the right to have your account and information erased—contact info@modelmanagement.mu. Email preferences can be changed in Edit my profile; certain important emails may still be sent. You can request to see details of personal information we hold—contact info@modelmanagement.mu; proof of identity may be required; we may charge a fee; requests take up to 30 days.</p>
+              <p>Data is used to give you and other users the best experience. You have the right to edit or erase certain information (may make the site less useful). You have the right to have your account and information erased: contact info@modelmanagement.mu. Email preferences can be changed in Edit my profile; certain important emails may still be sent. You can request to see details of personal information we hold: contact info@modelmanagement.mu; proof of identity may be required; we may charge a fee; requests take up to 30 days.</p>
             </section>
             <section>
               <h2 className="font-display text-xl text-foreground mb-2">How Do We Update This Privacy Policy?</h2>

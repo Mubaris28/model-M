@@ -44,16 +44,16 @@ const caseStudiesData: Record<string, CaseStudy> = {
     title: "Why We Created Modelmanagement in Mauritius",
     subtitle: "Bridging the gap between local talent and global opportunities",
     challenge:
-      "The modelling world has evolved faster than ever before. Around the globe, digital platforms and social media have transformed the way models are discovered and hired. Today, opportunities no longer depend only on physical agencies or location—talented individuals can build successful careers from anywhere in the world. However, in Mauritius, this global momentum has yet to be fully embraced. Despite the island's growing creative energy, talented people often lack the visibility, guidance, and structure needed to reach international standards.",
+      "The modelling world has evolved faster than ever before. Around the globe, digital platforms and social media have transformed the way models are discovered and hired. Today, opportunities no longer depend only on physical agencies or location: talented individuals can build successful careers from anywhere in the world. However, in Mauritius, this global momentum has yet to be fully embraced. Despite the island's growing creative energy, talented people often lack the visibility, guidance, and structure needed to reach international standards.",
     stats: [
       { value: "Global", label: "Reach" },
       { value: "Local", label: "Talent" },
       { value: "Rising", label: "Hub" },
     ],
     solution:
-      "That is where Modelmanagement.mu was born—out of a vision to bridge this gap. We saw that Mauritius is full of potential: diverse faces, unique stories, and ambitious individuals ready to shine. What was missing was a platform to connect them to real opportunities, protect their rights, and empower them to grow professionally. Modelmanagement.mu was created to give local talent the same tools and exposure enjoyed by models in larger markets.",
+      "That is where Modelmanagement.mu was born: out of a vision to bridge this gap. We saw that Mauritius is full of potential: diverse faces, unique stories, and ambitious individuals ready to shine. What was missing was a platform to connect them to real opportunities, protect their rights, and empower them to grow professionally. Modelmanagement.mu was created to give local talent the same tools and exposure enjoyed by models in larger markets.",
     impact:
-      "We aim to position Mauritius as a rising hub in the modelling and creative industries—a place where passion meets professionalism. By embracing diversity, technology, and ethical practices, we're not just building a platform; we're building a movement that puts Mauritian talent on the global stage.",
+      "We aim to position Mauritius as a rising hub in the modelling and creative industries: a place where passion meets professionalism. By embracing diversity, technology, and ethical practices, we're not just building a platform; we're building a movement that puts Mauritian talent on the global stage.",
     ctaTitle: "Ready to put Mauritian talent on the global stage?",
     ctaText: "Join Modelmanagement.mu and be part of the movement",
     ctaButton: "Join Now",
@@ -64,16 +64,16 @@ const caseStudiesData: Record<string, CaseStudy> = {
     title: "All Faces. All Backgrounds. One Platform.",
     subtitle: "Where Passion Matters More Than Perfection",
     challenge:
-      "The modelling industry has long been seen as glamorous—full of lights, cameras, and international fame. But behind the spotlight lies a reality many aspiring models know too well: uncertainty, competition, and pressure to fit into narrow beauty standards. Many talented individuals are overlooked simply because they don't fit a \"typical\" mold—whether it's due to their skin color, body shape, or cultural background. Others face unstable income, lack of professional guidance, or fear of exploitation in an industry that often values looks over integrity.",
+      "The modelling industry has long been seen as glamorous: full of lights, cameras, and international fame. But behind the spotlight lies a reality many aspiring models know too well: uncertainty, competition, and pressure to fit into narrow beauty standards. Many talented individuals are overlooked simply because they don't fit a \"typical\" mold; whether it's due to their skin color, body shape, or cultural background. Others face unstable income, lack of professional guidance, or fear of exploitation in an industry that often values looks over integrity.",
     stats: [
       { value: "All", label: "Faces Welcome" },
       { value: "Passion", label: "Over Perfection" },
       { value: "Fair", label: "Opportunities" },
     ],
     solution:
-      "At Modelmanagement.mu, we believe it's time to redefine what it means to be a model. Our mission is to create a platform where talent, motivation, and professionalism matter more than perfection. Whether you're tall or petite, dark-skinned or fair, curvy or slim—if you are passionate, hardworking, and ready to grow, we are here to help you build your career. Our system is designed to make modelling accessible, transparent, and fair. Through verified professional listings and secure smart contracts, models can collaborate confidently with brands, photographers, and agencies. Every partnership is protected—ensuring fair pay, clear agreements, and mutual respect. We also help models develop professional portfolios, improve their visibility through digital tools, and gain access to training resources that enhance their confidence and skills.",
+      "At Modelmanagement.mu, we believe it's time to redefine what it means to be a model. Our mission is to create a platform where talent, motivation, and professionalism matter more than perfection. Whether you're tall or petite, dark-skinned or fair, curvy or slim: if you are passionate, hardworking, and ready to grow, we are here to help you build your career. Our system is designed to make modelling accessible, transparent, and fair. Through verified professional listings and secure smart contracts, models can collaborate confidently with brands, photographers, and agencies. Every partnership is protected, ensuring fair pay, clear agreements, and mutual respect. We also help models develop professional portfolios, improve their visibility through digital tools, and gain access to training resources that enhance their confidence and skills.",
     impact:
-      "But Modelmanagement.mu is more than a platform—it's a community. We celebrate individuality and diversity, giving every model a chance to shine in their own unique way. Our approach is to guide, not gatekeep; to empower, not exploit. By combining technology, mentorship, and inclusive values, we're helping models transform challenges into opportunities. In a world where trends change daily, true impact comes from authenticity. At Modelmanagement.mu, we're building the next generation of models—confident, diverse, and fearless—ready to represent the beauty of real people everywhere.",
+      "But Modelmanagement.mu is more than a platform: it's a community. We celebrate individuality and diversity, giving every model a chance to shine in their own unique way. Our approach is to guide, not gatekeep; to empower, not exploit. By combining technology, mentorship, and inclusive values, we're helping models transform challenges into opportunities. In a world where trends change daily, true impact comes from authenticity. At Modelmanagement.mu, we're building the next generation of models: confident, diverse, and fearless, ready to represent the beauty of real people everywhere.",
     ctaTitle: "Ready to showcase your unique talent?",
     ctaText: "Join a platform where passion matters more than perfection",
     ctaButton: "Join Now",

@@ -58,7 +58,7 @@ export default function ModelsTalentsPage() {
           <div className="mb-12">
             <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-3">Why Join</p>
             <h2 className="font-display text-5xl md:text-6xl line-accent">Where Professionals<br />Find Tomorrow&apos;s Top Models</h2>
-            <p className="text-muted-foreground font-body text-sm mt-4 max-w-lg">Casting calls made for everyone — from first shoots to world-class campaigns.</p>
+            <p className="text-muted-foreground font-body text-sm mt-4 max-w-lg">Casting calls made for everyone, from first shoots to world-class campaigns.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">

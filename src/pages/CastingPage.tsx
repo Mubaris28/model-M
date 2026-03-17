@@ -31,13 +31,13 @@ type CastingRow = {
 function toCastingRow(c: PublicCasting): CastingRow {
   const dateStr = c.date
     ? new Date(c.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-    : "—";
+    : "";
   return {
     id: c._id,
     title: c.title,
-    brand: c.brand || "—",
+    brand: c.brand || "",
     date: dateStr,
-    location: c.location || "—",
+    location: c.location || "",
     slots: c.slots ?? 0,
     description: c.description || "",
     image: c.imageUrls?.[0] || "",
@@ -75,7 +75,7 @@ const CastingPage = () => {
   }, []);
 
   const locations = useMemo(
-    () => Array.from(new Set(castings.map((c) => c.location).filter((l) => l && l !== "—"))).sort(),
+    () => Array.from(new Set(castings.map((c) => c.location).filter((l) => l && l !== ""))).sort(),
     [castings]
   );
 
@@ -167,7 +167,7 @@ const CastingPage = () => {
             )}
           </div>
 
-          {/* Casting cards — natural heights, no border or content bg */}
+          {/* Casting cards: natural heights, no border or content bg */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 items-start">
             {filtered.map((casting, i) => (
               <motion.div
@@ -180,7 +180,7 @@ const CastingPage = () => {
                   to={`/casting/${casting.id}`}
                   className="group flex flex-col overflow-hidden transition-opacity hover:opacity-95"
                 >
-                  {/* Image — natural size, different height per card ok */}
+                  {/* Image: natural size, different height per card ok */}
                   {casting.image ? (
                     <div className="w-full overflow-hidden bg-muted relative">
                       <img
@@ -214,7 +214,7 @@ const CastingPage = () => {
                     </div>
                   )}
 
-                  {/* Content — no border, no card bg; blends with page */}
+                  {/* Content: no border, no card bg; blends with page */}
                   <div className="flex flex-col pt-4 pb-1 gap-3">
                     <div>
                       <p className="text-primary text-[11px] font-body tracking-[0.25em] uppercase mb-1">{casting.brand}</p>

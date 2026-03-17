@@ -55,9 +55,9 @@ const CastingDetailPage = () => {
           setCasting({
             id: found._id,
             title: found.title,
-            brand: found.brand || "—",
-            date: found.date ? new Date(found.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "—",
-            location: found.location || "—",
+            brand: found.brand || "",
+            date: found.date ? new Date(found.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "",
+            location: found.location || "",
             slots: found.slots ?? 0,
             description: found.description || "",
             images: found.imageUrls || [],
@@ -120,7 +120,7 @@ const CastingDetailPage = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Text-only heading — no image */}
+      {/* Text-only heading, no image */}
       <div className="pt-24 pb-6 bg-background border-b border-border">
         <div className="container mx-auto px-4 md:px-6 max-w-3xl">
           <BackButton label="Castings" className="mb-4 text-xs tracking-[0.2em] uppercase" />
@@ -139,7 +139,7 @@ const CastingDetailPage = () => {
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground leading-tight mb-1">
             {casting.title}
           </h1>
-          {casting.brand && casting.brand !== "—" && (
+          {casting.brand && casting.brand && (
             <p className="text-primary font-body text-xs tracking-[0.25em] uppercase mt-2">{casting.brand}</p>
           )}
         </div>

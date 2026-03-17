@@ -249,7 +249,7 @@ const DashboardPage = () => {
                               {c.title}
                             </p>
                             <p className="text-muted-foreground text-xs font-body">
-                              {c.brand || "—"} · {c.location || "—"}
+                              {c.brand || ""} · {c.location || ""}
                             </p>
                           </div>
                           <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary flex-shrink-0" />

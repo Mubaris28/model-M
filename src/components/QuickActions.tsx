@@ -2,15 +2,17 @@ import { Sparkles, Star, Camera, Palette, Shirt, Brush, Link2, Rocket, ArrowRigh
 import { Link } from "@/lib/router-next";
 import { motion } from "framer-motion";
 
+const PATH_IMAGES = "/images/Find%20-your-Path";
+
 const actions = [
-  { icon: Sparkles, label: "I'm New to the Spotlight", link: "/discover-path/im-new-to-the-spotlight", description: "Start your modeling journey", image: "/images/how_it_works/1.webp" },
-  { icon: Star, label: "I'm a Full-Time Model", link: "/discover-path/im-a-full-time-model", description: "Explore opportunities", image: "/images/how_it_works/2.webp" },
-  { icon: Palette, label: "I'm an Influencer with a passion for creating", link: "/discover-path/im-an-influencer-with-a-passion-for-creating", description: "Content creation & influence", image: "/images/how_it_works/2.1.webp" },
-  { icon: Camera, label: "I'm a Creative Photographer", link: "/discover-path/im-a-creative-photographer", description: "Connect with talent", image: "/images/how_it_works/2.2.webp" },
-  { icon: Shirt, label: "I'm a Stylist", link: "/discover-path/im-a-stylist", description: "Fashion & styling", image: "/images/how_it_works/2.3.webp" },
-  { icon: Brush, label: "I'm a Talent Artist", link: "/discover-path/im-a-talent-artist", description: "Creative collaborations", image: "/images/how_it_works/2.4.webp" },
-  { icon: Link2, label: "Connect Now", link: "/discover-path/were-more-than-a-brand", description: "We're more than a brand", image: "/images/how_it_works/3.webp" },
-  { icon: Rocket, label: "Get Started", link: "/discover-path/we-are-your-go-to-agency", description: "We are your go-to agency", image: "/images/how_it_works/4.webp" },
+  { icon: Sparkles, label: "I'm New to the Spotlight", link: "/discover-path/im-new-to-the-spotlight", description: "Start your modeling journey", image: `${PATH_IMAGES}/new-to-spot-light.webp` },
+  { icon: Star, label: "I'm a Full-Time Model", link: "/discover-path/im-a-full-time-model", description: "Explore opportunities", image: `${PATH_IMAGES}/portrait-d-une-belle-fille-tenant-un-rouge-a-levres-sur-fond-blanc.jpg` },
+  { icon: Palette, label: "I'm an Influencer with a passion for creating", link: "/discover-path/im-an-influencer-with-a-passion-for-creating", description: "Content creation & influence", image: `${PATH_IMAGES}/INFLUENCER_PICTURE_shuffle.jpg` },
+  { icon: Camera, label: "I'm a Creative Photographer", link: "/discover-path/im-a-creative-photographer", description: "Connect with talent", image: `${PATH_IMAGES}/photographer_picture_banner_inside.jpg` },
+  { icon: Shirt, label: "I'm a Stylist", link: "/discover-path/im-a-stylist", description: "Fashion & styling", image: `${PATH_IMAGES}/5._stylist_shuffle_2.jpg` },
+  { icon: Brush, label: "I'm a Talent Artist", link: "/discover-path/im-a-talent-artist", description: "Creative collaborations", image: `${PATH_IMAGES}/6._ARTIST_INSIDE_BANNER.jpg` },
+  { icon: Link2, label: "Connect Now", link: "/discover-path/were-more-than-a-brand", description: "We're more than a brand", image: `${PATH_IMAGES}/connect-now.jpg` },
+  { icon: Rocket, label: "Get Started", link: "/discover-path/we-are-your-go-to-agency", description: "We are your go-to agency", image: `${PATH_IMAGES}/8._AGENCY_shuffle.jpg` },
 ];
 
 const QuickActions = () => {

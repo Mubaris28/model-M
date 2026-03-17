@@ -13,13 +13,13 @@ const CASTING_CARD_IMAGE_HEIGHT = 383; // 16:9
 type CastingCard = { id: string; title: string; brand: string; date: string; location: string; slots: number; categories: string[]; imageUrl: string; urgent?: boolean };
 
 function toCastingCard(c: PublicCasting): CastingCard {
-  const dateStr = c.date ? new Date(c.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+  const dateStr = c.date ? new Date(c.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
   return {
     id: c._id,
     title: c.title,
-    brand: c.brand || "—",
+    brand: c.brand || "",
     date: dateStr,
-    location: c.location || "—",
+    location: c.location || "",
     slots: c.slots ?? 0,
     categories: c.castingType ? [c.castingType] : [],
     imageUrl: c.imageUrls?.[0] || "",
@@ -107,7 +107,7 @@ const TrendingCastings = () => {
                   />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/25 to-primary/5 flex items-center justify-center">
-                    <span className="font-display text-5xl text-primary/40 uppercase truncate px-4">{casting.brand !== "—" ? casting.brand : casting.title.charAt(0)}</span>
+                    <span className="font-display text-5xl text-primary/40 uppercase truncate px-4">{casting.brand ? casting.brand : casting.title.charAt(0)}</span>
                   </div>
                 )}
                 {/* Gradient overlay so content is readable */}

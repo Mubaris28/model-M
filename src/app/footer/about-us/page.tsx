@@ -12,7 +12,7 @@ export default function FooterAboutUsPage() {
           <p className="font-body text-lg text-muted-foreground mt-4">Transforming the Modeling Industry</p>
           <div className="mt-12 space-y-8">
             <p className="text-muted-foreground font-body text-sm leading-relaxed">
-              Model Management Mauritius is an innovative online platform dedicated to revolutionizing the way models and talents connect with clients across the globe. Founded by Basant Lallah, Managing Director of Flash Communications Ltd., our platform streamlines the process of sourcing diverse talent for a wide range of projects.
+              Model Management Mauritius is an innovative online platform dedicated to revolutionizing the way models and talents connect with client across the Indian Ocean. Founded by Basant Lallah, Managing Director of Flash Communications Ltd., our platform streamlines the process of sourcing diverse talent for a wide range of projects.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-card magazine-border p-8">

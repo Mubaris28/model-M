@@ -74,7 +74,7 @@ function ModelApplications() {
               </span>
             </div>
             <p className="text-muted-foreground text-[11px] font-body mt-3">
-              Applied {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : "—"}
+              Applied {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : ""}
             </p>
           </div>
         );
@@ -212,7 +212,7 @@ const DashboardCastingAppPage = () => {
           </h1>
           <p className="text-muted-foreground font-body text-sm mb-8">
             {isProfessional
-              ? "Models suggested by the admin for your castings — confirm bookings here"
+              ? "Models suggested by the admin for your castings; confirm bookings here"
               : "Track your casting applications and their status"}
           </p>
           {isProfessional ? <ProfessionalSuggestedModels /> : <ModelApplications />}

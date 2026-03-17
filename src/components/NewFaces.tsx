@@ -23,7 +23,7 @@ function toFaceCard(m: PublicModel): FaceCard {
     image: photo,
     age: age || 20,
     location: m.city || "",
-    country: m.country || "—",
+    country: m.country || "",
   };
 }
 
@@ -77,7 +77,7 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
   }, []);
 
   const countries = useMemo(
-    () => ["All", ...Array.from(new Set(faces.map((f) => f.country).filter((c) => c && c !== "—"))).sort()],
+    () => ["All", ...Array.from(new Set(faces.map((f) => f.country).filter((c) => c && c !== ""))).sort()],
     [faces]
   );
   const filtered = activeCountry === "All" ? faces : faces.filter((m) => m.country === activeCountry);
@@ -105,7 +105,7 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
           </Link>
         </div>
 
-        {/* Country tabs — horizontal scroll on mobile (derived from API data) */}
+        {/* Country tabs - horizontal scroll on mobile (derived from API data) */}
         <div className="tabs-slider -mx-4 px-4 md:mx-0 md:px-0 gap-2 mb-8">
           {countries.length > 0 && countries.map((country) => (
             <button
@@ -148,7 +148,7 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
                 </div>
                 <h3 className="font-display text-xl text-foreground group-hover:text-primary transition-colors">{model.name}</h3>
                 <p className="text-muted-foreground text-xs font-body tracking-wider mt-1">
-                  {model.age ? `${model.age} yrs • ` : ""}{model.location}{model.country && model.country !== "—" ? `, ${model.country}` : ""}
+                  {model.age ? `${model.age} yrs • ` : ""}{model.location}{model.country && model.country ? `, ${model.country}` : ""}
                 </p>
               </Link>
             </motion.div>

@@ -8,7 +8,7 @@ const AdBanner = ({ variant = "horizontal" }: { variant?: "horizontal" | "cosmet
         <a href="https://bodyography.com" target="_blank" rel="noopener noreferrer" className="block md:hidden">
           <img
             src="/images/ad/Bodyography-Mobile-ADS.png"
-            alt="Bodyography Professional Cosmetics — exclusive offer for ModelManagement.mu members"
+            alt="Bodyography Professional Cosmetics exclusive offer for ModelManagement.mu members"
             className="w-full h-auto object-contain block"
           />
         </a>
@@ -16,7 +16,7 @@ const AdBanner = ({ variant = "horizontal" }: { variant?: "horizontal" | "cosmet
         <a href="https://bodyography.com" target="_blank" rel="noopener noreferrer" className="hidden md:block">
           <img
             src="/images/ad/Bodyography-Web-ADS.png"
-            alt="Bodyography Professional Cosmetics — exclusive offer for ModelManagement.mu members"
+            alt="Bodyography Professional Cosmetics exclusive offer for ModelManagement.mu members"
             className="w-full h-auto object-contain"
           />
         </a>
@@ -24,7 +24,7 @@ const AdBanner = ({ variant = "horizontal" }: { variant?: "horizontal" | "cosmet
     );
   }
 
-  // Horizontal editorial ad banner — red bg, high-contrast white content
+  // Horizontal editorial ad banner: red bg, high-contrast white content
   return (
     <div className="relative overflow-hidden bg-primary">
       <div className="absolute inset-y-0 left-0 w-1.5 bg-white/50" aria-hidden />

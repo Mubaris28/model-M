@@ -18,13 +18,13 @@ type CastingCard = {
 function toCastingCard(c: PublicCasting): CastingCard {
   const dateStr = c.date
     ? new Date(c.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-    : "—";
+    : "";
   return {
     id: c._id,
     title: c.title,
-    brand: c.brand || "—",
+    brand: c.brand || "",
     date: dateStr,
-    location: c.location || "—",
+    location: c.location || "",
     slots: c.slots ?? 0,
     categories: c.castingType ? [c.castingType] : [],
   };

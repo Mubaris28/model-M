@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signup = useCallback(
     async (email: string, password: string, fullName?: string, phone?: string) => {
       await authApi.signup({ email, password, fullName, phone });
-      // OTP sent — auth state is set after verifySignupOtp
+      // OTP sent - auth state is set after verifySignupOtp
     },
     []
   );

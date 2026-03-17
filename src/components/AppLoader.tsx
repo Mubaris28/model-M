@@ -83,7 +83,7 @@ export default function AppLoader() {
               Model Management
             </motion.p>
 
-            {/* Progress bar — subtle, no underline */}
+            {/* Progress bar: subtle, no underline */}
             <motion.div
               className="h-[2px] w-28 sm:w-32 bg-white/10 rounded-full overflow-hidden mt-2"
               initial={{ opacity: 0 }}

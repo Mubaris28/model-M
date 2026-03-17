@@ -50,7 +50,7 @@ const ModelProfile = () => {
       await contactApi.send({
         name: bookForm.name,
         email: bookForm.email,
-        message: `[BOOKING REQUEST]\nModel: ${model?.name}\nModel ID: ${id}\nUser ID: ${user?._id || "—"}\n\n${bookForm.message}`,
+        message: `[BOOKING REQUEST]\nModel: ${model?.name}\nModel ID: ${id}\nUser ID: ${user?._id || ""}\n\n${bookForm.message}`,
       });
       setBookStatus("success");
     } catch (err) {
@@ -71,8 +71,8 @@ const ModelProfile = () => {
           name: m.username || "Model",
           image: photo,
           category: m.categories?.[0] || "Model",
-          location: [m.city, m.country].filter(Boolean).join(", ") || "—",
-          height: m.height || "—",
+          location: [m.city, m.country].filter(Boolean).join(", ") || "",
+          height: m.height || "",
           age: age || 0,
           bio: m.bio || "",
           instagram: m.instagram || "",
@@ -168,7 +168,7 @@ const ModelProfile = () => {
                   { label: "Height", value: model.height },
                   { label: "Location", value: model.location },
                   { label: "Category", value: model.category },
-                ].filter((s) => s.value && s.value !== "—").map((stat) => (
+                ].filter((s) => s.value && s.value !== "").map((stat) => (
                   <div key={stat.label} className="bg-card magazine-border p-4 text-center">
                     <p className="text-muted-foreground text-[10px] font-body tracking-[0.2em] uppercase mb-1">{stat.label}</p>
                     <p className="font-display text-xl text-foreground">{stat.value}</p>
@@ -199,7 +199,7 @@ const ModelProfile = () => {
                 </div>
               )}
 
-              {/* Gallery — click to open fullscreen */}
+              {/* Gallery: click to open fullscreen */}
               <div className="mt-12">
                 <h3 className="font-display text-2xl text-foreground mb-4">Portfolio</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

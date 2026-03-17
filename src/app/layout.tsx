@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     default: "Model Management Mauritius | Models, Casting & Talent Agency",
     template: "%s | Model Management Mauritius",
   },
-  description: "Mauritius' leading modeling platform. Find models, post castings, and grow your career. Models, photographers, brands & agencies—Mauritius and Indian Ocean.",
+  description: "Mauritius' leading modeling platform. Find models, post castings, and grow your career. Models, photographers, brands and agencies, Mauritius and Indian Ocean.",
   keywords: [
     "model management Mauritius",
     "modeling agency Mauritius",

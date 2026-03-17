@@ -14,7 +14,7 @@ const benefits = [
   {
     icon: Target,
     title: "Targeted Reach",
-    text: "Connect directly with models, agencies, photographers, and industry professionals — your exact audience.",
+    text: "Connect directly with models, agencies, photographers, and industry professionals, your exact audience.",
   },
   {
     icon: TrendingUp,

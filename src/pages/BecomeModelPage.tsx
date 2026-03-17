@@ -254,7 +254,7 @@ const BecomeModelPage = () => {
 
           {step === 1 && (
             <div className="space-y-8">
-              <h3 className="font-display text-2xl mb-4">Step 1 — Personal & portfolio</h3>
+              <h3 className="font-display text-2xl mb-4">Step 1: Personal & portfolio</h3>
 
               <section className="space-y-4">
                 <h4 className="text-xs font-body text-muted-foreground tracking-[0.2em] uppercase border-b border-border pb-2">Personal details</h4>
@@ -395,7 +395,7 @@ const BecomeModelPage = () => {
                     <>
                       <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" aria-hidden />
                       <p className="text-muted-foreground text-xs font-body">
-                        {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6 — tap to add more` : "Tap to upload — JPG, PNG, WebP. Min 4, max 6."}
+                        {portfolioUrls.length > 0 ? `${portfolioUrls.length}/6: tap to add more` : "Tap to upload: JPG, PNG, WebP. Min 4, max 6."}
                       </p>
                     </>
                   )}
@@ -425,7 +425,7 @@ const BecomeModelPage = () => {
 
           {step === 2 && (
             <div className="space-y-6">
-              <h3 className="font-display text-2xl mb-4">Step 2 — Identity verification</h3>
+              <h3 className="font-display text-2xl mb-4">Step 2: Identity verification</h3>
               <p className="text-muted-foreground text-sm font-body">Your privacy & safety matter. Documents are used only for verification, stored securely, and not shared.</p>
               <div>
                 <label className="form-label">ID / Passport number</label>
@@ -448,7 +448,7 @@ const BecomeModelPage = () => {
                   ) : (
                     <>
                       <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-muted-foreground text-xs font-body">Tap to upload — JPEG, PNG, WebP</p>
+                      <p className="text-muted-foreground text-xs font-body">Tap to upload: JPEG, PNG, WebP</p>
                     </>
                   )}
                 </label>

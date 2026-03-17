@@ -60,7 +60,7 @@ const ContactPage = () => {
               <div>
                 <h2 className="font-display text-3xl text-foreground mb-2">We&apos;d love to hear from you</h2>
                 <p className="text-muted-foreground text-base font-body leading-relaxed">
-                  Send us a message and we&apos;ll respond as soon as possible — usually within 24 hours.
+                  Send us a message and we&apos;ll respond as soon as possible, usually within 24 hours.
                 </p>
               </div>
 

@@ -42,7 +42,7 @@ const AboutPage = () => {
             </h2>
             <p className="font-body text-background/70 text-base md:text-lg leading-relaxed max-w-2xl">
               Model Management Mauritius is an innovative online platform dedicated to revolutionising the way models
-              and talents connect with clients across the globe. We streamline the process of sourcing diverse talent
+              and talents connect with client across the Indian Ocean. We streamline the process of sourcing diverse talent
               for a wide range of projects from fashion editorials to commercial campaigns and everything in between.
             </p>
           </motion.div>

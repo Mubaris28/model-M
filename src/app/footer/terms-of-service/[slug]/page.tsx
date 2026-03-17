@@ -30,7 +30,7 @@ function SharedDefinitions() {
         ].map(([term, def]) => (
           <li key={term} className="text-sm">
             <span className="text-foreground font-medium">{term}</span>
-            <span className="text-muted-foreground"> — {def}</span>
+            <span className="text-muted-foreground">: {def}</span>
           </li>
         ))}
       </ul>

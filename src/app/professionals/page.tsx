@@ -10,7 +10,7 @@ const howItWorks = [
   {
     icon: Search,
     title: "Browse our directory or create a casting call",
-    text: "Submit your casting calls to access thousands of professional models — or search directly.",
+    text: "Submit your casting calls to access thousands of professional models, or search directly.",
     image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=80",
   },
   {
@@ -104,7 +104,7 @@ export default function ProfessionalsPage() {
         </div>
       </div>
 
-      {/* Why us — dark section with image */}
+      {/* Why us: dark section with image */}
       <div className="relative overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1400&q=80"
