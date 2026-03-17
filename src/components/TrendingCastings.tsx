@@ -58,7 +58,7 @@ const TrendingCastings = () => {
   };
 
   return (
-    <section className="py-24 bg-card">
+    <section className="py-14 md:py-16 bg-card">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-end justify-between mb-12">
           <div>

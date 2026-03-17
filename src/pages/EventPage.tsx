@@ -7,7 +7,7 @@ import BackButton from "@/components/BackButton";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
 import { contactApi, uploadPublicFile } from "@/lib/api";
-import { Calendar, MapPin, FileImage, IdCard, Smile, Upload } from "lucide-react";
+import { Calendar, MapPin, FileImage, IdCard, Smile, Upload, Smartphone } from "lucide-react";
 
 const EVENT_IMAGE = "/images/events/15250.jpg";
 
@@ -114,7 +114,7 @@ const EventPage = () => {
                   <div>
                     <p className="font-body text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-1">Date & time</p>
                     <p className="font-display text-lg text-foreground">18 April 2026</p>
-                    <p className="font-body text-muted-foreground">10:00 AM – 1:00 PM</p>
+                    <p className="font-body text-muted-foreground">10:00 AM – 2:00 PM</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -135,6 +135,7 @@ const EventPage = () => {
               <ul className="space-y-3">
                 {[
                   { icon: FileImage, title: "Your best photos", desc: "Professional or high-quality snapshots" },
+                  { icon: Smartphone, title: "Your digital photos", desc: "We want to see your digital portfolio—bring your device (phone or tablet) or a USB drive with your best digital photos so we can review your work on the spot." },
                   { icon: IdCard, title: "Valid ID", desc: "Passport or national ID" },
                   { icon: Smile, title: "Confidence", desc: "And a big smile!" },
                 ].map(({ icon: Icon, title, desc }) => (
@@ -157,9 +158,12 @@ const EventPage = () => {
                 Register your interest
               </h2>
               {submitted ? (
-                <p className="font-body text-foreground">
-                  Thank you. We&apos;ve received your details and will be in touch.
-                </p>
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-6">
+                  <p className="font-display text-xl text-foreground mb-2">Thank you for registering.</p>
+                  <p className="font-body text-muted-foreground leading-relaxed">
+                    We have received your details. We shall confirm your registration within 48 hours. You will receive an email or call from our team with next steps. We look forward to seeing you at the casting.
+                  </p>
+                </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {submitError && (

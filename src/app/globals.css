@@ -85,6 +85,15 @@
     letter-spacing: 0.05em;
   }
 
+  p {
+    font-size: 1.0625rem;   /* 17px — slightly larger than default 16px */
+    line-height: 1.6;
+  }
+
+  a {
+    font-size: 1.0625rem;
+  }
+
   /* Reduce section vertical padding on mobile across all pages */
   @media (max-width: 767px) {
     section {
@@ -283,6 +292,16 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Advertisement slider: continuous left-to-right marquee (content moves right-to-left) */
+  .ad-marquee {
+    animation: adMarquee 35s linear infinite;
+  }
+}
+
+@keyframes adMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 @layer utilities {

@@ -18,7 +18,7 @@ const MagazineGrid = () => {
   }, []);
 
   return (
-    <section id="categories" className="py-24 bg-background">
+    <section id="categories" className="py-14 md:py-16 bg-background">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-end justify-between mb-12">
           <div>

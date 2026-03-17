@@ -30,7 +30,7 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 const links = [
-  { href: INSTAGRAM_URL, label: "Instagram", icon: InstagramIcon, color: "bg-gradient-to-br from-[#f09433] via-[#dc2743] to-[#bc1888] border-transparent hover:opacity-90 text-white" },
+  { href: INSTAGRAM_URL, label: "Instagram", icon: InstagramIcon, color: "bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#F77737] border-transparent hover:opacity-90 text-white" },
   { href: FACEBOOK_URL, label: "Facebook", icon: FacebookIcon, color: "bg-[#1877F2] border-[#1877F2] hover:bg-[#166FE5] hover:border-[#166FE5] text-white" },
   { href: WHATSAPP_URL, label: "WhatsApp", icon: WhatsAppIcon, color: "bg-[#25D366] border-[#25D366] hover:bg-[#20BD5A] hover:border-[#20BD5A] text-white" },
 ];

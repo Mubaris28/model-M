@@ -83,7 +83,7 @@ const NewFaces = ({ homePreview }: NewFacesProps) => {
   const filtered = activeCountry === "All" ? faces : faces.filter((m) => m.country === activeCountry);
   const displayList = homePreview ? filtered.slice(0, 6) : filtered;
   return (
-    <section className="py-24 bg-card">
+    <section className="py-14 md:py-16 bg-card">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>

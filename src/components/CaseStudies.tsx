@@ -25,7 +25,7 @@ const caseStudies = [
 
 const CaseStudies = () => {
   return (
-    <section className="py-24 bg-background">
+    <section className="py-14 md:py-16 bg-background">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mb-12">
           <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-2">Stories</p>

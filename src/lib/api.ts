@@ -487,6 +487,7 @@ export interface PublicModel {
   instagram?: string;
   role?: string;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PublicMarketplaceItem {

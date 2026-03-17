@@ -43,7 +43,7 @@ const AboutPage = () => {
             <p className="font-body text-background/70 text-base md:text-lg leading-relaxed max-w-2xl">
               Model Management Mauritius is an innovative online platform dedicated to revolutionising the way models
               and talents connect with clients across the globe. We streamline the process of sourcing diverse talent
-              for a wide range of projects — from fashion editorials to commercial campaigns and everything in between.
+              for a wide range of projects from fashion editorials to commercial campaigns and everything in between.
             </p>
           </motion.div>
         </div>
@@ -126,8 +126,8 @@ const AboutPage = () => {
             <p className="text-primary font-body text-[10px] tracking-[0.4em] uppercase mb-2">Founded By</p>
             <h3 className="font-display text-3xl text-background mb-2">Basant Lallah</h3>
             <p className="text-background/60 font-body text-sm leading-relaxed">
-              Managing Director of Flash Communications Ltd., Basant founded Model Management Mauritius to
-              bring the global modeling industry closer to home — creating a platform where local talent
+              Managing Director of Flash Communications Ltd. He founded Model Management Mauritius to
+              bring the global modeling industry closer to home creating a platform where local talent
               meets international opportunity.
             </p>
           </div>

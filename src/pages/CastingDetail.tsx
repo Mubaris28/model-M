@@ -147,33 +147,28 @@ const CastingDetailPage = () => {
 
       {/* Compact details */}
       <div className="pt-6 pb-16">
-        <div className="container mx-auto px-4 md:px-6 max-w-3xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-6xl">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
 
             {casting.images.length > 0 && (
-              <div className="mb-6 space-y-4">
-                {/* First image — original size, natural aspect ratio */}
-                <div className="overflow-hidden rounded-sm border border-border bg-muted">
-                  <img
-                    src={imgSrc(casting.images[0])}
-                    alt={casting.title}
-                    className="w-full h-auto max-w-full object-contain"
-                  />
-                </div>
-                {/* Remaining images — original size, natural aspect ratio */}
-                {casting.images.length > 1 && (
-                  <div className={`grid gap-4 ${casting.images.length === 2 ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3"}`}>
-                    {casting.images.slice(1).map((src, i) => (
-                      <div key={i} className="overflow-hidden rounded-sm border border-border bg-muted">
+              <div className="mb-6">
+                {/* Single row, large images. Desktop: one row; mobile: horizontal slider */}
+                <div className="casting-detail-images flex gap-4 overflow-x-auto overflow-y-hidden pb-2 snap-x snap-mandatory scroll-smooth md:flex-nowrap md:overflow-visible md:pb-0">
+                  {casting.images.map((src, i) => (
+                    <div
+                      key={i}
+                      className="flex-shrink-0 w-[90vw] max-w-[400px] sm:w-[85vw] md:w-full md:max-w-none md:min-w-0 md:flex-1 snap-center"
+                    >
+                      <div className="overflow-hidden rounded-sm border border-border bg-muted">
                         <img
                           src={imgSrc(src)}
-                          alt={`${casting.title} photo ${i + 2}`}
-                          className="w-full h-auto max-w-full object-contain"
+                          alt={i === 0 ? casting.title : `${casting.title} photo ${i + 1}`}
+                          className="w-full h-auto object-contain"
                         />
                       </div>
-                    ))}
-                  </div>
-                )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -216,7 +211,7 @@ const CastingDetailPage = () => {
             <div className="mb-6">
               <p className="text-[10px] text-muted-foreground font-body tracking-[0.3em] uppercase mb-2">Requirements</p>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                {["18+ years old", "Professional portfolio", "Available for full shoot", "Valid ID required"].map((req) => (
+                {["18+ years old", "Professional portfolio", "Available for full day", "Valid ID required"].map((req) => (
                   <li key={req} className="flex items-center gap-2 text-foreground text-sm font-body">
                     <div className="w-1 h-1 bg-primary flex-shrink-0" />
                     {req}
