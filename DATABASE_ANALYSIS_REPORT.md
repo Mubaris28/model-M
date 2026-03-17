@@ -11,7 +11,7 @@ Source data: db-analysis-report.json
 4. Total model profile documents (models collection): 119
 5. Key consistency gap: 92 users with role=model do not have a corresponding models document
 
-## Total Counts Requested
+## Total Counts Requeste
 
 1. Users (all roles): 239
 2. Models:
