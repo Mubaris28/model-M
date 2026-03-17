@@ -8,18 +8,18 @@ const EVENT_VENUE = "Labourdonnais Waterfront Hotel";
 
 export default function CastingEventSection() {
   return (
-    <section id="casting-event" className="relative py-8 md:py-12 overflow-hidden scroll-mt-20 bg-background">
+    <section id="casting-event" className="relative py-8 md:py-12 overflow-hidden scroll-mt-20 bg-primary">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="relative bg-white border border-border border-t-4 border-t-primary p-6 md:p-10 lg:p-12 shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
+        <div className="relative bg-white border border-border shadow-lg p-6 md:p-10 lg:p-12">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
             <div className="space-y-4">
               <p className="font-body text-xs tracking-[0.4em] uppercase text-primary">
                 Upcoming Event
               </p>
-              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-[0.95] uppercase text-foreground">
+              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-[0.95] uppercase text-primary">
                 Casting Event
               </h2>
-              <p className="font-body text-foreground/80 text-sm md:text-base max-w-xl leading-relaxed">
+              <p className="font-body text-primary/90 text-sm md:text-base max-w-xl leading-relaxed">
                 Meet industry professionals, get discovered, and take the next step in your modeling career. Open call for models and talent.
               </p>
               <div className="flex flex-wrap gap-6 pt-2">
@@ -28,7 +28,7 @@ export default function CastingEventSection() {
                     <Calendar className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-body tracking-[0.2em] uppercase text-primary/70">Date</p>
+                    <p className="text-[10px] font-body tracking-[0.2em] uppercase text-primary/80">Date</p>
                     <p className="font-display text-lg text-primary">{EVENT_DATE}</p>
                   </div>
                 </div>
@@ -37,7 +37,7 @@ export default function CastingEventSection() {
                     <MapPin className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-body tracking-[0.2em] uppercase text-primary/70">Venue</p>
+                    <p className="text-[10px] font-body tracking-[0.2em] uppercase text-primary/80">Venue</p>
                     <p className="font-display text-lg text-primary">{EVENT_VENUE}</p>
                   </div>
                 </div>

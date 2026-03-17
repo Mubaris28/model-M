@@ -76,18 +76,18 @@ export default function LatestModelsSlider() {
   const duplicated = cards.length > 0 ? [...cards, ...cards] : [];
 
   return (
-    <section className="bg-foreground text-background py-6 md:py-8 overflow-hidden" aria-label="Latest models">
+    <section className="bg-primary text-white py-6 md:py-8 overflow-hidden" aria-label="Latest models">
       <div className="container mx-auto px-4 md:px-6 text-center mb-5 md:mb-6">
-        <p className="text-primary font-body text-xs tracking-[0.5em] uppercase mb-1">Discover</p>
-        <h2 className="font-display text-3xl md:text-4xl text-primary-foreground uppercase">Latest Models</h2>
-        <span className="block w-12 h-0.5 bg-primary mx-auto mt-2" aria-hidden="true" />
+        <p className="text-white/90 font-body text-xs tracking-[0.5em] uppercase mb-1">Discover</p>
+        <h2 className="font-display text-3xl md:text-4xl text-white uppercase">Latest Models</h2>
+        <span className="block w-12 h-0.5 bg-white/60 mx-auto mt-2" aria-hidden="true" />
       </div>
       <div className="relative w-full -mx-4 md:-mx-6">
         {loading && (
           <div className="flex gap-3 md:gap-4 pl-4 md:pl-6 overflow-hidden">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="flex-shrink-0 w-[250px] sm:w-[300px]">
-                <div className="aspect-[3/4] rounded-lg bg-white/5 animate-pulse" />
+                <div className="aspect-[3/4] rounded-lg bg-white/15 animate-pulse" />
               </div>
             ))}
           </div>
@@ -100,7 +100,7 @@ export default function LatestModelsSlider() {
               to={`/model/${model.id}`}
               className="group flex-shrink-0 w-[250px] sm:w-[300px] md:w-[300px] block"
             >
-              <div className="relative aspect-[3/4] overflow-hidden rounded-lg border border-white/10 bg-background/10">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-lg border border-white/25 bg-white/10">
                 <img
                   src={imgSrc(model.image)}
                   alt=""

@@ -36,11 +36,16 @@ export default function NewFeaturePopup() {
         .then(([models, castings]) => {
           const model = pickRandom(models || []);
           const casting = pickRandom(castings || []);
-          if (model) {
-            setLatestModel(model);
+          setLatestModel(model ?? null);
+          setLatestCasting(casting ?? null);
+          // Randomly show model or casting first when both exist; otherwise show whichever is available
+          if (model && casting) {
+            setPhase(Math.random() < 0.5 ? "model" : "casting");
+          } else if (model) {
             setPhase("model");
+          } else if (casting) {
+            setPhase("casting");
           }
-          if (casting) setLatestCasting(casting);
         })
         .catch(() => {});
     }, POPUP_DELAY_MS);
@@ -66,10 +71,14 @@ export default function NewFeaturePopup() {
 
   const dismissCasting = () => {
     setPhase(null);
-    try {
-      sessionStorage.setItem(POPUP_DISMISSED_KEY, "1");
-    } catch {
-      // ignore
+    if (latestModel) {
+      castingTimerRef.current = setTimeout(() => setPhase("model"), CASTING_POPUP_DELAY_MS);
+    } else {
+      try {
+        sessionStorage.setItem(POPUP_DISMISSED_KEY, "1");
+      } catch {
+        // ignore
+      }
     }
   };
 

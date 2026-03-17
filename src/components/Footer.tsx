@@ -10,7 +10,7 @@ const socialLinks = [
 const Footer = () => {
   const year = new Date().getFullYear();
   return (
-    <footer className="dark-section border-t border-white/10 pt-16 pb-8">
+    <footer className="bg-black border-t border-white/10 pt-16 pb-8">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
           <div className="lg:col-span-2">

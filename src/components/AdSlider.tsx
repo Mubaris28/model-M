@@ -52,13 +52,13 @@ export default function AdSlider({ ads = DEFAULT_ADS, autoAdvanceMs = 12000 }: A
             style={{ transform: `translateX(-${index * 100}%)` }}
           >
             {ads.map((ad, i) => (
-              <div key={i} className="w-full flex-shrink-0">
+              <div key={i} className="w-full flex-shrink-0 min-w-0">
                 {ad.href ? (
                   <a
                     href={ad.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    className="block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   >
                     <img
                       src={ad.imageMobile ?? ad.imageDesktop}
@@ -72,7 +72,7 @@ export default function AdSlider({ ads = DEFAULT_ADS, autoAdvanceMs = 12000 }: A
                     />
                   </a>
                 ) : (
-                  <div className="block">
+                  <div className="block w-full">
                     <img
                       src={ad.imageMobile ?? ad.imageDesktop}
                       alt={ad.alt}
@@ -91,7 +91,7 @@ export default function AdSlider({ ads = DEFAULT_ADS, autoAdvanceMs = 12000 }: A
         </div>
 
         {total > 1 && (
-          <div className="container mx-auto px-4 md:px-6 mt-4 pb-6 md:pb-8 flex items-center justify-end gap-2">
+          <div className="container mx-auto px-4 md:px-6 mt-2 pb-4 md:pb-5 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => go(-1)}
