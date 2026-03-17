@@ -6,12 +6,8 @@ import Footer from "@/components/Footer";
 import BackButton from "@/components/BackButton";
 import { Link } from "@/lib/router-next";
 import { imgSrc } from "@/lib/utils";
-<<<<<<< HEAD
-import { Calendar, MapPin, FileImage, IdCard, Smile, Upload, Smartphone } from "lucide-react";
-=======
 import { contactApi, uploadPublicFile } from "@/lib/api";
-import { Calendar, MapPin, FileImage, IdCard, Smile, Upload } from "lucide-react";
->>>>>>> 6dea8f78c600e22865d9a9f24d9ec01b32616771
+import { Calendar, MapPin, FileImage, IdCard, Smile, Upload, Smartphone } from "lucide-react";
 
 const EVENT_IMAGE = "/images/events/15250.jpg";
 
