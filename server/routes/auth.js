@@ -107,7 +107,6 @@ router.post("/signup/verify", async (req, res, next) => {
 
     const token = signToken(user);
     const u = await User.findById(user._id).select("-password");
-    sendNewUserNotification({ fullName: u.fullName, email: u.email, role: u.role }).catch(() => {});
     res.status(201).json({ user: u, token });
   } catch (e) {
     e.statusCode = e.statusCode || 500;
@@ -301,7 +300,14 @@ router.patch("/me", auth, async (req, res, next) => {
       if (!Array.isArray(updates.categories)) return res.status(400).json({ error: "Categories must be an array" });
       updates.categories = updates.categories.filter((c) => typeof c === "string").slice(0, 20);
     }
+    const wasProfileComplete = req.user.profileComplete;
     const user = await User.findByIdAndUpdate(req.user._id, { $set: updates }, { new: true }).select("-password");
+
+    // Send admin notification only once — when user finalises their profile for the first time
+    if (!wasProfileComplete && user.profileComplete && !user.isAdmin) {
+      sendNewUserNotification({ fullName: user.fullName, email: user.email, role: user.role }).catch(() => {});
+    }
+
     res.json({ user });
   } catch (e) {
     e.statusCode = e.statusCode || 500;
