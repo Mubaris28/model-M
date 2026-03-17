@@ -10,7 +10,6 @@ import { imgSrc } from "@/lib/utils";
 
 const POPUP_DISMISSED_KEY = "featured-popup-dismissed";
 const POPUP_DELAY_MS = 2000;
-const CASTING_POPUP_DELAY_MS = 4000;
 
 function pickRandom<T>(arr: T[]): T | undefined {
   if (!arr?.length) return undefined;
@@ -24,21 +23,20 @@ export default function NewFeaturePopup() {
   const [phase, setPhase] = useState<PopupPhase>(null);
   const [latestModel, setLatestModel] = useState<PublicModel | null>(null);
   const [latestCasting, setLatestCasting] = useState<PublicCasting | null>(null);
-  const castingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (sessionStorage.getItem(POPUP_DISMISSED_KEY)) return;
     if (pathname !== "/") return;
 
-    const modelTimer = setTimeout(() => {
+    const timer = setTimeout(() => {
       Promise.all([publicApi.models(), publicApi.castings()])
         .then(([models, castings]) => {
           const model = pickRandom(models || []);
           const casting = pickRandom(castings || []);
           setLatestModel(model ?? null);
           setLatestCasting(casting ?? null);
-          // Randomly show model or casting first when both exist; otherwise show whichever is available
+          // Show one popup only: randomly model or casting when both exist
           if (model && casting) {
             setPhase(Math.random() < 0.5 ? "model" : "casting");
           } else if (model) {
@@ -46,46 +44,28 @@ export default function NewFeaturePopup() {
           } else if (casting) {
             setPhase("casting");
           }
+          try {
+            sessionStorage.setItem(POPUP_DISMISSED_KEY, "1");
+          } catch {
+            // ignore
+          }
         })
         .catch(() => {});
     }, POPUP_DELAY_MS);
 
-    return () => {
-      clearTimeout(modelTimer);
-      if (castingTimerRef.current) clearTimeout(castingTimerRef.current);
-    };
+    return () => clearTimeout(timer);
   }, [pathname]);
 
-  const dismissModel = () => {
+  const dismissPopup = () => {
     setPhase(null);
-    if (latestCasting) {
-      castingTimerRef.current = setTimeout(() => setPhase("casting"), CASTING_POPUP_DELAY_MS);
-    } else {
-      try {
-        sessionStorage.setItem(POPUP_DISMISSED_KEY, "1");
-      } catch {
-        // ignore
-      }
+    try {
+      sessionStorage.setItem(POPUP_DISMISSED_KEY, "1");
+    } catch {
+      // ignore
     }
   };
 
-  const dismissCasting = () => {
-    setPhase(null);
-    if (latestModel) {
-      castingTimerRef.current = setTimeout(() => setPhase("model"), CASTING_POPUP_DELAY_MS);
-    } else {
-      try {
-        sessionStorage.setItem(POPUP_DISMISSED_KEY, "1");
-      } catch {
-        // ignore
-      }
-    }
-  };
-
-  const dismissBackdrop = () => {
-    if (phase === "model") dismissModel();
-    else if (phase === "casting") dismissCasting();
-  };
+  const dismissBackdrop = () => dismissPopup();
 
   const visible = phase !== null;
   const isModel = phase === "model" && latestModel;
@@ -121,7 +101,7 @@ export default function NewFeaturePopup() {
             >
               <button
                 type="button"
-                onClick={isModel ? dismissModel : dismissCasting}
+                onClick={dismissPopup}
                 className="absolute right-2 top-2 z-10 rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 aria-label="Close"
               >
@@ -162,14 +142,14 @@ export default function NewFeaturePopup() {
                     <div className="flex gap-2">
                       <Link
                         to={`/model/${latestModel._id}`}
-                        onClick={dismissModel}
+                        onClick={dismissPopup}
                         className="flex-1 rounded-lg bg-primary px-4 py-2.5 text-center text-sm font-medium text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring"
                       >
                         View profile
                       </Link>
                       <button
                         type="button"
-                        onClick={dismissModel}
+                        onClick={dismissPopup}
                         className="rounded-lg border border-border px-4 py-2.5 text-sm font-body text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring"
                       >
                         Dismiss
@@ -224,14 +204,14 @@ export default function NewFeaturePopup() {
                     <div className="flex gap-2">
                       <Link
                         to={`/casting/${latestCasting._id}`}
-                        onClick={dismissCasting}
+                        onClick={dismissPopup}
                         className="flex-1 rounded-lg bg-primary px-4 py-2.5 text-center text-sm font-medium text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring"
                       >
                         View casting
                       </Link>
                       <button
                         type="button"
-                        onClick={dismissCasting}
+                        onClick={dismissPopup}
                         className="rounded-lg border border-border px-4 py-2.5 text-sm font-body text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring"
                       >
                         Dismiss
